@@ -1,12 +1,12 @@
 import React from 'react';
 import { HeroSection } from './sections/HeroSection';
-import { PartnersSection } from './sections/Partners/PartnersSection';
+import { PartnersSection } from './sections/partners/PartnersSection';
 import { GallerySection } from './sections/GallerySection';
 import { ServicesSection } from './sections/services/ServicesSection';
 import { CtaBannerSection } from './sections/CtaBannerSection';
 import { AboutSection } from './sections/AboutSection';
 import { GetInspiredSection } from './sections/GetInspiredSection';
-import { VideoTourSection } from './sections/Video/VideoTourSection';
+import { VideoTourSection } from './sections/video/VideoTourSection';
 import { ContactSection } from './sections/ContactSection';
 
 export function Home({ onNavigate, onNotify, onOpenBooking }) {

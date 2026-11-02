@@ -19,7 +19,7 @@ import { useAdminAuth } from '../../hooks/useAdminAuth';
  * Unified Admin Authentication Modal
  * Pure UI layer. Verification, validation, and auth handling are delegated to `useAdminAuth`.
  */
-export function AdminLoginModal({
+export function LoginModal({
   isOpen,
   onClose,
   onSuccess,
@@ -311,4 +311,5 @@ export function AdminLoginModal({
   );
 }
 
-export default AdminLoginModal;
+export { LoginModal as AdminLoginModal };
+export default LoginModal;

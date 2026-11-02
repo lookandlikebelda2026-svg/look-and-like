@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getLocalAdminSession, subscribeToAuth } from '../services/authService';
-import { AdminLoginModal } from '../components/admin/AdminLoginModal';
+import { LoginModal } from '../components/common/LoginModal';
 
 /**
  * Route wrapper that protects /admin using the luxury login modal popup.
@@ -32,7 +32,7 @@ export function ProtectedRoute({ children, onNotify }) {
   if (!adminUser) {
     return (
       <div className="min-h-screen bg-[#FAF8F5]">
-        <AdminLoginModal
+        <LoginModal
           isOpen={isModalOpen}
           initialMode={initialMode}
           onClose={() => {

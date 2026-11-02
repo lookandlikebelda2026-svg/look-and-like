@@ -6,7 +6,7 @@ export const NAV_LINKS = [
   { label: "Lookbook", href: "#inspiration", page: "inspiration" },
   // { label: "Categories", href: "#curated-services", page: "home" },
   { label: "Branches", href: "#branches", page: "home" },
-  { label: "About Us", href: "#about-us", page: "home" },
+  
   { label: "Experience", href: "#video-tour", page: "home" },
   { label: "Contact", href: "#contact", page: "home" },
 ];

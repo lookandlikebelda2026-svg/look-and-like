@@ -1,8 +1,12 @@
 import React from 'react';
-import { X, Phone, Calendar, Sliders } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { X, Phone, Calendar } from 'lucide-react';
 import { NAV_LINKS, CONTACT_INFO } from '../../constants/navigation';
 
-export function MobileMenu({ isOpen, onClose, currentPage = 'home', onNavigate, onOpenBooking, onOpenManagement }) {
+export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   if (!isOpen) return null;
 
   const handleLinkClick = (e, link) => {
@@ -10,18 +14,20 @@ export function MobileMenu({ isOpen, onClose, currentPage = 'home', onNavigate, 
     onClose();
 
     if (link.page === 'services') {
-      if (onNavigate) onNavigate('services');
+      navigate('/services');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (link.page === 'inspiration') {
-      if (onNavigate) onNavigate('inspiration');
+      navigate('/inspiration');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      if (currentPage !== 'home' && onNavigate) {
-        onNavigate('home');
+      if (location.pathname !== '/') {
+        navigate('/');
       }
       if (link.href && link.href.startsWith('#') && link.href.length > 1) {
         setTimeout(() => {
           const el = document.querySelector(link.href);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        }, 120);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -57,9 +63,9 @@ export function MobileMenu({ isOpen, onClose, currentPage = 'home', onNavigate, 
 
           <nav className="flex flex-col gap-1 mt-4 sm:mt-6">
             {NAV_LINKS.map((link) => {
-              const isServicesActive = currentPage === 'services' && link.page === 'services';
-              const isInspirationActive = currentPage === 'inspiration' && link.page === 'inspiration';
-              const isHomeActive = currentPage === 'home' && link.label === 'Home';
+              const isServicesActive = location.pathname === '/services' && link.page === 'services';
+              const isInspirationActive = (location.pathname === '/inspiration' || location.pathname === '/lookbook') && link.page === 'inspiration';
+              const isHomeActive = location.pathname === '/' && link.label === 'Home';
               const isActive = isServicesActive || isInspirationActive || isHomeActive;
 
               return (
@@ -84,20 +90,6 @@ export function MobileMenu({ isOpen, onClose, currentPage = 'home', onNavigate, 
         </div>
 
         <div className="flex flex-col gap-2.5 pt-5 pb-2 border-t border-border-warm mt-5">
-          {onOpenManagement && (
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onOpenManagement();
-              }}
-              className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[#D6204E] hover:bg-[#FCE8EE] font-label-md text-xs uppercase tracking-wider transition-colors shadow-2xs cursor-pointer active:scale-95"
-            >
-              <Sliders size={14} />
-              <span>Manage Gallery &amp; Partners</span>
-            </button>
-          )}
-
           <a
             href={`tel:${CONTACT_INFO.consultationPhone}`}
             className="flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-white border border-border-warm hover:bg-neutral-100 text-deep-espresso font-label-md text-xs uppercase tracking-wider transition-colors shadow-xs"

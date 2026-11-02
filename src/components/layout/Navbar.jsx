@@ -1,26 +1,31 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { LOGO_URL, NAV_LINKS } from '../../constants/navigation';
 import { MobileMenu } from './MobileMenu';
 
-export function Navbar({ currentPage = 'home', onNavigate, onOpenBooking, onOpenManagement }) {
+export function Navbar({ onOpenBooking }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLinkClick = (e, link) => {
     e.preventDefault();
     if (link.page === 'services') {
-      if (onNavigate) onNavigate('services');
+      navigate('/services');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (link.page === 'inspiration') {
-      if (onNavigate) onNavigate('inspiration');
+      navigate('/inspiration');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      if (currentPage !== 'home' && onNavigate) {
-        onNavigate('home');
+      if (location.pathname !== '/') {
+        navigate('/');
       }
       if (link.href && link.href.startsWith('#') && link.href.length > 1) {
         setTimeout(() => {
           const el = document.querySelector(link.href);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        }, 120);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -29,7 +34,7 @@ export function Navbar({ currentPage = 'home', onNavigate, onOpenBooking, onOpen
 
   const handleLogoClick = (e) => {
     e.preventDefault();
-    if (onNavigate) onNavigate('home');
+    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -68,9 +73,9 @@ export function Navbar({ currentPage = 'home', onNavigate, onOpenBooking, onOpen
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
             {NAV_LINKS.map((link) => {
-              const isServicesActive = currentPage === 'services' && link.page === 'services';
-              const isInspirationActive = currentPage === 'inspiration' && link.page === 'inspiration';
-              const isHomeActive = currentPage === 'home' && link.label === 'Home';
+              const isServicesActive = location.pathname === '/services' && link.page === 'services';
+              const isInspirationActive = (location.pathname === '/inspiration' || location.pathname === '/lookbook') && link.page === 'inspiration';
+              const isHomeActive = location.pathname === '/' && link.label === 'Home';
               const isActive = isServicesActive || isInspirationActive || isHomeActive;
 
               return (
@@ -122,10 +127,7 @@ export function Navbar({ currentPage = 'home', onNavigate, onOpenBooking, onOpen
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        currentPage={currentPage}
-        onNavigate={onNavigate}
         onOpenBooking={onOpenBooking}
-        onOpenManagement={onOpenManagement}
       />
     </>
   );

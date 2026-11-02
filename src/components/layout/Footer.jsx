@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LOGO_URL } from '../../constants/navigation';
 import { InstagramIcon, FacebookIcon, WhatsAppIcon } from '../icons';
 
@@ -26,7 +27,8 @@ const OPENING_HOURS = [
   'Monday: Closed',
 ];
 
-export function Footer({ onNavigate, onOpenManagement }) {
+export function Footer() {
+  const navigate = useNavigate();
   return (
     <footer className="w-full bg-[#FFF8FA] text-[#5C4D52] border-t border-[#F0CDD7]/90">
       {/* Single Full-Width Footer Section */}
@@ -38,7 +40,7 @@ export function Footer({ onNavigate, onOpenManagement }) {
               href="/"
               onClick={(e) => {
                 e.preventDefault();
-                onNavigate?.('home');
+                navigate('/');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               aria-label="Look & Like home"

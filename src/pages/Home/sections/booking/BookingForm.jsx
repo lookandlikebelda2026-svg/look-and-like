@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BRANCHES } from '../../../../constants/branches';
 import { BOOKING_SERVICES_LIST } from '../../../../constants/services';
+import { saveBookingToFirebase } from '../../../../services/bookingFirebaseService';
 
 export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const [branch, setBranch] = useState('city-centre');
@@ -40,15 +41,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     }
   }, [preselectedCategory]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      if (onNotify) onNotify('Please fill in your name and WhatsApp number.', 'error');
-      return;
-    }
-
-    setIsConfirmed(true);
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedBranchData = BRANCHES.find((b) => b.id === branch) || BRANCHES[0];
   const selectedServiceData = BOOKING_SERVICES_LIST.find((s) => s.value === service) || BOOKING_SERVICES_LIST[0];
@@ -65,6 +58,36 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     morning: 'Morning (10:00 AM – 1:00 PM)',
     afternoon: 'Afternoon (1:00 PM – 5:00 PM)',
     evening: 'Evening (5:00 PM – 8:00 PM)'
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name.trim() || !phone.trim()) {
+      if (onNotify) onNotify('Please fill in your name and WhatsApp number.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await saveBookingToFirebase({
+        name: name.trim(),
+        phone: phone.trim(),
+        branch: selectedBranchData.name,
+        branchId: branch,
+        category,
+        service: selectedServiceData.label,
+        serviceId: service,
+        artist: artistMap[artist] || artist,
+        artistId: artist,
+        date,
+        timeSlot: timeMap[timeSlot] || timeSlot,
+      });
+    } catch (err) {
+      console.warn('Firebase booking sync notice:', err);
+    } finally {
+      setIsSubmitting(false);
+      setIsConfirmed(true);
+    }
   };
 
   const whatsappMessage = encodeURIComponent(

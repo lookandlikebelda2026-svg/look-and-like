@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { saveInquiryToFirebase } from '../../../services/inquiryFirebaseService';
 
 export function InquiryForm({ onNotify }) {
   const [formData, setFormData] = useState({
@@ -7,17 +8,26 @@ export function InquiryForm({ onNotify }) {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.contact || !formData.message) {
       if (onNotify) onNotify('Please fill in all fields before sending.', 'error');
       return;
     }
 
-    setSubmitted(true);
-    if (onNotify) {
-      onNotify('Your message has been received. Our concierge will reply shortly.', 'success');
+    setIsSubmitting(true);
+    try {
+      await saveInquiryToFirebase(formData);
+    } catch (err) {
+      console.warn('Firebase inquiry sync notice:', err);
+    } finally {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      if (onNotify) {
+        onNotify('Your message has been received. Our concierge will reply shortly.', 'success');
+      }
     }
   };
 

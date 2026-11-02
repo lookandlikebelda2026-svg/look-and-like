@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { LotusIcon } from '../icons';
 import { useContentStorage } from '../../services/contentStorage';
+import { ImageKitUploader } from '../common/ImageKitUploader';
 
 export function ManagementPanelModal({ isOpen, onClose, onNotify }) {
   const { 
@@ -338,42 +339,40 @@ export function ManagementPanelModal({ isOpen, onClose, onNotify }) {
 
                     {/* Inputs Column */}
                     <div className="md:col-span-2 space-y-3">
-                      <div>
-                        <label className="block text-xs font-bold text-deep-espresso mb-1">
-                          Image URL <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="url"
-                          required
-                          value={inspiredForm.imageUrl}
-                          onChange={(e) => setInspiredForm({ ...inspiredForm, imageUrl: e.target.value })}
-                          placeholder="https://images.unsplash.com/..."
-                          className="w-full px-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-                        />
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="text-[10px] text-stone-500">Preset Samples:</span>
-                          <button
-                            type="button"
-                            onClick={() => setInspiredForm({
-                              imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
-                              alt: 'Editorial Glow Treatment'
-                            })}
-                            className="text-[10px] text-[#D6204E] hover:underline cursor-pointer"
-                          >
-                            Bridal Glow
-                          </button>
-                          <span>·</span>
-                          <button
-                            type="button"
-                            onClick={() => setInspiredForm({
-                              imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
-                              alt: 'Haute Salon Styling'
-                            })}
-                            className="text-[10px] text-[#D6204E] hover:underline cursor-pointer"
-                          >
-                            Hair Studio
-                          </button>
-                        </div>
+                      <ImageKitUploader
+                        value={inspiredForm.imageUrl}
+                        onChange={(url) => setInspiredForm({ ...inspiredForm, imageUrl: url })}
+                        folder="/lookbook"
+                        tags={['lookbook', 'editorial']}
+                        label="Lookbook Photo"
+                        helpText="Upload PNG, JPG or WEBP directly to ImageKit CDN"
+                      />
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-stone-500">Preset Samples:</span>
+                        <button
+                          type="button"
+                          onClick={() => setInspiredForm({
+                            ...inspiredForm,
+                            imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
+                            alt: 'Editorial Glow Treatment'
+                          })}
+                          className="text-[10px] text-[#D6204E] hover:underline cursor-pointer"
+                        >
+                          Bridal Glow
+                        </button>
+                        <span>·</span>
+                        <button
+                          type="button"
+                          onClick={() => setInspiredForm({
+                            ...inspiredForm,
+                            imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
+                            alt: 'Haute Salon Styling'
+                          })}
+                          className="text-[10px] text-[#D6204E] hover:underline cursor-pointer"
+                        >
+                          Hair Studio
+                        </button>
                       </div>
 
                       <div>
@@ -612,19 +611,14 @@ export function ManagementPanelModal({ isOpen, onClose, onNotify }) {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-deep-espresso mb-1">
-                          Logo URL (SVG / PNG) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="url"
-                          required
-                          value={partnerForm.logoUrl}
-                          onChange={(e) => setPartnerForm({ ...partnerForm, logoUrl: e.target.value })}
-                          placeholder="https://cdn.worldvectorlogo.com/..."
-                          className="w-full px-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-                        />
-                      </div>
+                      <ImageKitUploader
+                        value={partnerForm.logoUrl}
+                        onChange={(url) => setPartnerForm({ ...partnerForm, logoUrl: url })}
+                        folder="/partners"
+                        tags={['partners', 'logo']}
+                        label="Brand Logo Photo"
+                        helpText="Upload brand logo (SVG, PNG or WEBP with transparency)"
+                      />
 
                       <div>
                         <label className="block text-xs font-bold text-deep-espresso mb-1">

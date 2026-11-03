@@ -30,43 +30,55 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-3xl'
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-4 md:p-6 [scrollbar-width:thin]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-headline"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity duration-300"
+        className="fixed inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal Card */}
-      <div
-        className={cn(
-          "relative w-full bg-white text-on-surface rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] p-4 sm:p-6 md:p-8 z-10 border border-border-warm overflow-hidden max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200",
-          maxWidth,
-          className
-        )}
-      >
-        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border-warm/60 mb-4 sm:mb-6">
+      {/* Centering Wrapper that gracefully prevents top-clipping on short screens */}
+      <div className="flex min-h-full items-center justify-center">
+        {/* Modal Card */}
+        <div
+          className={cn(
+            "relative w-full my-auto bg-white text-on-surface rounded-2xl sm:rounded-3xl shadow-[0_24px_64px_-12px_rgba(42,31,27,0.22)] p-4 sm:p-6 md:p-7 z-10 border border-[#F0CDD7] animate-in fade-in zoom-in-95 duration-200",
+            maxWidth,
+            className
+          )}
+        >
           {title ? (
-            <h3 id="modal-headline" className="font-headline-sm text-lg sm:text-headline-sm text-deep-espresso">
-              {title}
-            </h3>
-          ) : <div />}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close dialog"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-border-warm hover:bg-neutral-100 text-deep-espresso flex items-center justify-center transition-colors shadow-xs cursor-pointer shrink-0"
-          >
-            <X size={18} />
-          </button>
-        </div>
+            <div className="flex items-center justify-between pb-2.5 sm:pb-3.5 border-b border-border-warm/60 mb-3 sm:mb-5">
+              <h3 id="modal-headline" className="font-headline-sm text-base sm:text-headline-sm text-deep-espresso">
+                {title}
+              </h3>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close dialog"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-border-warm hover:bg-[#FFF3F6] hover:text-[#D6204E] text-deep-espresso flex items-center justify-center transition-colors shadow-xs cursor-pointer shrink-0"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close dialog"
+              className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FAF8F5] border border-border-warm hover:bg-[#FFF3F6] hover:text-[#D6204E] text-deep-espresso flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          )}
 
-        <div>{children}</div>
+          <div>{children}</div>
+        </div>
       </div>
     </div>
   );

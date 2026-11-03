@@ -13,21 +13,39 @@ export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
     e.preventDefault();
     onClose();
 
-    if (link.page === 'services') {
-      navigate('/services');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (link.page === 'inspiration') {
-      navigate('/inspiration');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      if (location.pathname !== '/') {
-        navigate('/');
+    if (location.pathname === '/') {
+      if (link.href && link.href.startsWith('#') && link.href.length > 1) {
+        const el = document.querySelector(link.href);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (link.page === 'services') {
+      if (location.pathname === '/services') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/services');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else if (link.page === 'inspiration') {
+      if (location.pathname === '/inspiration') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/inspiration');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      navigate('/');
       if (link.href && link.href.startsWith('#') && link.href.length > 1) {
         setTimeout(() => {
           const el = document.querySelector(link.href);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 120);
+        }, 150);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }

@@ -92,12 +92,12 @@ export function LookbookSection({
   return (
     <div>
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
         <div>
-          <h4 className="font-serif text-base font-bold text-deep-espresso">
+          <h4 className="font-serif text-lg font-bold text-deep-espresso">
             Lookbook Editorial Images
           </h4>
-          <p className="text-xs text-[#7A6B70]">
+          <p className="text-xs text-[#7A6B70] mt-0.5">
             These images automatically adapt into the responsive 4-column masonry and mobile peek carousel.
           </p>
         </div>
@@ -132,11 +132,12 @@ export function LookbookSection({
           onChange={setInspiredForm}
           onSubmit={handleSaveForm}
           onCancel={handleCloseForm}
+          onNotify={onNotify}
         />
       )}
 
-      {/* Looks Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+      {/* Looks Grid - Full Area Responsive Multi-Column */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
         {inspiredImages.map((look, idx) => (
           <LookbookCard
             key={look.id || idx}

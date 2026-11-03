@@ -4,23 +4,27 @@ import { Layout } from './layout';
 import {
   LookbookSection,
   PartnersSection,
+  VideosSection,
 } from './sections';
 
 /**
  * AdminPanel
- * Master admin studio for managing Lookbook Editorial Photos and Brand Partners.
+ * Master admin studio for managing Lookbook Editorial Photos, Brand Partners, and YouTube Films.
  */
 export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const [activeTab, setActiveTab] = useState('lookbook');
 
-  // Content storage for Lookbook & Partners
+  // Content storage for Lookbook, Partners & YouTube Videos
   const {
     inspiredImages,
     partners,
+    videos,
     saveInspiredImages,
     resetInspiredImages,
     savePartners,
     resetPartners,
+    saveVideos,
+    resetVideos,
   } = useContentStorage();
 
   return (
@@ -33,28 +37,34 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       counts={{
         lookbook: inspiredImages.length,
         partners: partners.length,
+        videos: videos.length,
       }}
     >
       {activeTab === 'lookbook' && (
-        <div className="bg-white rounded-3xl border border-[#F0CDD7] p-5 sm:p-7 shadow-xs">
-          <LookbookSection
-            inspiredImages={inspiredImages}
-            saveInspiredImages={saveInspiredImages}
-            resetInspiredImages={resetInspiredImages}
-            onNotify={onNotify}
-          />
-        </div>
+        <LookbookSection
+          inspiredImages={inspiredImages}
+          saveInspiredImages={saveInspiredImages}
+          resetInspiredImages={resetInspiredImages}
+          onNotify={onNotify}
+        />
       )}
 
       {activeTab === 'partners' && (
-        <div className="bg-white rounded-3xl border border-[#F0CDD7] p-5 sm:p-7 shadow-xs">
-          <PartnersSection
-            partners={partners}
-            savePartners={savePartners}
-            resetPartners={resetPartners}
-            onNotify={onNotify}
-          />
-        </div>
+        <PartnersSection
+          partners={partners}
+          savePartners={savePartners}
+          resetPartners={resetPartners}
+          onNotify={onNotify}
+        />
+      )}
+
+      {activeTab === 'videos' && (
+        <VideosSection
+          videos={videos}
+          saveVideos={saveVideos}
+          resetVideos={resetVideos}
+          onNotify={onNotify}
+        />
       )}
     </Layout>
   );

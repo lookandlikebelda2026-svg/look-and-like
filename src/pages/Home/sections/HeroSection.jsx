@@ -81,9 +81,13 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
             </button>
 
             <a
-              href="#curated-services"
+              href="#services"
               onClick={(e) => {
-                if (onNavigate) {
+                const el = document.getElementById('services');
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else if (onNavigate) {
                   e.preventDefault();
                   onNavigate("services");
                 }

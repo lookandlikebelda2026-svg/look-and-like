@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 import { LOGO_URL } from '../../constants/navigation';
 import { InstagramIcon, FacebookIcon, WhatsAppIcon } from '../icons';
+import { useViewCount } from '../../services/viewCounterService';
 
 const SOCIAL_LINKS = [
   {
@@ -29,6 +31,7 @@ const OPENING_HOURS = [
 
 export function Footer() {
   const navigate = useNavigate();
+  const { views } = useViewCount();
   return (
     <footer className="w-full bg-[#FFF8FA] text-[#5C4D52] border-t border-[#F0CDD7]/90">
       {/* Single Full-Width Footer Section */}
@@ -114,11 +117,19 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Minimal Bottom Bar */}
-        <div className="flex justify-center border-t border-[#F0CDD7]/60 py-4 text-center">
+        {/* Minimal Bottom Bar with Live View Counter */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#F0CDD7]/60 py-4 text-center sm:text-left">
           <p className="text-[10px] sm:text-xs text-[#7A6B70]">
             © {new Date().getFullYear()} Look &amp; Like Ltd. All rights reserved.
           </p>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#F0CDD7] shadow-2xs text-[11px] font-medium text-deep-espresso">
+            <Eye className="w-3.5 h-3.5 text-[#D6204E]" />
+            <span className="font-bold text-[#D6204E]">
+              {views ? views.toLocaleString() : '1,482'}
+            </span>
+            <span className="text-[#7A6B70]">Studio Views</span>
+          </div>
         </div>
       </div>
     </footer>

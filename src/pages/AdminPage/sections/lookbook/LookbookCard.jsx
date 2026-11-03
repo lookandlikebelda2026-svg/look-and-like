@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Edit3, Trash2, ExternalLink } from 'lucide-react';
 
 /**
@@ -12,6 +12,23 @@ export function LookbookCard({
   onEdit,
   onDelete,
 }) {
+  const [dimensions, setDimensions] = useState(null);
+
+  useEffect(() => {
+    if (!look.imageUrl) {
+      setDimensions(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      setDimensions(`${img.naturalWidth} × ${img.naturalHeight} px`);
+    };
+    img.onerror = () => {
+      setDimensions(null);
+    };
+    img.src = look.imageUrl;
+  }, [look.imageUrl]);
+
   return (
     <div className="relative bg-white rounded-2xl border border-border-warm/70 shadow-xs hover:shadow-sm overflow-hidden flex flex-col group transition-all">
       {/* Image Thumbnail */}
@@ -27,6 +44,13 @@ export function LookbookCard({
         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-white/90 backdrop-blur-xs text-deep-espresso border border-border-warm shadow-2xs">
           Look {index + 1}
         </div>
+
+        {/* Pixel Size Badge */}
+        {dimensions && (
+          <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-black/75 text-white backdrop-blur-xs">
+            {dimensions}
+          </div>
+        )}
 
         {/* Quick Action Overlay (Reorder Up/Down) */}
         <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-xs rounded-full p-1 border border-border-warm shadow-2xs">

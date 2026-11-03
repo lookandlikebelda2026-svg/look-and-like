@@ -88,7 +88,7 @@ export function BranchCard({ branch }) {
 
           {/* WhatsApp Button */}
           <a
-            href={`https://wa.me/${branch.whatsAppNumber}?text=${encodeURIComponent(branch.prefillMessage)}`}
+            href={`https://api.whatsapp.com/send?phone=${String(branch.whatsAppNumber || '919046466767').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(branch.prefillMessage)}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white py-2 px-3.5 rounded-xl text-xs font-medium shadow-xs hover:shadow-sm active:scale-95 transition-all text-center flex-1"

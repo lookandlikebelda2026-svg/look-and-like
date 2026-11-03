@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowUp, ArrowDown, Edit3, Trash2 } from 'lucide-react';
 
 /**
@@ -12,11 +12,28 @@ export function PartnerCard({
   onEdit,
   onDelete,
 }) {
+  const [dimensions, setDimensions] = useState(null);
+
+  useEffect(() => {
+    if (!partner.logoUrl) {
+      setDimensions(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      setDimensions(`${img.naturalWidth} × ${img.naturalHeight} px`);
+    };
+    img.onerror = () => {
+      setDimensions(null);
+    };
+    img.src = partner.logoUrl;
+  }, [partner.logoUrl]);
+
   return (
     <div className="relative bg-white rounded-2xl border border-border-warm/70 shadow-xs hover:shadow-sm p-4 flex flex-col justify-between group transition-all">
       <div>
         {/* Logo Preview Tile */}
-        <div className="h-16 w-full rounded-xl bg-[#FAF8F5] border border-border-warm/40 p-2 flex items-center justify-center mb-3">
+        <div className="relative h-16 w-full rounded-xl bg-[#FAF8F5] border border-border-warm/40 p-2 flex items-center justify-center mb-3">
           <img
             src={partner.logoUrl}
             alt={partner.name}
@@ -31,6 +48,11 @@ export function PartnerCard({
           <span className="hidden text-xs font-bold uppercase text-deep-espresso">
             {partner.name}
           </span>
+          {dimensions && (
+            <span className="absolute bottom-1 right-1.5 px-1 py-0.2 rounded text-[8.5px] font-mono bg-white/90 text-stone-500 border border-stone-200">
+              {dimensions}
+            </span>
+          )}
         </div>
 
         {/* Info */}

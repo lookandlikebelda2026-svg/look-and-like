@@ -34,8 +34,7 @@ export function App() {
       <Modal
         isOpen={isBookingModalOpen}
         onClose={handleCloseBooking}
-        title="Reserve Your Chair"
-        maxWidth="max-w-3xl"
+        maxWidth="max-w-xl"
       >
         <BookingForm
           preselectedCategory={preselectedBooking}

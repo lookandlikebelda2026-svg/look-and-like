@@ -11,21 +11,42 @@ export function Navbar({ onOpenBooking }) {
 
   const handleLinkClick = (e, link) => {
     e.preventDefault();
-    if (link.page === 'services') {
-      navigate('/services');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (link.page === 'inspiration') {
-      navigate('/inspiration');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      if (location.pathname !== '/') {
-        navigate('/');
+
+    // If on Home page and link has a hash on Home page (#services, #inspiration, #branches, etc.)
+    if (location.pathname === '/') {
+      if (link.href && link.href.startsWith('#') && link.href.length > 1) {
+        const el = document.querySelector(link.href);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // When on subpages (/services, /inspiration, etc.)
+    if (link.page === 'services') {
+      if (location.pathname === '/services') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/services');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else if (link.page === 'inspiration') {
+      if (location.pathname === '/inspiration') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/inspiration');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      navigate('/');
       if (link.href && link.href.startsWith('#') && link.href.length > 1) {
         setTimeout(() => {
           const el = document.querySelector(link.href);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 120);
+        }, 150);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }

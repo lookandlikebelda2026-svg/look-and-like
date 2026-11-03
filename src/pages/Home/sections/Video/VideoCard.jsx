@@ -1,6 +1,12 @@
 import React from 'react';
+import { getYouTubeThumbnailUrl } from '../../../../utils/youtube';
 
 export function VideoCard({ video, onPlay }) {
+  const thumbnail =
+    video.thumbnailUrl ||
+    getYouTubeThumbnailUrl(video.youtubeUrl) ||
+    'https://placehold.co/640x360/FFF3F6/D6204E?text=Video+Story';
+
   return (
     <article
       onClick={() => onPlay(video)}
@@ -9,10 +15,18 @@ export function VideoCard({ video, onPlay }) {
       {/* 16:9 Landscape Thumbnail Container */}
       <div className="relative w-full aspect-video overflow-hidden bg-[#FFF3F6]">
         <img
-          src={video.thumbnailUrl}
+          src={thumbnail}
           alt={video.alt || video.title}
           className="w-full h-full object-cover opacity-95 transition-transform duration-500 ease-out group-hover:scale-105 select-none"
           loading="lazy"
+          onError={(e) => {
+            const fallback = getYouTubeThumbnailUrl(video.youtubeUrl, 'mqdefault');
+            if (fallback && e.currentTarget.src !== fallback) {
+              e.currentTarget.src = fallback;
+            } else {
+              e.currentTarget.src = 'https://placehold.co/640x360/FFF3F6/D6204E?text=Look+%26+Like+Video';
+            }
+          }}
         />
 
         {/* Ambient Gradient Overlays */}
@@ -21,10 +35,10 @@ export function VideoCard({ video, onPlay }) {
         {/* Floating Top Badges */}
         <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
           <span className="bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded-full shadow-xs">
-            {video.category}
+            {video.category || 'Atelier Story'}
           </span>
           <span className="bg-white/90 backdrop-blur-xs text-[#D6204E] font-bold text-[10px] px-2 py-0.5 rounded-full shadow-xs">
-            {video.duration}
+            {video.duration || 'Video'}
           </span>
         </div>
 
@@ -43,8 +57,14 @@ export function VideoCard({ video, onPlay }) {
         <h3 className="font-bold text-xs sm:text-sm text-deep-espresso group-hover:text-[#D6204E] transition-colors leading-snug line-clamp-1">
           {video.title}
         </h3>
-      
+        {video.description && (
+          <p className="text-[11px] text-[#7A6B70] line-clamp-2">
+            {video.description}
+          </p>
+        )}
       </div>
     </article>
   );
 }
+
+export default VideoCard;

@@ -1,16 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { COLLECTION_VIDEOS } from '../../../../constants/videos';
+import { useContentStorage } from '../../../../services/contentStorage';
 import { VideoCard } from './VideoCard';
 import { VideoPlayerModal } from './VideoPlayerModal';
 
 export function VideoTourSection() {
+  const { videos } = useContentStorage();
   const [activeVideo, setActiveVideo] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const scrollRef = useRef(null);
 
+  const videoList = videos && videos.length > 0 ? videos : COLLECTION_VIDEOS;
   // Limit initially to 4 videos on desktop unless "showAll" is toggled
-  const displayedVideos = showAll ? COLLECTION_VIDEOS : COLLECTION_VIDEOS.slice(0, 4);
+  const displayedVideos = showAll ? videoList : videoList.slice(0, 4);
 
   const handleTabClick = (index) => {
     setActiveTab(index);
@@ -108,25 +111,25 @@ export function VideoTourSection() {
         </div>
 
         {/* View All / Expand Toggle */}
-        {COLLECTION_VIDEOS.length > 4 && (
+        {videoList.length > 4 && (
           <div className="mt-6 text-center sm:mt-12">
             <button
               type="button"
               onClick={() => setShowAll(!showAll)}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-border-warm bg-transparent px-6 py-3 font-label-md text-xs uppercase tracking-wider text-deep-espresso shadow-xs transition-all duration-300 hover:border-deep-espresso hover:bg-neutral-100 active:scale-95 sm:px-7"
-        >
-          <span className="material-symbols-outlined text-[18px]">
-            {showAll ? "expand_less" : "video_library"}
-          </span>
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-border-warm bg-transparent px-6 py-3 font-label-md text-xs uppercase tracking-wider text-deep-espresso shadow-xs transition-all duration-300 hover:border-deep-espresso hover:bg-neutral-100 active:scale-95 sm:px-7"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {showAll ? "expand_less" : "video_library"}
+              </span>
 
-          <span>
-            {showAll
-              ? "Show Fewer Films"
-              : `View All ${COLLECTION_VIDEOS.length} Films`}
-          </span>
-        </button>
-      </div>
-    )}
+              <span>
+                {showAll
+                  ? "Show Fewer Films"
+                  : `View All ${videoList.length} Films`}
+              </span>
+            </button>
+          </div>
+        )}
   </div>
 
   {/* Interactive Video Player Modal */}

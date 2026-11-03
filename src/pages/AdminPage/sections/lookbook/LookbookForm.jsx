@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, Check } from 'lucide-react';
 import { ImageKitUploader } from '../../../../components/common/ImageKitUploader';
 
@@ -11,7 +11,20 @@ export function LookbookForm({
   onChange,
   onSubmit,
   onCancel,
+  onNotify,
 }) {
+  const [pixelSize, setPixelSize] = useState(null);
+
+  useEffect(() => {
+    if (!formData.imageUrl) {
+      setPixelSize(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => setPixelSize(`${img.naturalWidth} × ${img.naturalHeight} px`);
+    img.onerror = () => setPixelSize(null);
+    img.src = formData.imageUrl;
+  }, [formData.imageUrl]);
   const PRESET_SAMPLES = [
     {
       name: 'Bridal Glow',
@@ -47,14 +60,28 @@ export function LookbookForm({
         {/* Live Preview Column */}
         <div className="flex flex-col items-center justify-center border border-dashed border-stone-300 rounded-xl bg-stone-50 p-2 min-h-[140px] overflow-hidden">
           {formData.imageUrl ? (
-            <img
-              src={formData.imageUrl}
-              alt="Preview"
-              className="w-full h-36 object-cover rounded-lg shadow-2xs"
-              onError={(e) => {
-                e.currentTarget.src = 'https://placehold.co/400x500/F0CDD7/D6204E?text=Invalid+Image+URL';
-              }}
-            />
+            <div className="w-full flex flex-col items-center gap-1.5">
+              <div className="relative w-full">
+                <img
+                  src={formData.imageUrl}
+                  alt="Preview"
+                  className="w-full h-36 object-cover rounded-lg shadow-2xs"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/400x500/F0CDD7/D6204E?text=Invalid+Image+URL';
+                  }}
+                />
+                {pixelSize && (
+                  <span className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-black/80 text-white backdrop-blur-xs">
+                    {pixelSize}
+                  </span>
+                )}
+              </div>
+              {pixelSize && (
+                <span className="text-[10px] font-mono text-stone-500 font-medium">
+                  Image: <strong className="text-[#D6204E]">{pixelSize}</strong>
+                </span>
+              )}
+            </div>
           ) : (
             <div className="text-center p-3 text-stone-400">
               <ImageIcon className="w-8 h-8 mx-auto mb-1 opacity-50" />
@@ -68,10 +95,12 @@ export function LookbookForm({
           <ImageKitUploader
             value={formData.imageUrl}
             onChange={(url) => onChange({ ...formData, imageUrl: url })}
+            preset="photo"
             folder="/lookbook"
             tags={['lookbook', 'editorial']}
             label="Lookbook Photo"
             helpText="Upload PNG, JPG or WEBP directly to ImageKit CDN"
+            onNotify={onNotify}
           />
 
           <div className="flex items-center gap-2">

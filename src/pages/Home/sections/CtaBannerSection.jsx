@@ -23,7 +23,7 @@ export function CtaBannerSection({ onOpenBooking }) {
           <img
             src={ctaBannerImage}
             alt="Look & Like Beauty Salon Experience"
-            className="absolute inset-0 w-full h-full object-cover object-[80%_center] xs:object-[82%_center] sm:object-center select-none pointer-events-none"
+            className="absolute inset-0 w-full h-full object-fit object-[80%_center] xs:object-[82%_center] sm:object-center select-none pointer-events-none"
             loading="lazy"
           />
 

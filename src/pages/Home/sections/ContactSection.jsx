@@ -49,7 +49,7 @@ export function ContactSection() {
           <h2 className="font-serif text-2xl font-bold leading-tight tracking-tight text-deep-espresso sm:text-3xl md:text-4xl">
             Come say hello
             <span className="block font-normal italic text-[#D6204E] sm:inline">
-              {" "}· Visit our 3 salons
+              {" "}· Visit our 3 branches
             </span>
           </h2>
         </div>
@@ -67,7 +67,7 @@ export function ContactSection() {
                   : 'text-[#6B5A60] hover:text-[#D6204E]'
               }`}
             >
-              {b.bookingShortName}
+              <span className="truncate block">{b.bookingShortName}</span>
             </button>
           ))}
         </div>

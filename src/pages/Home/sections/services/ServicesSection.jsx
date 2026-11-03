@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import skinCareImg from '../../../../asset/services/service-skin.png';
 import hairCareImg from '../../../../asset/services/service-hair.png';
@@ -64,28 +65,21 @@ const SERVICE_CARDS = [
 ];
 
 export function ServicesSection({ onSelectService, onNavigate }) {
+  const navigate = useNavigate();
+
   const handleCardClick = (categoryKey) => {
-    if (onNavigate) {
-      onNavigate('services');
-      window.location.hash = `#category-${categoryKey}`;
-    } else if (onSelectService) {
-      onSelectService(categoryKey);
-    } else {
-      window.location.hash = `#category-${categoryKey}`;
-    }
+    navigate(`/services#category-${categoryKey}`);
   };
 
   const handleViewAll = (e) => {
     e.preventDefault();
-    if (onNavigate) {
-      onNavigate('services');
-    } else {
-      window.location.hash = '#services';
-    }
+    navigate('/services');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <section className="w-full bg-white py-6 sm:py-10" id="curated-services">
+    <section className="w-full bg-white py-6 sm:py-10 scroll-mt-20" id="services">
+      <span id="curated-services" className="sr-only" aria-hidden="true" />
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Section Header: Centered Title with Right-Aligned "View All →" */}
         <div className="flex items-center justify-between mb-6 sm:mb-10">

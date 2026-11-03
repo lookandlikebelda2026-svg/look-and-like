@@ -105,12 +105,12 @@ export function PartnersSection({
   return (
     <div>
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
         <div>
-          <h4 className="font-serif text-base font-bold text-deep-espresso">
+          <h4 className="font-serif text-lg font-bold text-deep-espresso">
             Brand Partner Logos &amp; Specialties
           </h4>
-          <p className="text-xs text-[#7A6B70]">
+          <p className="text-xs text-[#7A6B70] mt-0.5">
             These brands stream across the infinite marquee carousel across the home page.
           </p>
         </div>
@@ -145,11 +145,12 @@ export function PartnersSection({
           onChange={setPartnerForm}
           onSubmit={handleSaveForm}
           onCancel={handleCloseForm}
+          onNotify={onNotify}
         />
       )}
 
-      {/* Partners Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+      {/* Partners Grid - Full Area Responsive Multi-Column */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
         {partners.map((partner, idx) => (
           <PartnerCard
             key={`${partner.name}-${idx}`}

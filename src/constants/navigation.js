@@ -12,6 +12,6 @@ export const NAV_LINKS = [
 ];
 
 export const CONTACT_INFO = {
-  consultationPhone: "+18005552355",
+  consultationPhone: "+91 90464 66767",
   defaultWhatsApp: "919046466767",
 };

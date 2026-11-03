@@ -54,6 +54,33 @@ body {
   scrollbar-width: none;
 }
 
+/* Luxury Custom Scrollbar for Dropdowns and Overlays */
+.luxury-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #F0CDD7 transparent;
+}
+.luxury-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.luxury-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.luxury-scrollbar::-webkit-scrollbar-thumb {
+  background: #F0CDD7;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+.luxury-scrollbar:hover::-webkit-scrollbar-thumb,
+.luxury-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D6204E;
+}
+.luxury-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Selection */
 ::selection {
   background-color: var(--color-blush-mist);

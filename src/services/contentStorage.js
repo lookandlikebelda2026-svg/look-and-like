@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { GET_INSPIRED_IMAGES } from '../constants/inspiration';
 import { PARTNERS } from '../constants/partners';
+import { COLLECTION_VIDEOS } from '../constants/videos';
 
 const STORAGE_KEY_INSPIRED = 'look_and_like_inspired_images_v1';
 const STORAGE_KEY_PARTNERS = 'look_and_like_partners_v1';
+const STORAGE_KEY_VIDEOS = 'look_and_like_videos_v1';
 const EVENT_NAME = 'look_and_like_content_changed';
 
 /**
@@ -95,16 +97,62 @@ export function resetStoredPartners() {
 }
 
 /**
+ * Get stored or default Videos
+ */
+export function getStoredVideos() {
+  if (typeof window === 'undefined') return COLLECTION_VIDEOS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_VIDEOS);
+    if (!raw) return COLLECTION_VIDEOS;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : COLLECTION_VIDEOS;
+  } catch (err) {
+    console.warn('Failed to parse stored videos:', err);
+    return COLLECTION_VIDEOS;
+  }
+}
+
+/**
+ * Save Videos to localStorage and notify listeners
+ */
+export function saveStoredVideos(videos) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY_VIDEOS, JSON.stringify(videos));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: videos } }));
+  } catch (err) {
+    console.error('Failed to save videos to localStorage:', err);
+  }
+}
+
+/**
+ * Reset Videos to original defaults
+ */
+export function resetStoredVideos() {
+  if (typeof window === 'undefined') return COLLECTION_VIDEOS;
+  try {
+    localStorage.removeItem(STORAGE_KEY_VIDEOS);
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: COLLECTION_VIDEOS } }));
+    return COLLECTION_VIDEOS;
+  } catch (err) {
+    console.error('Failed to reset videos:', err);
+    return COLLECTION_VIDEOS;
+  }
+}
+
+/**
  * Reactive React hook for components consuming or managing live content
  */
 export function useContentStorage() {
   const [inspiredImages, setInspiredImages] = useState(getStoredInspiredImages);
   const [partners, setPartners] = useState(getStoredPartners);
+  const [videos, setVideos] = useState(getStoredVideos);
 
   useEffect(() => {
     const handleUpdate = () => {
       setInspiredImages(getStoredInspiredImages());
       setPartners(getStoredPartners());
+      setVideos(getStoredVideos());
     };
 
     window.addEventListener(EVENT_NAME, handleUpdate);
@@ -119,6 +167,7 @@ export function useContentStorage() {
   return {
     inspiredImages,
     partners,
+    videos,
     saveInspiredImages: (imgs) => {
       saveStoredInspiredImages(imgs);
       setInspiredImages(imgs);
@@ -134,7 +183,16 @@ export function useContentStorage() {
     resetPartners: () => {
       const def = resetStoredPartners();
       setPartners(def);
+    },
+    saveVideos: (vids) => {
+      saveStoredVideos(vids);
+      setVideos(vids);
+    },
+    resetVideos: () => {
+      const def = resetStoredVideos();
+      setVideos(def);
     }
   };
 }
 
+export default useContentStorage;

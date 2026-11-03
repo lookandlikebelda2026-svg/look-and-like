@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { X, ExternalLink } from 'lucide-react';
+import { getYouTubeEmbedUrl, extractYouTubeId } from '../../../../utils/youtube';
 
 export function VideoPlayerModal({ video, isOpen, onClose }) {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(18);
-
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape' && isOpen) {
@@ -16,8 +13,6 @@ export function VideoPlayerModal({ video, isOpen, onClose }) {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
-      setIsPlaying(true);
-      setProgress(15);
     } else {
       document.body.style.overflow = '';
     }
@@ -28,18 +23,10 @@ export function VideoPlayerModal({ video, isOpen, onClose }) {
     };
   }, [isOpen, onClose]);
 
-  // Simulated playback time advancement
-  useEffect(() => {
-    let interval;
-    if (isOpen && isPlaying) {
-      interval = setInterval(() => {
-        setProgress((prev) => (prev >= 98 ? 0 : prev + 1.2));
-      }, 500);
-    }
-    return () => clearInterval(interval);
-  }, [isOpen, isPlaying]);
-
   if (!isOpen || !video) return null;
+
+  const youtubeId = extractYouTubeId(video.youtubeUrl);
+  const embedUrl = youtubeId ? getYouTubeEmbedUrl(youtubeId, true) : null;
 
   return (
     <div
@@ -60,127 +47,68 @@ export function VideoPlayerModal({ video, isOpen, onClose }) {
         {/* Header Bar */}
         <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10 mb-3 sm:mb-5">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <span className="w-2.5 h-2.5 rounded-full bg-terracotta-rose animate-ping shrink-0" />
-            <span className="font-label-sm text-[10px] sm:text-xs uppercase tracking-widest text-terracotta-rose font-bold truncate">
-              {video.category || "Atelier Experience"} · {video.quality || "4K UHD"}
+            <span className="w-2.5 h-2.5 rounded-full bg-[#D6204E] animate-ping shrink-0" />
+            <span className="font-label-sm text-[10px] sm:text-xs uppercase tracking-widest text-[#F0CDD7] font-bold truncate">
+              {video.category || "Atelier Experience"} · {video.duration || "Full HD"}
             </span>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close video player"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-terracotta-rose text-ivory-cream flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0"
-          >
-            <X size={18} />
-          </button>
-        </div>
+          <div className="flex items-center gap-2">
+            {video.youtubeUrl && (
+              <a
+                href={video.youtubeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="hidden sm:inline-flex items-center gap-1 text-[11px] text-white/70 hover:text-white px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <span>YouTube</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
 
-        {/* 16:9 Video Canvas Frame */}
-        <div className="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10 group">
-          <img
-            src={video.thumbnailUrl}
-            alt={video.alt || video.title}
-            className={`w-full h-full object-cover transition-opacity duration-500 ${isPlaying ? 'opacity-70 scale-102' : 'opacity-85'}`}
-          />
-
-          {/* Cinematic lighting gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30 pointer-events-none" />
-
-          {/* Central Interactive Play/Pause Indicator on Canvas Click */}
-          <button
-            type="button"
-            onClick={() => setIsPlaying(!isPlaying)}
-            aria-label={isPlaying ? "Pause video" : "Play video"}
-            className="absolute inset-0 m-auto w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-black/50 backdrop-blur-md border border-white/30 text-white flex items-center justify-center hover:scale-110 hover:bg-terracotta-rose transition-all duration-300 shadow-2xl cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[28px] sm:text-[42px] ml-0.5">
-              {isPlaying ? 'pause' : 'play_arrow'}
-            </span>
-          </button>
-
-          {/* Custom Media Controls Overlay */}
-          <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col gap-2 z-10">
-            {/* Progress Bar */}
-            <div
-              className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer relative"
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const clickPos = (e.clientX - rect.left) / rect.width;
-                setProgress(clickPos * 100);
-              }}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close video player"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-[#D6204E] text-ivory-cream flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0"
             >
-              <div
-                className="h-full bg-terracotta-rose rounded-full transition-all duration-200"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            {/* Bottom Bar Controls */}
-            <div className="flex items-center justify-between text-xs sm:text-sm text-ivory-cream/90 pt-1">
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  aria-label={isPlaying ? "Pause" : "Play"}
-                  className="hover:text-terracotta-rose transition-colors cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px] sm:text-[22px]">
-                    {isPlaying ? 'pause' : 'play_arrow'}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsMuted(!isMuted)}
-                  aria-label={isMuted ? "Unmute" : "Mute"}
-                  className="hover:text-terracotta-rose transition-colors cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px] sm:text-[20px]">
-                    {isMuted ? 'volume_off' : 'volume_up'}
-                  </span>
-                </button>
-
-                <span className="font-mono text-[10px] sm:text-xs text-ivory-cream/70">
-                  {isPlaying ? '0:42' : '0:18'} / {video.duration}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="font-label-sm text-[9px] sm:text-[11px] uppercase tracking-wider text-rose-gold font-semibold hidden xs:inline">
-                  Stereo Acoustic
-                </span>
-                <span className="material-symbols-outlined text-[18px] sm:text-[20px] opacity-70">
-                  fullscreen
-                </span>
-              </div>
-            </div>
+              <X size={18} />
+            </button>
           </div>
         </div>
 
-        {/* Video Information & Direct Booking CTA */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-5 pt-3 border-t border-white/10">
-          <div className="max-w-xl">
-            <h3 id="video-modal-title" className="font-headline-sm text-base sm:text-xl text-ivory-cream font-serif">
-              {video.title}
-            </h3>
-            <p className="font-body-sm text-xs sm:text-sm text-ivory-cream/70 mt-0.5 sm:mt-1 leading-relaxed">
+        {/* 16:9 Video Player Frame */}
+        <div className="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10">
+          {embedUrl ? (
+            <iframe
+              src={embedUrl}
+              title={video.title}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-white/70 bg-stone-900">
+              <p className="text-sm font-semibold">Video preview unavailable</p>
+              <p className="text-xs text-white/50 mt-1">Please provide a valid YouTube URL in the Admin Panel.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Description & Metadata */}
+        <div className="pt-4 sm:pt-5 space-y-2">
+          <h3 id="video-modal-title" className="font-serif text-lg sm:text-2xl font-bold text-white tracking-tight">
+            {video.title}
+          </h3>
+          {video.description && (
+            <p className="text-xs sm:text-sm text-ivory-cream/80 leading-relaxed font-sans">
               {video.description}
             </p>
-          </div>
-
-          <div className="shrink-0 flex items-center gap-3">
-            <a
-              href="#branch-booking"
-              onClick={onClose}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-terracotta-rose hover:bg-rose-gold text-ivory-cream font-label-md text-xs uppercase tracking-wider px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 shadow-md cursor-pointer active:scale-95 text-center"
-            >
-              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">calendar_month</span>
-              <span>Reserve Chair</span>
-            </a>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+export default VideoPlayerModal;

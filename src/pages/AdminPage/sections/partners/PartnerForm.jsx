@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Briefcase, Check } from 'lucide-react';
 import { ImageKitUploader } from '../../../../components/common/ImageKitUploader';
 
@@ -11,7 +11,20 @@ export function PartnerForm({
   onChange,
   onSubmit,
   onCancel,
+  onNotify,
 }) {
+  const [pixelSize, setPixelSize] = useState(null);
+
+  useEffect(() => {
+    if (!formData.logoUrl) {
+      setPixelSize(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => setPixelSize(`${img.naturalWidth} × ${img.naturalHeight} px`);
+    img.onerror = () => setPixelSize(null);
+    img.src = formData.logoUrl;
+  }, [formData.logoUrl]);
   return (
     <form
       onSubmit={onSubmit}
@@ -59,6 +72,11 @@ export function PartnerForm({
           <span className="text-[10px] text-stone-500 mt-2 font-medium">
             {formData.name || 'Brand Name'}
           </span>
+          {pixelSize && (
+            <span className="text-[10px] font-mono text-stone-500 font-medium">
+              Logo: <strong className="text-[#D6204E]">{pixelSize}</strong>
+            </span>
+          )}
         </div>
 
         {/* Inputs Column */}
@@ -96,9 +114,11 @@ export function PartnerForm({
             value={formData.logoUrl}
             onChange={(url) => onChange({ ...formData, logoUrl: url })}
             folder="/partners"
+            preset="logo"
             tags={['partners', 'logo']}
             label="Brand Logo Photo"
             helpText="Upload brand logo (SVG, PNG or WEBP with transparency)"
+            onNotify={onNotify}
           />
 
           <div>

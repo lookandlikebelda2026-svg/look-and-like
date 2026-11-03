@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GET_INSPIRED_IMAGES, INSTAGRAM_URL } from '../../../constants/inspiration';
 import { InstagramIcon } from '../../../components/icons';
 import { useContentStorage } from '../../../services/contentStorage';
@@ -38,6 +39,7 @@ function partitionImages(items, colCount) {
 }
 
 export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRAM_URL, onNavigate }) {
+  const navigate = useNavigate();
   const { inspiredImages: storedImages } = useContentStorage();
   const images = propImages || storedImages;
   const [activeLook, setActiveLook] = useState(0);
@@ -73,7 +75,8 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
   };
 
   return (
-    <section className="w-full bg-white pt-8" id="get-inspired">
+    <section className="w-full bg-white pt-8 scroll-mt-20" id="inspiration">
+      <span id="get-inspired" className="sr-only" aria-hidden="true" />
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 lg:px-12">
 
         {/* Section Heading */}
@@ -163,7 +166,8 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              if (onNavigate) onNavigate('inspiration');
+              navigate('/inspiration');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border-warm bg-white hover:border-[#D6204E] hover:bg-[#FFF3F6]/60 px-6 sm:px-8 py-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-deep-espresso hover:text-[#D6204E] shadow-2xs hover:shadow-sm transition-all duration-300 cursor-pointer active:scale-95 group"
           >

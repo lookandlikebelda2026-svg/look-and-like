@@ -4,3 +4,6 @@ export { LookbookCard } from './lookbook/LookbookCard';
 export { PartnersSection } from './partners/PartnersSection';
 export { PartnerForm } from './partners/PartnerForm';
 export { PartnerCard } from './partners/PartnerCard';
+export { VideosSection } from './videos/VideosSection';
+export { VideoForm } from './videos/VideoForm';
+export { VideoCard } from './videos/VideoCard';

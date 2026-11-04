@@ -43,7 +43,7 @@ export function ServiceItem({ item, isExpanded, onToggle, onBook }) {
         />
 
         {/* Price in elegant Playfair Display / Serif */}
-        <span className="font-display-lg italic text-base sm:text-[1.35rem] text-terracotta-rose font-medium whitespace-nowrap pl-2 shrink-0">
+        <span className="font-sans font-price not-italic text-sm sm:text-base text-[#D6204E] font-bold whitespace-nowrap pl-2 shrink-0">
           {item.price}
         </span>
       </button>
@@ -88,7 +88,7 @@ export function ServiceItem({ item, isExpanded, onToggle, onBook }) {
                 <span className="text-[11px] sm:text-xs text-on-surface-variant uppercase tracking-wider font-semibold">
                   Price:
                 </span>
-                <span className="font-display-lg italic text-base sm:text-lg text-deep-espresso font-semibold">
+                <span className="font-sans font-price not-italic text-base sm:text-lg text-deep-espresso font-bold">
                   {item.price}
                 </span>
               </div>

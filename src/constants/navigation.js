@@ -1,17 +1,18 @@
-export const LOGO_URL = "https://lh3.googleusercontent.com/aida-public/AB6AXuAQYvXCzvZNvADWEiFhocsB1952jVpTObVjFf4JYoiIukJHRajpCCG75mHgqYXj9oS-vzE9raGKiijyhzCrGCI1ZHJ25j48FjZUGoCEgaIqD7T7E4r5v924spDqDRSSb2eCyrji9sG8I1JLPFg_vXX08VgLGJpJiky-pNEsd00o-MGFDGqJ2vRGbzKyR5H0yh-YZ5O5b9MMcp_jAGOMcMMLHdL7-UyGnYeRY8d-jCOT2EeFyYcYZauedQ";
+import logoPinkBg from '../asset/logo-pink-bg.png';
+
+export const LOGO_URL = logoPinkBg;
 
 export const NAV_LINKS = [
-  { label: "Home", href: "#", page: "home" },
-  { label: "Services", href: "#services", page: "services" },
-  { label: "Lookbook", href: "#inspiration", page: "inspiration" },
-  // { label: "Categories", href: "#curated-services", page: "home" },
-  { label: "Branches", href: "#branches", page: "home" },
-  
-  { label: "Experience", href: "#video-tour", page: "home" },
-  { label: "Contact", href: "#contact", page: "home" },
+  { label: "Home", href: "/", page: "home", path: "/" },
+  { label: "Lookbook", href: "/inspiration", page: "inspiration", path: "/inspiration" },
+  { label: "Services", href: "/services", page: "services", path: "/services" },
+  { label: "Branches", href: "#branches", page: "home", path: "/#branches" },
+  { label: "About Us", href: "#about-us", page: "home", path: "/#about-us" },
+  { label: "Experience", href: "#video-tour", page: "home", path: "/#video-tour" },
+  { label: "Contact", href: "#contact", page: "home", path: "/#contact" },
 ];
 
 export const CONTACT_INFO = {
-  consultationPhone: "+91 90464 66767",
-  defaultWhatsApp: "919046466767",
+  consultationPhone: "+91 78726 24993",
+  defaultWhatsApp: "917872624993",
 };

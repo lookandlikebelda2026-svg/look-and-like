@@ -33,41 +33,41 @@ export function ContactSection() {
 
   return (
     <section
-      className="w-full overflow-hidden bg-white py-8 sm:py-14 lg:py-20"
+      className="w-full overflow-hidden bg-white pt-8 pb-12 sm:py-14 lg:py-20 scroll-mt-20"
       id="contact"
     >
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Section Title */}
         <div
           id="branches"
-          className="mx-auto mb-5 max-w-xl text-center sm:mb-10 lg:mb-12"
+          className="mx-auto mb-5 max-w-xl text-center sm:mb-10 lg:mb-12 scroll-mt-24"
         >
-          <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.22em] text-[#D6204E] sm:text-xs">
-            Visit Us
+          <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
+            SALON BRANCHES
           </span>
 
-          <h2 className="font-serif text-2xl font-bold leading-tight tracking-tight text-deep-espresso sm:text-3xl md:text-4xl">
-            Come say hello
-            <span className="block font-normal italic text-[#D6204E] sm:inline">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold leading-tight tracking-tight text-deep-espresso">
+            Come Say Hello
+            {/* <span className="block font-normal italic text-[#4A4A4A] sm:inline">
               {" "}· Visit our 3 branches
-            </span>
+            </span> */}
           </h2>
         </div>
 
         {/* Phone Only: Quick Interactive Branch Selector Tabs */}
-        <div className="flex p-1 bg-[#FAF8F5] rounded-full border border-[#F0CDD7]/80 mb-4 max-w-xs mx-auto sm:hidden shadow-xs">
+        <div className="flex p-1 bg-[#FFF3F6]/80 rounded-full border border-[#F0CDD7] mb-5 w-full max-w-[320px] xs:max-w-[340px] mx-auto sm:hidden shadow-2xs">
           {BRANCHES.map((b, idx) => (
             <button
               key={b.id}
               type="button"
               onClick={() => handleTabClick(idx)}
-              className={`flex-1 py-1.5 px-2 text-xs font-semibold rounded-full transition-all cursor-pointer text-center ${
+              className={`flex-1 py-1.5 xs:py-2 px-2 text-xs font-semibold rounded-full transition-all duration-200 cursor-pointer text-center whitespace-nowrap ${
                 activeTab === idx
-                  ? 'bg-[#D6204E] text-white shadow-xs'
-                  : 'text-[#6B5A60] hover:text-[#D6204E]'
+                  ? 'bg-[#D6204E]/80 text-white shadow-2xs'
+                  : 'text-black hover:text-[#D6204E]'
               }`}
             >
-              <span className="truncate block">{b.bookingShortName}</span>
+              <span className="block">{b.tag || b.name.replace(/\s*Branch/i, '')}</span>
             </button>
           ))}
         </div>
@@ -99,16 +99,13 @@ export function ContactSection() {
                 aria-label={`Switch to ${b.name}`}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
                   activeTab === idx
-                    ? 'w-6 bg-[#D6204E]'
+                    ? 'w-6 bg-[#D6204E]/80'
                     : 'w-2 bg-[#F0CDD7] hover:bg-[#D6204E]/60'
                 }`}
               />
             ))}
           </div>
 
-          <p className="text-center text-[11px] text-[#7A6B70] mt-2">
-            ✦ Walk-ins welcome · Open Tue–Sun 10 AM – 8 PM
-          </p>
         </div>
 
         {/* Tablet and Desktop: Grid */}

@@ -31,15 +31,15 @@
   --color-surface-variant: #ffffff;
   --color-surface-tint: #D6204E;
 
-  /* Text & Contrast Content Colors */
-  --color-on-surface: #D6204E;
-  --color-on-surface-variant: #000000;
+  /* Text & Contrast Content Colors (Standard text is Black #111111) */
+  --color-on-surface: #111111;
+  --color-on-surface-variant: #4A4A4A;
   --color-inverse-surface: #2A1720;
   --color-inverse-on-surface: #ffffff;
-  --color-outline: #B85A72;
+  --color-outline: #E5E5E5;
   --color-outline-variant: #F0CDD7;
 
-  /* Primary Palette */
+  /* Primary Palette (Pink / Raspberry focused accents) */
   --color-primary: #D6204E;
   --color-on-primary: #ffffff;
   --color-primary-container: #FCE5EB;
@@ -61,7 +61,7 @@
   --color-on-secondary-fixed-variant: #702039;
 
   /* Tertiary Palette */
-  --color-tertiary: #A64D65;
+  --color-tertiary: #5C5C5C;
   --color-on-tertiary: #ffffff;
   --color-tertiary-container: #F8E1E8;
   --color-on-tertiary-container: #702039;
@@ -82,8 +82,8 @@
   --color-blush-mist: #FFF3F6;
   --color-terracotta-rose: #D6204E;
   --color-rose-gold: #B85A72;
-  --color-deep-espresso: #D6204E;
-  --color-noir-charcoal: #D6204E;
+  --color-deep-espresso: #111111;
+  --color-noir-charcoal: #111111;
   --color-border-warm: #F0CDD7;
   --color-whatsapp-green: #25D366;
 }
@@ -127,11 +127,11 @@
   --color-surface-tint: #D6204E;
 
   /* Text & Contrast Content Colors */
-  --color-on-surface: #D6204E;
-  --color-on-surface-variant: #8F2946;
+  --color-on-surface: #111111;
+  --color-on-surface-variant: #4A4A4A;
   --color-inverse-surface: #2A1720;
   --color-inverse-on-surface: #ffffff;
-  --color-outline: #B85A72;
+  --color-outline: #E5E5E5;
   --color-outline-variant: #F0CDD7;
 
   /* Primary Palette */
@@ -156,7 +156,7 @@
   --color-on-secondary-fixed-variant: #702039;
 
   /* Tertiary Palette */
-  --color-tertiary: #A64D65;
+  --color-tertiary: #5C5C5C;
   --color-on-tertiary: #ffffff;
   --color-tertiary-container: #F8E1E8;
   --color-on-tertiary-container: #702039;
@@ -177,8 +177,8 @@
   --color-blush-mist: #FFF3F6;
   --color-terracotta-rose: #D6204E;
   --color-rose-gold: #B85A72;
-  --color-deep-espresso: #D6204E;
-  --color-noir-charcoal: #D6204E;
+  --color-deep-espresso: #111111;
+  --color-noir-charcoal: #111111;
   --color-border-warm: #F0CDD7;
   --color-whatsapp-green: #25D366;
 }

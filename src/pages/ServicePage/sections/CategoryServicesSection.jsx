@@ -96,15 +96,15 @@ export function CategoryServicesSection({
               <div className="min-w-0 w-full pt-1">
                 {/* Section Header */}
                 <div className="pb-5 border-b border-[#EAD6D8]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="h-px w-8 bg-[#C77A89]" />
+                  <div className="mb-2">
 
-                    <span className="text-[10px] sm:text-xs uppercase tracking-[0.24em] font-semibold text-[#A66B78]">
+
+                    <span className="text-[10px] sm:text-xs uppercase tracking-[0.24em] font-semibold text-black">
                       Our Signature Services
                     </span>
                   </div>
 
-                  <h2 className="font-serif text-3xl sm:text-4xl lg:text-[2.8rem] font-medium text-[#873F53] leading-tight tracking-tight">
+                  <h2 className="font-serif text-3xl sm:text-4xl lg:text-[2.8rem] font-bold text-black leading-tight tracking-tight">
                     {category.title}
                   </h2>
 

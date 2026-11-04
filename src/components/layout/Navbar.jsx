@@ -12,39 +12,60 @@ export function Navbar({ onOpenBooking }) {
   const handleLinkClick = (e, link) => {
     e.preventDefault();
 
-    // If on Home page and link has a hash on Home page (#services, #inspiration, #branches, etc.)
-    if (location.pathname === '/') {
-      if (link.href && link.href.startsWith('#') && link.href.length > 1) {
-        const el = document.querySelector(link.href);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-          return;
-        }
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    // When on subpages (/services, /inspiration, etc.)
-    if (link.page === 'services') {
+    // 1. Dedicated Page: Services (/services)
+    if (link.page === 'services' || link.label === 'Services') {
       if (location.pathname === '/services') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         navigate('/services');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } else if (link.page === 'inspiration') {
-      if (location.pathname === '/inspiration') {
+      return;
+    }
+
+    // 2. Dedicated Page: Lookbook (/inspiration)
+    if (link.page === 'inspiration' || link.label === 'Lookbook') {
+      if (location.pathname === '/inspiration' || location.pathname === '/lookbook') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         navigate('/inspiration');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+      return;
+    }
+
+    // 3. Home link (Top of /)
+    if (link.label === 'Home') {
+      if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // 4. Section anchors on Home page (#branches, #video-tour, #contact)
+    const targetHash = link.href.startsWith('#')
+      ? link.href
+      : link.href.includes('#')
+      ? `#${link.href.split('#')[1]}`
+      : null;
+
+    if (location.pathname === '/') {
+      if (targetHash) {
+        const el = document.querySelector(targetHash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       navigate('/');
-      if (link.href && link.href.startsWith('#') && link.href.length > 1) {
+      if (targetHash) {
         setTimeout(() => {
-          const el = document.querySelector(link.href);
+          const el = document.querySelector(targetHash);
           if (el) el.scrollIntoView({ behavior: 'smooth' });
         }, 150);
       } else {
@@ -69,7 +90,7 @@ export function Navbar({ onOpenBooking }) {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(42,31,27,0.04)] border-b border-border-warm/60">
-        <div className="py-3 max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="py-3 max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo Brand */}
           <a
             href="#"
@@ -92,10 +113,10 @@ export function Navbar({ onOpenBooking }) {
           </a>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <nav className="hidden lg:flex items-center gap-3.5 xl:gap-6 2xl:gap-7 shrink-0">
             {NAV_LINKS.map((link) => {
-              const isServicesActive = location.pathname === '/services' && link.page === 'services';
-              const isInspirationActive = (location.pathname === '/inspiration' || location.pathname === '/lookbook') && link.page === 'inspiration';
+              const isServicesActive = location.pathname === '/services' && (link.page === 'services' || link.label === 'Services');
+              const isInspirationActive = (location.pathname === '/inspiration' || location.pathname === '/lookbook') && (link.page === 'inspiration' || link.label === 'Lookbook');
               const isHomeActive = location.pathname === '/' && link.label === 'Home';
               const isActive = isServicesActive || isInspirationActive || isHomeActive;
 
@@ -104,15 +125,15 @@ export function Navbar({ onOpenBooking }) {
                   key={link.label}
                   href={link.href}
                   onClick={(e) => handleLinkClick(e, link)}
-                  className={`text-xs uppercase tracking-wider font-semibold transition-colors py-1 relative cursor-pointer ${
+                  className={`text-[11px] xl:text-xs uppercase tracking-wider font-semibold transition-colors py-1 relative cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? 'text-deep-espresso font-bold'
-                      : 'text-on-surface-variant hover:text-deep-espresso'
+                      ? 'text-[#D6204E] font-bold'
+                      : 'text-black hover:text-[#D6204E]'
                   }`}
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-deep-espresso rounded-full" />
+                    <span className="absolute bottom-[-4px] left-0 right-0 h-0.5 bg-[#D6204E] rounded-full" />
                   )}
                 </a>
               );
@@ -124,19 +145,18 @@ export function Navbar({ onOpenBooking }) {
             {/* Book Appointment CTA */}
             <a
               onClick={handleBookClick}
-              className="inline-flex items-center justify-center bg-deep-espresso text-white hover:opacity-90 font-label-md text-[11px] sm:text-xs uppercase tracking-wider px-3 xs:px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer active:scale-95 whitespace-nowrap"
+              className="inline-flex items-center justify-center bg-deep-espresso text-white hover:opacity-90 font-label-md text-[9.5px] xs:text-[10px] sm:text-xs uppercase tracking-wider px-2.5 xs:px-3 sm:px-5 py-1.5 xs:py-1.5 sm:py-2 rounded-full transition-all duration-300 shadow-2xs hover:shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
               href="#branch-booking"
             >
               <span className="sm:hidden">Book Now</span>
               <span className="hidden sm:inline">Book Appointment</span>
             </a>
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button: borderless clean 3-bar icon */}
             <button
-              type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden w-10 h-10 rounded-full text-deep-espresso hover:bg-blush-mist flex items-center justify-center transition-colors cursor-pointer"
               aria-label="Open navigation menu"
+              className="lg:hidden p-1.5 flex items-center justify-center text-black hover:text-[#D6204E] transition-colors cursor-pointer"
             >
               <Menu size={22} />
             </button>
@@ -144,7 +164,7 @@ export function Navbar({ onOpenBooking }) {
         </div>
       </header>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
@@ -153,3 +173,5 @@ export function Navbar({ onOpenBooking }) {
     </>
   );
 }
+
+export default Navbar;

@@ -20,14 +20,11 @@ export function CategoryCard({ meta = {}, category = {}, onBookCategory }) {
         {/* Soft Luxury Image Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent pointer-events-none" />
 
-        {/* Floating Treatment Count Badge */}
+        {/* Floating Treatment Count Badge matching Tour Badge styling */}
         {treatmentsCount ? (
-          <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full border border-white/80 shadow-xs flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D6204E]" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#D6204E]">
-              {treatmentsCount} TREATMENTS
-            </span>
-          </div>
+          <span className="absolute top-3.5 right-3.5 bg-black/60 backdrop-blur-xs text-white text-[10px] sm:text-[11px] font-medium px-2.5 py-0.5 rounded-full shadow-xs pointer-events-none select-none">
+            {treatmentsCount} TREATMENTS
+          </span>
         ) : null}
 
         {/* Category Circular Badge Overlapping Bottom-Left */}
@@ -38,34 +35,40 @@ export function CategoryCard({ meta = {}, category = {}, onBookCategory }) {
 
       {/* Minimal, Clean Card Content */}
       <div className="flex flex-col px-5 pt-8 pb-5 sm:px-6 sm:pb-6">
-        {/* Title and Starting Price */}
-        <div className="flex items-baseline justify-between gap-2 mb-1.5">
+        {/* Title */}
+        <div className="mb-1.5">
           <h3 className="font-serif text-2xl font-bold leading-tight text-deep-espresso transition-colors group-hover:text-[#D6204E]">
             {meta.title}
           </h3>
-
-          {meta.startingPrice && (
-            <span className="font-serif text-sm sm:text-base italic font-semibold text-[#D6204E] whitespace-nowrap">
-              From {meta.startingPrice}
-            </span>
-          )}
         </div>
 
         {/* Concise Subtitle */}
         {meta.subtitle && (
-          <p className="text-xs sm:text-sm text-[#7A6B70] leading-relaxed mb-4 line-clamp-2">
+          <p className="text-xs sm:text-sm text-[#7A6B70] leading-relaxed mb-3 line-clamp-2">
             {meta.subtitle}
           </p>
+        )}
+
+        {/* Starting Price with large text right above the reserve chair button */}
+        {meta.startingPrice && (
+          <div className="mb-4 flex items-baseline gap-1.5 whitespace-nowrap">
+            <span className="text-xs sm:text-sm text-[#7A6B70] font-medium">
+              Starting from
+            </span>
+            <span className="font-sans font-price text-xl sm:text-2xl font-bold text-[#D6204E] leading-none">
+              {meta.startingPrice}
+            </span>
+          </div>
         )}
 
         {/* Prominent Action Button matching Salon Brand Crimson */}
         <button
           type="button"
           onClick={() => onBookCategory?.(category?.key)}
-          className="group/btn inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] px-5 py-3 text-xs sm:text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-300 active:scale-[0.98] cursor-pointer"
+          className="group/btn inline-flex w-full items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] px-3 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-xs font-semibold text-white shadow-xs hover:shadow-md transition-all duration-300 active:scale-[0.98] cursor-pointer"
         >
           <span>Reserve {meta.title} Chair</span>
-          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
         </button>
       </div>
     </div>

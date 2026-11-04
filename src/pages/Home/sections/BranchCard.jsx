@@ -62,7 +62,7 @@ export function BranchCard({ branch }) {
                 <Phone className="w-3.5 h-3.5 text-[#D6204E] shrink-0" />
                 <span className="font-medium">{branch.phoneDisplay}</span>
               </span>
-              <span className="text-[10px] text-[#D6204E] font-bold uppercase tracking-wider underline sm:no-underline sm:group-hover/phone:underline">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-[#D6204E] to-[#B81942] group-hover/phone:from-[#B81942] group-hover/phone:to-[#961234] text-white text-[9.5px] xs:text-[10px] font-bold uppercase tracking-wider shadow-2xs group-hover/phone:shadow-xs transition-all duration-200 active:scale-95 shrink-0">
                 Call Now
               </span>
             </a>
@@ -80,7 +80,7 @@ export function BranchCard({ branch }) {
             href={branch.mapUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[#D6204E] hover:text-[#B81942] py-2 px-3 rounded-xl bg-[#FFF3F6] hover:bg-[#FCE5EB] transition-colors flex-1 text-center"
+            className="inline-flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-semibold text-[#D6204E] hover:text-[#B81942] py-1.5 xs:py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-full border border-[#F0CDD7] bg-[#FFF3F6] hover:bg-[#FFE8EF] transition-colors flex-1 text-center active:scale-95"
           >
             <MapPin className="w-3.5 h-3.5 shrink-0" />
             <span>Directions</span>
@@ -88,10 +88,10 @@ export function BranchCard({ branch }) {
 
           {/* WhatsApp Button */}
           <a
-            href={`https://api.whatsapp.com/send?phone=${String(branch.whatsAppNumber || '919046466767').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(branch.prefillMessage)}`}
+            href={`https://api.whatsapp.com/send?phone=${String(branch.whatsAppNumber || '917872624993').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(branch.prefillMessage)}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white py-2 px-3.5 rounded-xl text-xs font-medium shadow-xs hover:shadow-sm active:scale-95 transition-all text-center flex-1"
+            className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white py-1.5 xs:py-2 sm:py-2.5 px-2.5 sm:px-3.5 rounded-full text-[11px] sm:text-xs font-semibold shadow-xs hover:shadow-md active:scale-95 transition-all text-center flex-1"
           >
             <MessageCircle className="w-3.5 h-3.5 shrink-0" />
             <span>WhatsApp</span>

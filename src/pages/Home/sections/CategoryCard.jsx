@@ -21,7 +21,7 @@ export function CategoryCard({ item, onSelectCategory }) {
           <h3 className="font-headline-sm text-base sm:text-headline-sm text-deep-espresso">
             {item.title}
           </h3>
-          <span className="font-headline-sm text-base sm:text-headline-sm text-terracotta-rose font-medium">
+          <span className="font-sans font-price text-base sm:text-lg text-[#D6204E] font-bold">
             {item.price}
           </span>
         </div>

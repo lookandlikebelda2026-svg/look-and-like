@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, ChevronRight, Sparkles, ArrowRight, Calendar } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ArrowRight, Calendar } from 'lucide-react';
 import { useContentStorage } from '../services/contentStorage';
 
 export function InspirationPage({ onOpenBooking, onNotify }) {
@@ -41,8 +41,8 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-8">
         {/* Gallery Header & Navigation Bar */}
         <div className="mb-6 sm:mb-10 text-center max-w-2xl mx-auto pt-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#D6204E] mb-3">
-            <Sparkles className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
+
             Editorial Lookbook &amp; Inspiration
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-deep-espresso tracking-tight">
@@ -52,25 +52,27 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
             Browse our hand-selected archive of hairstyles, glowing facials, couture nail art and bridal looks crafted by our master stylists.
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+          <div className="mt-3.5 sm:mt-5 flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-2.5 max-w-full px-1">
             <button
               type="button"
               onClick={() => {
                 navigate('/services');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full border border-border-warm bg-white hover:border-deep-espresso text-xs font-semibold text-deep-espresso transition-all hover:bg-neutral-50 cursor-pointer"
+              className="inline-flex min-h-[26px] xs:min-h-[28px] sm:min-h-[32px] items-center justify-center gap-1 sm:gap-1.5 px-2.5 xs:px-3 sm:px-4 py-0.5 xs:py-1 sm:py-1.5 rounded-full border border-border-warm bg-white hover:border-deep-espresso text-[8.5px] xs:text-[9.5px] sm:text-[11px] font-medium text-deep-espresso transition-all hover:bg-neutral-50 cursor-pointer shadow-2xs active:scale-95 whitespace-nowrap"
             >
-              <span>Explore Services &amp; Menu</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="sm:hidden">Services &amp; Menu</span>
+              <span className="hidden sm:inline">Explore Services &amp; Menu</span>
+              <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
             </button>
             <button
               type="button"
               onClick={() => onOpenBooking?.()}
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-[#D6204E] hover:bg-[#B81942] text-xs font-semibold text-white shadow-xs hover:shadow-md transition-all cursor-pointer"
+              className="inline-flex min-h-[26px] xs:min-h-[28px] sm:min-h-[32px] items-center justify-center gap-1 sm:gap-1.5 px-2.5 xs:px-3 sm:px-4 py-0.5 xs:py-1 sm:py-1.5 rounded-full bg-[#D6204E] hover:bg-[#B81942] text-[8.5px] xs:text-[9.5px] sm:text-[11px] font-medium text-white shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Reserve Your Chair</span>
+              <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+              <span className="sm:hidden">Reserve Chair</span>
+              <span className="hidden sm:inline">Reserve Your Chair</span>
             </button>
           </div>
         </div>

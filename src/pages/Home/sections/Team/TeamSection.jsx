@@ -6,11 +6,11 @@ export function TeamSection() {
   return (
     <div className="pt-8">
       <div className="text-center max-w-xl mx-auto mb-14">
-        <span className="font-label-sm text-label-sm uppercase tracking-widest text-terracotta-rose font-semibold">
+        <span className="font-label-sm text-label-sm uppercase tracking-widest text-black font-semibold">
           The Artists
         </span>
         <h3 className="font-headline-lg text-headline-lg md:text-display-md text-deep-espresso mt-2">
-          Meet <span className="italic font-normal text-terracotta-rose font-serif">the</span> team
+          Meet <span className="italic font-normal text-black font-serif">the</span> team
         </h3>
         <p className="font-body-md text-body-md text-on-surface-variant mt-2 leading-relaxed">
           Trained internationally in Paris, London, and Tokyo — obsessed with nuance and craft.

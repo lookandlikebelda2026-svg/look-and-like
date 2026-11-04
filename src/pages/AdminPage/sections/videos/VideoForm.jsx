@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Image as ImageIcon, Play, Sparkles } from 'lucide-react';
+import { Check, Image as ImageIcon, Play } from 'lucide-react';
 import { YouTubeIcon } from '../../../../components/icons';
 import { ImageKitUploader } from '../../../../components/common/ImageKitUploader';
 import { extractYouTubeId, getYouTubeThumbnailUrl, isValidYouTubeUrl } from '../../../../utils/youtube';

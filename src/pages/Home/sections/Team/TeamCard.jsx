@@ -14,7 +14,7 @@ export function TeamCard({ artist }) {
       <h4 className="font-headline-sm text-headline-sm text-deep-espresso">
         {artist.name}
       </h4>
-      <span className="font-label-sm text-label-sm text-terracotta-rose uppercase tracking-wider mt-1 font-semibold">
+      <span className="font-label-sm text-label-sm text-black uppercase tracking-wider mt-1 font-semibold">
         {artist.title}
       </span>
       <span className="font-body-sm text-body-sm text-on-surface-variant mt-2">

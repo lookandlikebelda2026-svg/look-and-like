@@ -80,35 +80,27 @@ export function ServicesSection({ onSelectService, onNavigate }) {
   return (
     <section className="w-full bg-white py-6 sm:py-10 scroll-mt-20" id="services">
       <span id="curated-services" className="sr-only" aria-hidden="true" />
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-        {/* Section Header: Centered Title with Right-Aligned "View All →" */}
-        <div className="flex items-center justify-between mb-6 sm:mb-10">
-          <div className="w-14 sm:w-24 shrink-0" aria-hidden="true" />
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-deep-espresso tracking-tight text-center flex-1">
+      <div className="max-w-[1280px] mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-12">
+        {/* Section Header: Perfectly Centered Eyebrow & Title */}
+        <div className="mb-5 sm:mb-8 text-center">
+          <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
+            OUR SERVICES
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold text-deep-espresso tracking-tight">
             Our Services
           </h2>
-          <div className="w-14 sm:w-24 shrink-0 flex justify-end">
-            <button
-              type="button"
-              onClick={handleViewAll}
-              className="text-[#D6204E] hover:text-[#B81942] font-semibold text-xs sm:text-sm md:text-[15px] flex items-center gap-1 transition-colors group cursor-pointer whitespace-nowrap"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:translate-x-1" />
-            </button>
-          </div>
         </div>
 
-        {/* 4 Core Services Grid */}
-        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-5">
+        {/* 4 Core Services Grid: 2x2 Grid on Mobile/Tablet, 4 Columns on Large Desktop */}
+        <div className="relative grid grid-cols-2 lg:grid-cols-4 gap-2.5 xs:gap-3.5 sm:gap-5 lg:gap-5">
           {SERVICE_CARDS.map((card) => (
             <div
               key={card.id}
               onClick={() => handleCardClick(card.categoryKey)}
-              className="group relative bg-white rounded-2xl sm:rounded-3xl border border-[#F0CDD7]/90 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer w-full"
+              className="group relative bg-white rounded-xl xs:rounded-2xl sm:rounded-3xl border border-[#F0CDD7]/90 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer w-full"
             >
               {/* Card Image Banner */}
-              <div className="relative w-full h-48 xs:h-52 sm:h-48 md:h-52 bg-[#FFF3F6] overflow-hidden">
+              <div className="relative w-full h-32 xs:h-36 sm:h-48 md:h-52 bg-[#FFF3F6] overflow-hidden">
                 <img
                   src={card.image}
                   alt={card.title}
@@ -117,39 +109,41 @@ export function ServicesSection({ onSelectService, onNavigate }) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
 
-                {/* Highly Visible Circular White Badge overlapping bottom-left */}
-                <div className="absolute left-3.5 sm:left-4 -bottom-4.5 sm:-bottom-5 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white shadow-md border-2 border-white ring-1 ring-[#F0CDD7] flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  {card.icon}
-                </div>
-
-                {/* Tag on Image matching screenshot */}
-                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-0.5 sm:py-1 rounded-full border border-white/80 shadow-xs flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D6204E]" />
-                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-[#D6204E]">
-                    {card.treatmentCount}
-                  </span>
-                </div>
+                {/* Treatment Count Badge matching Tour Badge styling */}
+                <span className="absolute top-2 right-2 xs:top-2.5 xs:right-2.5 bg-black/60 backdrop-blur-xs text-white text-[8.5px] xs:text-[9.5px] sm:text-[10.5px] font-medium px-2 xs:px-2.5 py-0.5 rounded-full shadow-xs pointer-events-none select-none">
+                  {card.treatmentCount}
+                </span>
               </div>
 
-              {/* Card Details: Title, Subtitle, Starting Price, Reserve Category */}
-              <div className="pt-6 sm:pt-7 pb-4 px-3.5 sm:px-4 flex flex-col flex-1 justify-between bg-white relative z-10">
+              {/* Card Details: Overlapping Icon Badge + Title, Subtitle, Starting Price, Reserve Category */}
+              <div className="pt-0 pb-3 sm:pb-4 px-2.5 xs:px-3 sm:px-4 flex flex-col flex-1 justify-between bg-white relative z-10">
+                {/* 100% Fully Visible Circular Badge Overlapping Image Boundary */}
+                <div className="-mt-4 xs:-mt-4.5 sm:-mt-6 mb-1 xs:mb-1.5 w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 rounded-full bg-white shadow-md border border-[#F0CDD7] flex items-center justify-center z-20 transition-transform duration-300 group-hover:scale-110">
+                  <div className="scale-75 xs:scale-85 sm:scale-100 flex items-center justify-center text-[#D6204E]">
+                    {card.icon}
+                  </div>
+                </div>
+
                 <div>
-                  <div className="flex items-baseline justify-between gap-1 mb-1">
-                    <h3 className="font-bold text-base sm:text-lg text-deep-espresso group-hover:text-[#D6204E] transition-colors leading-tight">
+                  <div className="mb-0.5 xs:mb-1">
+                    <h3 className="font-bold text-xs xs:text-sm sm:text-base lg:text-lg text-deep-espresso group-hover:text-[#D6204E] transition-colors leading-tight truncate">
                       {card.title}
                     </h3>
-                    <span className="text-[11px] sm:text-xs font-serif italic font-semibold text-[#D6204E] whitespace-nowrap">
-                      Starting from {card.startingPrice}
-                    </span>
                   </div>
 
-                  <p className="text-[11px] sm:text-xs text-[#7A6B70] leading-snug mb-2.5 line-clamp-2">
+                  <p className="text-[9.5px] xs:text-[10.5px] sm:text-xs text-[#7A6B70] leading-tight mb-2 sm:mb-3 line-clamp-1 xs:line-clamp-2 min-h-[1.2em] sm:min-h-[2.4em]">
                     {card.subtitle}
                   </p>
 
-                  <p className="text-[10px] sm:text-[11px] text-[#5C4D52] bg-[#FAF8F5] p-2 rounded-xl border border-border-warm/60 mb-3 leading-normal font-sans line-clamp-1">
-                    ✦ {card.tagline}
-                  </p>
+                  {/* Starting Price: ALWAYS on One Single Line */}
+                  <div className="mb-2 xs:mb-3 flex flex-row items-baseline gap-1 xs:gap-1.5 whitespace-nowrap">
+                    <span className="text-[9px] xs:text-[10px] sm:text-xs text-[#7A6B70] font-medium leading-none">
+                      Starting from
+                    </span>
+                    <span className="font-sans font-price text-xs xs:text-sm sm:text-base lg:text-lg font-bold text-[#D6204E] leading-none">
+                      {card.startingPrice}
+                    </span>
+                  </div>
                 </div>
 
                 <button
@@ -158,15 +152,28 @@ export function ServicesSection({ onSelectService, onNavigate }) {
                     e.stopPropagation();
                     handleCardClick(card.categoryKey);
                   }}
-                  className="w-full inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white text-[11px] sm:text-xs font-semibold py-2.5 px-3 rounded-full shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer mt-1"
+                  className="w-full inline-flex items-center justify-center gap-1 sm:gap-1.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white text-[9px] xs:text-[10px] sm:text-[11px] font-medium py-1 xs:py-1.5 sm:py-2 px-2 xs:px-2.5 rounded-full shadow-2xs hover:shadow-sm transition-all active:scale-95 cursor-pointer mt-0.5 sm:mt-1 whitespace-nowrap"
                 >
-                  <span>Reserve {card.title} Chair</span>
-                  <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>Reserve Chair</span>
+                  <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                 </button>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Dedicated Page Link / CTA */}
+        {/* <div className="mt-8 sm:mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={handleViewAll}
+            className="inline-flex min-h-[46px] sm:min-h-[50px] items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] px-7 sm:px-10 py-3 text-center text-xs sm:text-sm font-bold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-white shadow-md shadow-[#D6204E]/25 hover:shadow-lg hover:shadow-[#D6204E]/35 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer group whitespace-nowrap"
+          >
+            <span className="sm:hidden">Explore All Services</span>
+            <span className="hidden sm:inline">Explore Complete Services Menu</span>
+            <ArrowRight className="w-4 h-4 text-white shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+          </button>
+        </div> */}
       </div>
     </section>
   );

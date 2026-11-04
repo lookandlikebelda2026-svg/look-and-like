@@ -6,7 +6,7 @@ import {
   Loader2,
   X,
   Image as ImageIcon,
-  Sparkles,
+
   ArrowRight,
   RefreshCw,
   Copy,
@@ -349,7 +349,7 @@ export function ImageKitUploader({
             <div className="rounded-2xl border border-[#F0CDD7] bg-[#FCFBFA] p-3.5 sm:p-4 space-y-3 shadow-xs animate-fade-in">
               <div className="flex items-center justify-between pb-2 border-b border-[#F0CDD7]/80">
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#D6204E]" />
+
                   <span className="text-xs font-bold text-deep-espresso">
                     Review Compressed Preview Before Upload
                   </span>

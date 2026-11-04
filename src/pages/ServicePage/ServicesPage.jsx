@@ -88,7 +88,7 @@ export function ServicesPage({ onNavigate, onNotify, onOpenBooking }) {
   return (
     <div className="w-full bg-white flex flex-col min-h-screen">
       {/* 1. Hero Header Section */}
-      <HeroSection />
+      <HeroSection onOpenBooking={onOpenBooking} />
 
       {/* 2. Categorized Services Display Section */}
       <CategoryServicesSection

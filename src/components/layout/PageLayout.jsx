@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar } from './Navbar';
+import { Footer } from './Footer';
 import { CONTACT_INFO } from '../../constants/navigation';
 import { WhatsAppIcon } from '../icons';
 
@@ -7,9 +8,10 @@ export function PageLayout({ children, onOpenBooking }) {
   return (
     <div className="min-h-screen flex flex-col bg-white text-on-surface overflow-x-clip">
       <Navbar onOpenBooking={onOpenBooking} />
-      <main className="w-full sm:pt-15 bg-white flex-grow min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)]">
+      <main className="w-full pt-[61px] sm:pt-16 bg-white flex-grow min-h-[calc(100vh-61px)] sm:min-h-[calc(100vh-72px)]">
         {children}
       </main>
+      <Footer />
 
       {/* Floating Persistent WhatsApp Concierge Button */}
       <aside aria-label="Quick WhatsApp Concierge" className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-40">

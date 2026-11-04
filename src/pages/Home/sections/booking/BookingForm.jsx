@@ -126,7 +126,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-bold font-serif text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7]">
+          <span className="px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-bold font-sans font-price text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7]">
             {selectedService?.price}
           </span>
           <div
@@ -176,7 +176,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
                   </p>
                 </div>
 
-                <span className="text-xs font-serif font-bold text-[#D6204E] shrink-0">
+                <span className="text-xs font-sans font-price font-bold text-[#D6204E] shrink-0">
                   {srv.price}
                 </span>
               </button>
@@ -362,7 +362,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
 
     const messageText = buildWhatsAppMessage();
     const encodedMessage = encodeURIComponent(messageText);
-    const cleanNumber = String(currentBranch.whatsAppNumber || '919046466767').replace(/[^0-9]/g, '');
+    const cleanNumber = String(currentBranch.whatsAppNumber || '917872624993').replace(/[^0-9]/g, '');
     const whatsAppUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodedMessage}`;
 
     setGeneratedWhatsAppUrl(whatsAppUrl);
@@ -707,7 +707,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                 <span className="text-stone-400 mx-1.5">·</span>
                 <span className="truncate">{currentService.name}</span>
               </div>
-              <span className="font-bold text-[#D6204E] shrink-0 font-serif">
+              <span className="font-bold text-[#D6204E] shrink-0 font-sans font-price">
                 {currentService.price}
               </span>
             </div>
@@ -725,7 +725,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                 <span className="font-bold text-deep-espresso truncate">
                   {currentService.name}
                 </span>
-                <span className="font-bold text-[#D6204E] font-serif shrink-0">
+                <span className="font-bold text-[#D6204E] font-sans font-price shrink-0">
                   {currentService.price}
                 </span>
               </div>

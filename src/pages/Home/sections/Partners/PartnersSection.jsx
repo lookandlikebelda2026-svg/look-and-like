@@ -13,8 +13,8 @@ export function PartnersSection() {
       <div className="max-w-[1420px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Section Header */}
         <div className="text-center mb-5 sm:mb-7">
-          <span className="inline-block text-[11px] sm:text-xs md:text-sm font-bold tracking-[0.24em] uppercase text-[#D6204E]">
-            — TRUSTED BEAUTY PARTNERS —
+          <span className="inline-block text-[11px] sm:text-xs md:text-sm font-bold tracking-[0.24em] uppercase text-black">
+            TRUSTED BEAUTY PARTNERS
           </span>
         </div>
 
@@ -44,9 +44,9 @@ export function PartnersSection() {
             {marqueePartners.map((partner, index) => (
               <div
                 key={`${partner.name}-${index}`}
-                className="shrink-0 w-28 h-14 xs:w-32 xs:h-16 sm:w-40 sm:h-20 bg-white rounded-xl sm:rounded-2xl border border-border-warm/70 shadow-xs hover:shadow-md hover:border-[#D6204E]/50 transition-all duration-300 flex items-center justify-center p-2 sm:p-3 group cursor-default"
+                className="shrink-0 w-28 h-14 xs:w-32 xs:h-16 sm:w-40 sm:h-20 bg-[#FFF3F6] rounded-xl sm:rounded-2xl border border-[#F0CDD7]/90 shadow-2xs hover:shadow-md hover:border-[#D6204E]/50 transition-all duration-300 flex items-center justify-center p-2 sm:p-3 group cursor-default"
               >
-                <div className="w-full h-full flex items-center justify-center py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#FAF8F5]/80 rounded-lg sm:rounded-xl group-hover:bg-white transition-colors duration-300">
+                <div className="w-full h-full flex items-center justify-center py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#FFF3F6] rounded-lg sm:rounded-xl group-hover:bg-white transition-colors duration-300">
                   <img
                     src={partner.logoUrl}
                     alt={`${partner.name} logo`}

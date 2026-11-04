@@ -38,7 +38,7 @@ export function ServiceList() {
                     {treatment.duration}
                   </span>
                 </div>
-                <span className="font-subheading text-deep-espresso font-semibold whitespace-nowrap">
+                <span className="font-sans font-price text-deep-espresso font-bold whitespace-nowrap">
                   {treatment.price}
                 </span>
               </div>
@@ -60,7 +60,7 @@ export function ServiceList() {
             <p className="font-body-sm text-on-surface-variant mb-4 leading-relaxed">
               {mini.description}
             </p>
-            <span className="font-label-md font-semibold text-deep-espresso">
+            <span className="font-sans font-price font-bold text-deep-espresso">
               {mini.price}
             </span>
           </div>

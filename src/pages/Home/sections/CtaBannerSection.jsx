@@ -1,5 +1,5 @@
 import React from 'react';
-import ctaBannerImage from '../../../asset/CTA.png';
+import ctaBannerImage from '../../../asset/cta-banner.jpg';
 import { ArrowRight } from 'lucide-react';
 import { LotusIcon } from '../../../components/icons';
 
@@ -18,49 +18,75 @@ export function CtaBannerSection({ onOpenBooking }) {
     <section className="w-full bg-white pt-5 sm:pt-8 md:pt-10 pb-4 sm:pb-6" id="cta-banner">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Main Panoramic Banner Card */}
-        <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300 border border-[#F0CDD7]/80 min-h-[140px] xs:min-h-[160px] sm:min-h-[190px] md:min-h-[230px] lg:min-h-[260px] flex items-center bg-[#FFF3F6]">
-          {/* Background Image from Assets */}
+        <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300 border border-[#F0CDD7]/80 min-h-[155px] xs:min-h-[170px] sm:min-h-[190px] md:min-h-[230px] lg:min-h-[260px] flex items-center bg-[#FFF3F6]">
+          {/* Background Image: High-Resolution Atelier Beauty Banner */}
           <img
             src={ctaBannerImage}
             alt="Look & Like Beauty Salon Experience"
-            className="absolute inset-0 w-full h-full object-fit object-[80%_center] xs:object-[82%_center] sm:object-center select-none pointer-events-none"
+            className="absolute inset-0 w-full h-full object-cover object-[85%_center] xs:object-[80%_center] sm:object-right select-none pointer-events-none"
             loading="lazy"
           />
 
-          {/* Soft Left Ambient Gradient for logo readability on all viewports */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/25 to-transparent sm:from-transparent pointer-events-none" />
+          {/* Responsive Left Ambient Scrim for Flawless Text Legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent sm:from-white/90 sm:via-white/45 sm:to-transparent pointer-events-none" />
 
-          {/* Left Element: Brand Logo & Title */}
-          <div className="absolute left-2.5 xs:left-4 sm:left-8 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 flex flex-col items-center text-center select-none z-10">
-            <LotusIcon className="w-4 h-4 xs:w-5 xs:h-5 sm:w-8 sm:h-8 md:w-10 md:h-10 text-[#D6204E] mb-0.5 sm:mb-1 drop-shadow-xs" />
-            <h2 className="font-serif text-sm xs:text-base sm:text-2xl md:text-3xl lg:text-[2.6rem] font-bold text-[#D6204E] tracking-tight leading-none whitespace-nowrap">
-              Look &amp; Like
-            </h2>
-            <span className="font-sans text-[6.5px] xs:text-[7.5px] sm:text-[10px] lg:text-[11px] uppercase tracking-[0.22em] xs:tracking-[0.26em] sm:tracking-[0.32em] text-[#8F2946] font-semibold mt-0.5 sm:mt-1 whitespace-nowrap">
-              Beauty Salon
-            </span>
-          </div>
+          {/* PHONE LAYOUT (< sm): Stacked brand + button in the left 60%, model on right */}
+          <div className="relative z-10 flex sm:hidden flex-col justify-center items-start pl-4 xs:pl-6 pr-2 max-w-[62%] h-full py-4 gap-2.5">
+            <div className="flex items-center gap-2">
+              <LotusIcon className="w-5 h-5 text-[#D6204E] shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-serif text-lg xs:text-xl font-bold text-black tracking-tight leading-none">
+                  Look &amp; Like
+                </span>
+                <span className="text-[7.5px] xs:text-[8.5px] uppercase tracking-[0.22em] text-black font-semibold mt-0.5">
+                  Beauty Salon
+                </span>
+              </div>
+            </div>
 
-          {/* Center Element: Pill CTA Button (Dead Center of the banner) */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
             <button
               type="button"
               onClick={handleBooking}
-              className="inline-flex min-h-[36px] xs:min-h-[40px] sm:min-h-[46px] items-center justify-center gap-1.5 sm:gap-2.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white font-medium text-[10px] xs:text-xs sm:text-sm md:text-[15px] px-3 xs:px-4 sm:px-6 md:px-8 py-2 xs:py-2.5 sm:py-3 rounded-full shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer active:scale-95 group whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1 bg-black hover:bg-neutral-800 active:bg-neutral-900 text-white font-medium text-[9px] xs:text-[10px] px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-full shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap mt-1"
             >
               <span>Book Appointment</span>
-              <ArrowRight className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="w-2.5 h-2.5" />
             </button>
+          </div>
+
+          {/* DESKTOP LAYOUT (sm+): Left brand, centered button, model on right */}
+          <div className="relative z-10 hidden sm:flex items-center justify-between w-full h-full px-8 md:px-12 lg:px-16">
+            {/* Left: Brand Logo & Title */}
+            <div className="flex flex-col items-center text-center select-none shrink-0">
+              <LotusIcon className="w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 text-[#D6204E] mb-1 drop-shadow-xs" />
+              <h2 className="font-serif text-2xl md:text-3xl lg:text-[2.2rem] font-bold text-black tracking-tight leading-none whitespace-nowrap">
+                Look &amp; Like
+              </h2>
+              <span className="font-sans text-[8.5px] md:text-[9.5px] lg:text-[11px] uppercase tracking-[0.28em] text-black font-semibold mt-1 whitespace-nowrap">
+                Beauty Salon
+              </span>
+            </div>
+
+            {/* Center: CTA Pill Button in Premium Black */}
+            <div className="flex justify-center flex-1 px-4">
+              <button
+                type="button"
+                onClick={handleBooking}
+                className="inline-flex min-h-[32px] sm:min-h-[34px] md:min-h-[36px] items-center justify-center gap-1.5 sm:gap-2 bg-black hover:bg-neutral-800 active:bg-neutral-900 text-white font-semibold text-[11px] sm:text-xs md:text-[13px] px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full shadow-xs hover:shadow-md transition-all duration-300 hover:scale-102 active:scale-95 cursor-pointer whitespace-nowrap group"
+              >
+                <span>Book Appointment</span>
+                <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+
+            {/* Right Spacer so model on the right remains fully visible */}
+            <div className="w-24 md:w-36 lg:w-52 shrink-0 pointer-events-none" aria-hidden="true" />
           </div>
         </div>
 
-        {/* Decorative Lotus Flower Divider matching mockup */}
-        <div className="flex items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-10 select-none" aria-hidden="true">
-          <div className="h-[1px] w-16 sm:w-36 md:w-48 bg-[#F0CDD7]" />
-          <LotusIcon className="w-4 h-4 sm:w-6 sm:h-6 text-[#D6204E]" />
-          <div className="h-[1px] w-16 sm:w-36 md:w-48 bg-[#F0CDD7]" />
-        </div>
       </div>
     </section>
   );
 }
+
+export default CtaBannerSection;

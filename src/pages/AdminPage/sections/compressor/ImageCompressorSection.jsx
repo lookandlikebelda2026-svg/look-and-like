@@ -12,7 +12,7 @@ import {
   Maximize2,
   Minimize2,
   FileImage,
-  Sparkles,
+
 } from 'lucide-react';
 import { compressImage, formatBytes, getImageDimensions } from '../../../../utils/imageCompressor';
 import { uploadImageToImageKit } from '../../../../services/imagekit';
@@ -394,7 +394,7 @@ export function ImageCompressorSection({ onNotify }) {
             <div className="bg-white rounded-2xl border-2 border-[#D6204E]/40 overflow-hidden shadow-sm flex flex-col">
               <div className="p-3.5 bg-[#FFF3F6] border-b border-[#F0CDD7] flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#D6204E] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+
                   Compressed &amp; Optimized Image
                 </span>
                 {result && (

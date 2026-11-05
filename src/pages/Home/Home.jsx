@@ -1,13 +1,13 @@
 import React from 'react';
 import { HeroSection } from './sections/HeroSection';
-import { PartnersSection } from './sections/partners/PartnersSection';
+import { PartnersSection } from './sections/Partners/PartnersSection';
 import { GetInspiredSection } from './sections/GetInspiredSection';
 import { ServicesSection } from './sections/services/ServicesSection';
 import { CoursesSection } from './sections/CoursesSection';
 import { ContactSection } from './sections/ContactSection';
 import { CtaBannerSection } from './sections/CtaBannerSection';
 import { AboutSection } from './sections/AboutSection';
-import { VideoTourSection } from './sections/video/VideoTourSection';
+import { VideoTourSection } from './sections/Video/VideoTourSection';
 
 export function Home({ onNavigate, onNotify, onOpenBooking }) {
   const handleSelectCategory = (categoryOrObject, maybeService) => {

@@ -7,3 +7,7 @@ export { PartnerCard } from './partners/PartnerCard';
 export { VideosSection } from './videos/VideosSection';
 export { VideoForm } from './videos/VideoForm';
 export { VideoCard } from './videos/VideoCard';
+export { ServicesSection } from './services/ServicesSection';
+export { ServiceForm } from './services/ServiceForm';
+export { ServiceCard } from './services/ServiceCard';
+export { ServiceFormPage } from './services/ServiceFormPage';

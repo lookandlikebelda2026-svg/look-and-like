@@ -3,7 +3,9 @@ import { useContentStorage } from '../../../../services/contentStorage';
 
 export function PartnersSection() {
   const [isPaused, setIsPaused] = useState(false);
-  const { partners } = useContentStorage();
+  const { partners = [] } = useContentStorage();
+
+  if (!partners || partners.length === 0) return null;
 
   // Duplicate the partners array to create an infinite, seamless loop
   const marqueePartners = [...partners, ...partners];
@@ -71,3 +73,5 @@ export function PartnersSection() {
     </section>
   );
 }
+
+export default PartnersSection;

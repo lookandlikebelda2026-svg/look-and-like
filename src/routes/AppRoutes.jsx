@@ -4,6 +4,7 @@ import { Home } from '../pages/Home/Home';
 import { ServicesPage } from '../pages/ServicePage/ServicesPage';
 import { InspirationPage } from '../pages/InspirationPage';
 import { AdminPanel } from '../pages/AdminPage/AdminPanel';
+import { ServiceFormPage } from '../pages/AdminPage/sections';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PageLayout } from '../components/layout/PageLayout';
 
@@ -46,6 +47,24 @@ export function AppRoutes({ onOpenBooking, onNotify }) {
         element={
           <ProtectedRoute onNotify={onNotify}>
             <AdminPanel onNotify={onNotify} />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Dedicated Page for Salon Service Form (Create / Edit) */}
+      <Route
+        path="/admin/services/new"
+        element={
+          <ProtectedRoute onNotify={onNotify}>
+            <ServiceFormPage onNotify={onNotify} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/services/edit/:serviceId"
+        element={
+          <ProtectedRoute onNotify={onNotify}>
+            <ServiceFormPage onNotify={onNotify} />
           </ProtectedRoute>
         }
       />

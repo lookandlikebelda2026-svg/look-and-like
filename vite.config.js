@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss()
   ],
   server: {
-    port: 3000,
+    port: 5173                                                                             ,
     open: false, 
     host: '0.0.0.0', 
     allowedHosts: [

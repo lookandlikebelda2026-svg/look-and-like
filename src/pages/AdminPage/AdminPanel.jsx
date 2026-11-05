@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useContentStorage } from '../../services/contentStorage';
 import { Layout } from './layout';
 import {
+  ServicesSection,
   LookbookSection,
   PartnersSection,
   VideosSection,
@@ -9,13 +11,24 @@ import {
 
 /**
  * AdminPanel
- * Master admin studio for managing Lookbook Editorial Photos, Brand Partners, and YouTube Films.
+ * Master admin studio for managing Salon Services, Lookbook Editorial Photos, Brand Partners, and YouTube Films.
  */
 export function AdminPanel({ adminUser, onLogout, onNotify }) {
-  const [activeTab, setActiveTab] = useState('lookbook');
+  const location = useLocation();
+  const searchTab = new URLSearchParams(location.search).get('tab');
+  const [activeTab, setActiveTab] = useState(searchTab || 'services');
 
-  // Content storage for Lookbook, Partners & YouTube Videos
+  useEffect(() => {
+    if (searchTab && ['services', 'lookbook', 'partners', 'videos'].includes(searchTab)) {
+      setActiveTab(searchTab);
+    }
+  }, [searchTab]);
+
+  // Content storage for Services, Lookbook, Partners & YouTube Videos
   const {
+    servicesData,
+    saveServicesData,
+    resetServicesData,
     inspiredImages,
     partners,
     videos,
@@ -27,6 +40,11 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
     resetVideos,
   } = useContentStorage();
 
+  // Total services count
+  const totalServicesCount = Array.isArray(servicesData)
+    ? servicesData.length
+    : Object.keys(servicesData || {}).length;
+
   return (
     <Layout
       adminUser={adminUser}
@@ -35,11 +53,21 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       activeTab={activeTab}
       onTabChange={setActiveTab}
       counts={{
+        services: totalServicesCount,
         lookbook: inspiredImages.length,
         partners: partners.length,
         videos: videos.length,
       }}
     >
+      {activeTab === 'services' && (
+        <ServicesSection
+          servicesData={servicesData}
+          saveServicesData={saveServicesData}
+          resetServicesData={resetServicesData}
+          onNotify={onNotify}
+        />
+      )}
+
       {activeTab === 'lookbook' && (
         <LookbookSection
           inspiredImages={inspiredImages}

@@ -2,25 +2,48 @@ import { useState, useEffect } from 'react';
 import { GET_INSPIRED_IMAGES } from '../constants/inspiration';
 import { PARTNERS } from '../constants/partners';
 import { COLLECTION_VIDEOS } from '../constants/videos';
+import { DEFAULT_SERVICES_DATA, normalizeService } from '../constants/services';
+import {
+  getServicesFromFirebase,
+  saveServiceToFirebase,
+  deleteServiceFromFirebase,
+} from './serviceFirebaseService';
 
-const STORAGE_KEY_INSPIRED = 'look_and_like_inspired_images_v1';
-const STORAGE_KEY_PARTNERS = 'look_and_like_partners_v1';
-const STORAGE_KEY_VIDEOS = 'look_and_like_videos_v1';
+const STORAGE_KEY_INSPIRED = 'look_and_like_inspired_images_v2';
+const STORAGE_KEY_PARTNERS = 'look_and_like_partners_v2';
+const STORAGE_KEY_VIDEOS = 'look_and_like_videos_v2';
+const STORAGE_KEY_SERVICES = 'look_and_like_services_v2';
 const EVENT_NAME = 'look_and_like_content_changed';
 
 /**
- * Get stored or default Get Inspired Images
+ * Clean up legacy v1 storage keys
+ */
+function cleanupLegacyKeys() {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem('look_and_like_inspired_images_v1');
+    localStorage.removeItem('look_and_like_partners_v1');
+    localStorage.removeItem('look_and_like_videos_v1');
+    localStorage.removeItem('look_and_like_services_v1');
+  } catch (e) {
+    // ignore
+  }
+}
+
+/**
+ * Get stored or empty Get Inspired Images
  */
 export function getStoredInspiredImages() {
-  if (typeof window === 'undefined') return GET_INSPIRED_IMAGES;
+  if (typeof window === 'undefined') return [];
+  cleanupLegacyKeys();
   try {
     const raw = localStorage.getItem(STORAGE_KEY_INSPIRED);
-    if (!raw) return GET_INSPIRED_IMAGES;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : GET_INSPIRED_IMAGES;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.warn('Failed to parse stored inspired images:', err);
-    return GET_INSPIRED_IMAGES;
+    return [];
   }
 }
 
@@ -30,41 +53,44 @@ export function getStoredInspiredImages() {
 export function saveStoredInspiredImages(images) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY_INSPIRED, JSON.stringify(images));
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'inspired', data: images } }));
+    const list = Array.isArray(images) ? images : [];
+    localStorage.setItem(STORAGE_KEY_INSPIRED, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'inspired', data: list } }));
   } catch (err) {
     console.error('Failed to save inspired images to localStorage:', err);
   }
 }
 
 /**
- * Reset Get Inspired Images to original defaults
+ * Reset / Clear Get Inspired Images
  */
 export function resetStoredInspiredImages() {
-  if (typeof window === 'undefined') return GET_INSPIRED_IMAGES;
+  if (typeof window === 'undefined') return [];
   try {
     localStorage.removeItem(STORAGE_KEY_INSPIRED);
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'inspired', data: GET_INSPIRED_IMAGES } }));
-    return GET_INSPIRED_IMAGES;
+    localStorage.removeItem('look_and_like_inspired_images_v1');
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'inspired', data: [] } }));
+    return [];
   } catch (err) {
     console.error('Failed to reset inspired images:', err);
-    return GET_INSPIRED_IMAGES;
+    return [];
   }
 }
 
 /**
- * Get stored or default Partners
+ * Get stored or empty Partners
  */
 export function getStoredPartners() {
-  if (typeof window === 'undefined') return PARTNERS;
+  if (typeof window === 'undefined') return [];
+  cleanupLegacyKeys();
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PARTNERS);
-    if (!raw) return PARTNERS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : PARTNERS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.warn('Failed to parse stored partners:', err);
-    return PARTNERS;
+    return [];
   }
 }
 
@@ -74,41 +100,44 @@ export function getStoredPartners() {
 export function saveStoredPartners(partners) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY_PARTNERS, JSON.stringify(partners));
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'partners', data: partners } }));
+    const list = Array.isArray(partners) ? partners : [];
+    localStorage.setItem(STORAGE_KEY_PARTNERS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'partners', data: list } }));
   } catch (err) {
     console.error('Failed to save partners to localStorage:', err);
   }
 }
 
 /**
- * Reset Partners to original defaults
+ * Reset / Clear Partners
  */
 export function resetStoredPartners() {
-  if (typeof window === 'undefined') return PARTNERS;
+  if (typeof window === 'undefined') return [];
   try {
     localStorage.removeItem(STORAGE_KEY_PARTNERS);
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'partners', data: PARTNERS } }));
-    return PARTNERS;
+    localStorage.removeItem('look_and_like_partners_v1');
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'partners', data: [] } }));
+    return [];
   } catch (err) {
     console.error('Failed to reset partners:', err);
-    return PARTNERS;
+    return [];
   }
 }
 
 /**
- * Get stored or default Videos
+ * Get stored or empty Videos
  */
 export function getStoredVideos() {
-  if (typeof window === 'undefined') return COLLECTION_VIDEOS;
+  if (typeof window === 'undefined') return [];
+  cleanupLegacyKeys();
   try {
     const raw = localStorage.getItem(STORAGE_KEY_VIDEOS);
-    if (!raw) return COLLECTION_VIDEOS;
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : COLLECTION_VIDEOS;
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     console.warn('Failed to parse stored videos:', err);
-    return COLLECTION_VIDEOS;
+    return [];
   }
 }
 
@@ -118,25 +147,91 @@ export function getStoredVideos() {
 export function saveStoredVideos(videos) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY_VIDEOS, JSON.stringify(videos));
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: videos } }));
+    const list = Array.isArray(videos) ? videos : [];
+    localStorage.setItem(STORAGE_KEY_VIDEOS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: list } }));
   } catch (err) {
     console.error('Failed to save videos to localStorage:', err);
   }
 }
 
 /**
- * Reset Videos to original defaults
+ * Reset / Clear Videos
  */
 export function resetStoredVideos() {
-  if (typeof window === 'undefined') return COLLECTION_VIDEOS;
+  if (typeof window === 'undefined') return [];
   try {
     localStorage.removeItem(STORAGE_KEY_VIDEOS);
-    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: COLLECTION_VIDEOS } }));
-    return COLLECTION_VIDEOS;
+    localStorage.removeItem('look_and_like_videos_v1');
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'videos', data: [] } }));
+    return [];
   } catch (err) {
     console.error('Failed to reset videos:', err);
-    return COLLECTION_VIDEOS;
+    return [];
+  }
+}
+
+/**
+ * Get stored Salon Services & Price Plans.
+ * Defaults to DEFAULT_SERVICES_DATA matching the atelier service design.
+ */
+export function getStoredServicesData() {
+  if (typeof window === 'undefined') return DEFAULT_SERVICES_DATA;
+  cleanupLegacyKeys();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SERVICES);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(DEFAULT_SERVICES_DATA));
+      return DEFAULT_SERVICES_DATA;
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.map((s, idx) => normalizeService(s, idx));
+    }
+    localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(DEFAULT_SERVICES_DATA));
+    return DEFAULT_SERVICES_DATA;
+  } catch (err) {
+    console.warn('Failed to parse stored services:', err);
+    return DEFAULT_SERVICES_DATA;
+  }
+}
+
+/**
+ * Save Salon Services to localStorage, sync to Firestore, and notify listeners
+ */
+export function saveStoredServicesData(servicesData) {
+  if (typeof window === 'undefined') return;
+  try {
+    const list = Array.isArray(servicesData)
+      ? servicesData.map((s, idx) => normalizeService(s, idx)).filter(Boolean)
+      : [];
+    localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'services', data: list } }));
+
+    // Asynchronously synchronize with Firestore
+    list.forEach((svc) => {
+      saveServiceToFirebase(svc).catch((err) => {
+        console.warn('Background sync to Firestore failed:', err.message);
+      });
+    });
+  } catch (err) {
+    console.error('Failed to save services to localStorage:', err);
+  }
+}
+
+/**
+ * Reset / Clear all Salon Services
+ */
+export function resetStoredServicesData() {
+  if (typeof window === 'undefined') return [];
+  try {
+    localStorage.removeItem(STORAGE_KEY_SERVICES);
+    localStorage.removeItem('look_and_like_services_v1');
+    window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: { type: 'services', data: [] } }));
+    return [];
+  } catch (err) {
+    console.error('Failed to reset services:', err);
+    return [];
   }
 }
 
@@ -147,12 +242,28 @@ export function useContentStorage() {
   const [inspiredImages, setInspiredImages] = useState(getStoredInspiredImages);
   const [partners, setPartners] = useState(getStoredPartners);
   const [videos, setVideos] = useState(getStoredVideos);
+  const [servicesData, setServicesData] = useState(getStoredServicesData);
 
   useEffect(() => {
+    // Background sync with Firestore without blocking immediate UI rendering
+    getServicesFromFirebase()
+      .then((remoteServices) => {
+        if (Array.isArray(remoteServices) && remoteServices.length > 0) {
+          setServicesData(remoteServices);
+          try {
+            localStorage.setItem(STORAGE_KEY_SERVICES, JSON.stringify(remoteServices));
+          } catch (e) {}
+        }
+      })
+      .catch((err) => {
+        console.warn('Initial Firestore services background sync:', err.message);
+      });
+
     const handleUpdate = () => {
       setInspiredImages(getStoredInspiredImages());
       setPartners(getStoredPartners());
       setVideos(getStoredVideos());
+      setServicesData(getStoredServicesData());
     };
 
     window.addEventListener(EVENT_NAME, handleUpdate);
@@ -168,6 +279,7 @@ export function useContentStorage() {
     inspiredImages,
     partners,
     videos,
+    servicesData,
     saveInspiredImages: (imgs) => {
       saveStoredInspiredImages(imgs);
       setInspiredImages(imgs);
@@ -191,6 +303,14 @@ export function useContentStorage() {
     resetVideos: () => {
       const def = resetStoredVideos();
       setVideos(def);
+    },
+    saveServicesData: (data) => {
+      saveStoredServicesData(data);
+      setServicesData(data);
+    },
+    resetServicesData: () => {
+      const def = resetStoredServicesData();
+      setServicesData(def);
     }
   };
 }

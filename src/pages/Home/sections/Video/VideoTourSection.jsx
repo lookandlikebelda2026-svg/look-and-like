@@ -12,7 +12,11 @@ export function VideoTourSection() {
 
   const rawList = videos && videos.length > 0 ? videos : COLLECTION_VIDEOS;
   // Ensure a symmetrical 2-row grid (6 films: 3x2 on desktop, 2x3 on tablet)
-  const videoList = rawList.slice(0, 6);
+  const videoList = (rawList || []).slice(0, 6);
+
+  if (!videoList || videoList.length === 0) {
+    return null;
+  }
 
   const handleTabClick = (index) => {
     setActiveTab(index);

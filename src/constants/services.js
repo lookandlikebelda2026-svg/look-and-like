@@ -135,6 +135,11 @@ export const CURATED_MENU_DATA = {
         price: "₹3,499",
         duration: "90 Mins",
         bookingService: "glowfacial",
+        subCategories: [
+          { id: "glow-basic", name: "Basic Express Glow", duration: "45 Mins", price: "₹2,499" },
+          { id: "glow-mid", name: "Mid Bio-Active Hydra Infusion", duration: "60 Mins", price: "₹2,999" },
+          { id: "glow-adv", name: "Advanced 90-Min Signature Ritual", duration: "90 Mins", price: "₹3,499" },
+        ],
         photos: [
           {
             url: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&w=600&q=75",
@@ -526,3 +531,149 @@ export const BOOKING_SERVICES_LIST = [
   { value: "redcarpet", label: "Red Carpet Glam (₹5,499)", category: "makeup" },
   { value: "massage", label: "Swedish Massage (₹2,999)", category: "spa" }
 ];
+
+
+/**
+ * Service Data Model Normalization Helpers
+ */
+export function normalizeServiceImage(img, defaultAlt = '') {
+  if (!img) return null;
+  if (typeof img === 'string') {
+    return {
+      url: img,
+      path: '',
+      alt: defaultAlt || 'Service photo',
+    };
+  }
+  return {
+    url: img.url || img.src || '',
+    path: img.path || img.filePath || '',
+    alt: img.alt || defaultAlt || 'Service photo',
+  };
+}
+
+export function normalizeServiceImages(images, defaultAlt = '') {
+  if (!Array.isArray(images)) {
+    if (images && typeof images === 'object') {
+      const single = normalizeServiceImage(images, defaultAlt);
+      return single?.url ? [single] : [];
+    }
+    if (typeof images === 'string' && images.trim()) {
+      return [{ url: images.trim(), path: '', alt: defaultAlt || 'Service photo' }];
+    }
+    return [];
+  }
+  return images.map((img) => normalizeServiceImage(img, defaultAlt)).filter((img) => img && img.url);
+}
+
+export function normalizeServiceSubplan(rawSub, idx = 0) {
+  if (!rawSub) return null;
+  const rawPrice = rawSub.price;
+  const numPrice =
+    typeof rawPrice === 'number'
+      ? rawPrice
+      : Number(String(rawPrice || '0').replace(/[^0-9.]/g, '')) || 0;
+
+  return {
+    id: String(rawSub.id || 'subplan-' + Date.now() + '-' + idx),
+    name: String(rawSub.name || 'Option ' + (idx + 1)).trim(),
+    price: numPrice,
+  };
+}
+
+export function normalizeServicePlan(rawPlan, planIdx = 0) {
+  if (!rawPlan) return null;
+
+  let subplans = [];
+  const rawSubs = Array.isArray(rawPlan.subplans) && rawPlan.subplans.length > 0
+    ? rawPlan.subplans
+    : Array.isArray(rawPlan.subCategories) && rawPlan.subCategories.length > 0
+    ? rawPlan.subCategories
+    : [];
+
+  if (rawSubs.length > 0) {
+    subplans = rawSubs
+      .map((sub, sIdx) => normalizeServiceSubplan(sub, sIdx))
+      .filter(Boolean);
+  } else if (rawPlan.price) {
+    const basePrice =
+      typeof rawPlan.price === 'number'
+        ? rawPlan.price
+        : Number(String(rawPlan.price).replace(/[^0-9.]/g, '')) || 1499;
+    subplans = [
+      { id: 'sub-' + (rawPlan.id || planIdx) + '-basic', name: 'Basic', price: basePrice },
+      { id: 'sub-' + (rawPlan.id || planIdx) + '-mid', name: 'Mid', price: Math.round(basePrice * 1.35) },
+      { id: 'sub-' + (rawPlan.id || planIdx) + '-adv', name: 'Advanced', price: Math.round(basePrice * 1.75) },
+    ];
+  } else {
+    subplans = [
+      { id: 'sub-' + Date.now() + '-1', name: 'Basic', price: 999 },
+    ];
+  }
+
+  let startingPrice = Number(rawPlan.startingPrice);
+  if (isNaN(startingPrice) || startingPrice <= 0) {
+    const prices = subplans.map((s) => s.price).filter((p) => typeof p === 'number' && p > 0);
+    startingPrice = prices.length > 0 ? Math.min(...prices) : 0;
+  }
+
+  const images = normalizeServiceImages(rawPlan.images || rawPlan.photos, rawPlan.name);
+
+  return {
+    id: String(rawPlan.id || 'plan-' + Date.now() + '-' + planIdx),
+    name: String(rawPlan.name || rawPlan.title || 'Plan ' + (planIdx + 1)).trim(),
+    description: String(rawPlan.description || rawPlan.desc || '').trim(),
+    images,
+    startingPrice,
+    subplans,
+  };
+}
+
+export function normalizeService(rawSvc, svcIdx = 0) {
+  if (!rawSvc) return null;
+
+  const id = String(rawSvc.id || rawSvc.key || 'service-' + Date.now() + '-' + svcIdx);
+  const name = String(rawSvc.name || rawSvc.title || 'Untitled Service').trim();
+  const description = String(rawSvc.description || rawSvc.subtitle || '').trim();
+
+  let images = normalizeServiceImages(rawSvc.images, name);
+  if (images.length === 0 && rawSvc.imageUrl) {
+    images = [{ url: rawSvc.imageUrl, path: '', alt: name }];
+  }
+  if (images.length === 0 && rawSvc.image) {
+    images = [{ url: rawSvc.image, path: '', alt: name }];
+  }
+
+  const rawPlans = Array.isArray(rawSvc.plans)
+    ? rawSvc.plans
+    : Array.isArray(rawSvc.pricePlans)
+    ? rawSvc.pricePlans
+    : Array.isArray(rawSvc.items)
+    ? rawSvc.items
+    : [];
+
+  const plans = rawPlans.map((p, idx) => normalizeServicePlan(p, idx)).filter(Boolean);
+
+  let startingPrice = Number(rawSvc.startingPrice);
+  if (isNaN(startingPrice) || startingPrice <= 0) {
+    const planPrices = plans
+      .map((p) => p.startingPrice)
+      .filter((p) => typeof p === 'number' && p > 0);
+    startingPrice = planPrices.length > 0 ? Math.min(...planPrices) : 999;
+  }
+
+  const now = new Date().toISOString();
+
+  return {
+    id,
+    name,
+    description,
+    images,
+    startingPrice,
+    plans,
+    createdAt: rawSvc.createdAt || now,
+    updatedAt: rawSvc.updatedAt || now,
+  };
+}
+
+export const DEFAULT_SERVICES_DATA = Object.values(CURATED_MENU_DATA).map((cat, idx) => normalizeService(cat, idx));

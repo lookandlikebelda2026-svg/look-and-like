@@ -11,18 +11,14 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { BRANCHES } from '../../../../constants/branches';
-import { CURATED_MENU_DATA } from '../../../../constants/services';
+import {
+  DEFAULT_SERVICES_DATA,
+  normalizeService,
+} from '../../../../constants/services';
+import { useContentStorage } from '../../../../services/contentStorage';
 import { saveBookingToFirebase } from '../../../../services/bookingFirebaseService';
+import { verifySubplanPrice } from '../../../../services/serviceFirebaseService';
 import { WhatsAppIcon } from '../../../../components/icons';
-
-// 5 Core Salon Categories (Pure Typography, No Emojis)
-const CATEGORIES = [
-  { id: 'hair', label: 'Hair' },
-  { id: 'skin', label: 'Skin Care' },
-  { id: 'nails', label: 'Nails' },
-  { id: 'makeup', label: 'Make Up' },
-  { id: 'spa', label: 'Spa' },
-];
 
 // Time Slot Windows (Clean Labels, No Emojis)
 const TIME_SLOTS = [
@@ -47,9 +43,13 @@ function getQuickDates() {
     const day = String(d.getDate()).padStart(2, '0');
     const iso = `${year}-${month}-${day}`;
 
-    const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short' });
-    const subLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    let label = 'Today';
+    if (i === 1) label = 'Tomorrow';
+    if (i === 2) {
+      label = d.toLocaleDateString('en-US', { weekday: 'short' });
+    }
 
+    const subLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     list.push({ label, subLabel, iso, isDefault: i === 1 });
   }
   return list;
@@ -120,8 +120,8 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
           <p className="text-xs sm:text-sm font-bold text-deep-espresso truncate">
             {selectedService?.name || 'Select a ritual'}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-[#7A6B70] mt-0.5">
-            {selectedService?.duration || 'Standard Session'}
+          <p className="text-[10px] sm:text-[11px] text-[#7A6B70] mt-0.5 truncate">
+            {selectedService?.duration || 'Signature Ritual'}
           </p>
         </div>
 
@@ -171,7 +171,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
                       {srv.name}
                     </p>
                   </div>
-                  <p className="text-[10px] text-[#7A6B70] mt-0.5 pl-0.5">
+                  <p className="text-[10px] text-[#7A6B70] mt-0.5 pl-0.5 truncate">
                     {srv.duration}
                   </p>
                 </div>
@@ -192,6 +192,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
  * Professional Luxury Mobile-First Booking Form
  * Fits 100% within mobile viewport without vertical scrolling.
  * Automatically saves to Firestore and redirects directly to WhatsApp.
+ * Supports the hierarchical Service -> Plan -> Subplan data model.
  */
 export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const quickDates = useMemo(() => getQuickDates(), []);
@@ -199,9 +200,10 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   // Wizard Step: 1 (Ritual & Studio), 2 (Date & Time), 3 (Guest Info), or 'confirmed'
   const [step, setStep] = useState(1);
 
-  // Form State
-  const [category, setCategory] = useState('hair');
-  const [selectedServiceId, setSelectedServiceId] = useState('');
+  // 3-Level Data Hierarchy State: Service -> Plan -> Subplan
+  const [selectedServiceId, setSelectedServiceId] = useState('hair');
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [selectedSubplanId, setSelectedSubplanId] = useState('');
   const [branchId, setBranchId] = useState('belda');
 
   // Schedule State (Default to Tomorrow)
@@ -218,69 +220,189 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [generatedWhatsAppUrl, setGeneratedWhatsAppUrl] = useState('');
 
-  // Synchronize preselected category and service from props
-  useEffect(() => {
-    if (!preselectedCategory) return;
+  // Live services data from contentStorage normalized to 3-level hierarchy
+  const { servicesData } = useContentStorage();
 
-    let targetCat = 'hair';
-    let targetService = null;
+  const normalizedServices = useMemo(() => {
+    const source =
+      Array.isArray(servicesData) && servicesData.length > 0
+        ? servicesData
+        : DEFAULT_SERVICES_DATA;
 
-    if (typeof preselectedCategory === 'object' && preselectedCategory !== null) {
-      targetCat = preselectedCategory.category || 'hair';
-      targetService = preselectedCategory.service || null;
-    } else if (typeof preselectedCategory === 'string') {
-      targetCat = preselectedCategory;
-    }
+    return source
+      .map((svc, sIdx) => normalizeService(svc, sIdx))
+      .filter(Boolean);
+  }, [servicesData]);
 
-    // Normalize category keys
-    if (targetCat.includes('skin')) targetCat = 'skin';
-    else if (targetCat.includes('hair')) targetCat = 'hair';
-    else if (targetCat.includes('nail')) targetCat = 'nails';
-    else if (targetCat.includes('makeup') || targetCat.includes('make-up')) targetCat = 'makeup';
-    else if (targetCat.includes('spa')) targetCat = 'spa';
-
-    setCategory(targetCat);
-
-    // Resolve service inside category
-    const catData = CURATED_MENU_DATA[targetCat] || CURATED_MENU_DATA.hair;
-    if (targetService) {
-      const search = String(targetService).toLowerCase().trim();
-      const matched = catData.items.find(
-        (s) =>
-          s.id.toLowerCase() === search ||
-          s.name.toLowerCase().includes(search) ||
-          (s.bookingService && s.bookingService.toLowerCase() === search)
-      );
-      if (matched) {
-        setSelectedServiceId(matched.id);
-      } else if (catData.items[0]) {
-        setSelectedServiceId(catData.items[0].id);
-      }
-    } else if (catData.items[0]) {
-      setSelectedServiceId(catData.items[0].id);
-    }
-  }, [preselectedCategory]);
-
-  // Current Category Services List
-  const currentCategoryData = CURATED_MENU_DATA[category] || CURATED_MENU_DATA.hair;
-  const servicesList = currentCategoryData.items || [];
-
-  // Current Selected Service Object
+  // Current Service Object
   const currentService = useMemo(() => {
-    return servicesList.find((s) => s.id === selectedServiceId) || servicesList[0] || {
-      id: 'custom',
-      name: 'Atelier Consultation',
-      price: 'Price on Selection',
-      duration: '60 Mins',
-    };
-  }, [servicesList, selectedServiceId]);
+    if (!normalizedServices || normalizedServices.length === 0) return null;
+    return (
+      normalizedServices.find((s) => s.id === selectedServiceId) ||
+      normalizedServices[0]
+    );
+  }, [normalizedServices, selectedServiceId]);
 
-  // Ensure selectedServiceId is initialized
-  useEffect(() => {
-    if (!selectedServiceId && servicesList.length > 0) {
-      setSelectedServiceId(servicesList[0].id);
+  // Available Plans for the selected Service
+  const availablePlans = useMemo(() => {
+    return currentService?.plans || [];
+  }, [currentService]);
+
+  // Current Plan Object
+  const currentPlan = useMemo(() => {
+    if (!availablePlans || availablePlans.length === 0) return null;
+    return (
+      availablePlans.find((p) => p.id === selectedPlanId) ||
+      availablePlans[0]
+    );
+  }, [availablePlans, selectedPlanId]);
+
+  // Available Subplans for the selected Plan
+  const availableSubplans = useMemo(() => {
+    if (!currentPlan?.subplans || currentPlan.subplans.length === 0) {
+      const basePrice = Number(currentPlan?.startingPrice) || 1499;
+      return [
+        { id: `${currentPlan?.id || 'plan'}-basic`, name: 'Basic', price: basePrice },
+        { id: `${currentPlan?.id || 'plan'}-mid`, name: 'Mid', price: Math.round(basePrice * 1.35) },
+        { id: `${currentPlan?.id || 'plan'}-adv`, name: 'Advanced', price: Math.round(basePrice * 1.75) },
+      ];
     }
-  }, [category, servicesList, selectedServiceId]);
+    return currentPlan.subplans;
+  }, [currentPlan]);
+
+  // Current Subplan Object
+  const currentSubplan = useMemo(() => {
+    if (!availableSubplans || availableSubplans.length === 0) {
+      return { id: 'default-sub', name: 'Standard', price: 1499 };
+    }
+    return (
+      availableSubplans.find((s) => s.id === selectedSubplanId) ||
+      availableSubplans[0]
+    );
+  }, [availableSubplans, selectedSubplanId]);
+
+  // Formatted display price for the selected subplan
+  const displayPrice = useMemo(() => {
+    const p = currentSubplan?.price;
+    if (typeof p === 'number') {
+      return `₹${p.toLocaleString('en-IN')}`;
+    }
+    if (typeof p === 'string' && p.startsWith('₹')) {
+      return p;
+    }
+    if (p) return `₹${p}`;
+    return '₹1,499';
+  }, [currentSubplan]);
+
+  // Synchronize preselected category, plan, and subplan from props
+  useEffect(() => {
+    if (!normalizedServices || normalizedServices.length === 0) return;
+
+    if (!preselectedCategory) {
+      if (!selectedServiceId && normalizedServices[0]) {
+        setSelectedServiceId(normalizedServices[0].id);
+      }
+      return;
+    }
+
+    let targetCat = '';
+    let targetPlan = '';
+    let targetSub = '';
+
+    if (typeof preselectedCategory === 'string') {
+      targetCat = preselectedCategory;
+    } else if (typeof preselectedCategory === 'object' && preselectedCategory !== null) {
+      targetCat = preselectedCategory.category || preselectedCategory.serviceId || '';
+      targetPlan = preselectedCategory.planId || preselectedCategory.service || '';
+      targetSub = preselectedCategory.subplanId || preselectedCategory.subplanName || preselectedCategory.subCategory || '';
+    }
+
+    // Match Service / Category
+    const foundService = normalizedServices.find((s) =>
+      s.id.toLowerCase() === targetCat.toLowerCase() ||
+      s.name.toLowerCase() === targetCat.toLowerCase()
+    ) || normalizedServices[0];
+
+    if (foundService) {
+      setSelectedServiceId(foundService.id);
+
+      const plans = foundService.plans || [];
+      let matchedPlan = null;
+      if (targetPlan && plans.length > 0) {
+        const search = String(targetPlan).toLowerCase().trim();
+        matchedPlan = plans.find(
+          (p) =>
+            p.id.toLowerCase() === search ||
+            p.name.toLowerCase() === search ||
+            p.name.toLowerCase().includes(search)
+        );
+      }
+      const resolvedPlan = matchedPlan || plans[0] || null;
+      if (resolvedPlan) {
+        setSelectedPlanId(resolvedPlan.id);
+
+        const subs = resolvedPlan.subplans || [];
+        let matchedSub = null;
+        if (targetSub && subs.length > 0) {
+          const subSearch = String(targetSub).toLowerCase().trim();
+          matchedSub = subs.find(
+            (s) =>
+              s.id.toLowerCase() === subSearch ||
+              s.name.toLowerCase() === subSearch ||
+              s.name.toLowerCase().includes(subSearch)
+          );
+        }
+        const resolvedSub = matchedSub || subs[0] || null;
+        if (resolvedSub) {
+          setSelectedSubplanId(resolvedSub.id);
+        }
+      }
+    }
+  }, [preselectedCategory, normalizedServices]);
+
+  // Ensure selectedServiceId is initialized/valid
+  useEffect(() => {
+    if (normalizedServices.length > 0 && (!selectedServiceId || !normalizedServices.some((s) => s.id === selectedServiceId))) {
+      setSelectedServiceId(normalizedServices[0].id);
+    }
+  }, [normalizedServices, selectedServiceId]);
+
+  // Ensure selectedPlanId is valid
+  useEffect(() => {
+    if (availablePlans.length > 0 && (!selectedPlanId || !availablePlans.some((p) => p.id === selectedPlanId))) {
+      setSelectedPlanId(availablePlans[0].id);
+    }
+  }, [availablePlans, selectedPlanId]);
+
+  // Ensure selectedSubplanId is valid
+  useEffect(() => {
+    if (availableSubplans.length > 0 && (!selectedSubplanId || !availableSubplans.some((s) => s.id === selectedSubplanId))) {
+      setSelectedSubplanId(availableSubplans[0].id);
+    }
+  }, [availableSubplans, selectedSubplanId]);
+
+  // Category and Plan selection handlers
+  const handleCategorySelect = (newCatId) => {
+    setSelectedServiceId(newCatId);
+    const targetSvc = normalizedServices.find((s) => s.id === newCatId);
+    const firstPlan = targetSvc?.plans?.[0];
+    if (firstPlan) {
+      setSelectedPlanId(firstPlan.id);
+      const firstSub = firstPlan.subplans?.[0];
+      if (firstSub) {
+        setSelectedSubplanId(firstSub.id);
+      }
+    }
+  };
+
+  const handlePlanSelect = (newPlanId) => {
+    setSelectedPlanId(newPlanId);
+    const targetPlan = availablePlans.find((p) => p.id === newPlanId);
+    const firstSub = targetPlan?.subplans?.[0];
+    if (firstSub) {
+      setSelectedSubplanId(firstSub.id);
+    }
+  };
 
   // Current Selected Branch Object
   const currentBranch = useMemo(() => {
@@ -308,23 +430,15 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     }
   }, [dateIso]);
 
-  // Handle Category Change
-  const handleCategorySelect = (newCat) => {
-    setCategory(newCat);
-    const catData = CURATED_MENU_DATA[newCat];
-    if (catData?.items?.[0]) {
-      setSelectedServiceId(catData.items[0].id);
-    }
-  };
-
-  // Build Formatted WhatsApp Message (No Emojis, No Artist Name)
+  // Build Formatted WhatsApp Message adhering to 3-level data hierarchy
   const buildWhatsAppMessage = () => {
     return (
       `Hello Look & Like Salon,\n\n` +
       `I would like to reserve a chair:\n` +
       `• Branch: ${currentBranch.name}\n` +
-      `• Category: ${currentCategoryData.title || category.toUpperCase()}\n` +
-      `• Service: ${currentService.name} (${currentService.price})\n` +
+      `• Service: ${currentService?.name || 'Salon Care'}\n` +
+      `• Ritual / Plan: ${currentPlan?.name || 'Selected Ritual'}\n` +
+      `• Option Tier: ${currentSubplan?.name || 'Standard'} (${displayPrice})\n` +
       `• Date: ${formattedDate} (${dateIso})\n` +
       `• Time Slot: ${currentTimeSlot.label} (${currentTimeSlot.range})\n\n` +
       `Guest Details:\n` +
@@ -378,18 +492,25 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
       }
     }
 
-    // 2. Persist booking to Firebase asynchronously in background (never blocks UI or WhatsApp redirect)
+    // 2. Verify subplan price against stored data & persist booking to Firebase asynchronously in background
+    const verified = verifySubplanPrice(normalizedServices, currentService?.id, currentPlan?.id, currentSubplan?.id);
+    const verifiedNumericPrice = verified?.price || (typeof currentSubplan?.price === 'number' ? currentSubplan.price : Number(String(currentSubplan?.price || 0).replace(/[^0-9.]/g, '')) || 0);
+
     saveBookingToFirebase({
       name: trimmedName,
       phone: trimmedPhone,
       notes: notes.trim() || null,
       branch: currentBranch.name,
       branchId: currentBranch.id,
-      category,
-      service: currentService.name,
-      serviceId: currentService.id,
-      price: currentService.price,
-      duration: currentService.duration,
+      serviceId: currentService?.id,
+      serviceName: currentService?.name,
+      planId: currentPlan?.id,
+      planName: currentPlan?.name,
+      subplanId: currentSubplan?.id,
+      subplanName: currentSubplan?.name,
+      price: displayPrice,
+      numericPrice: verifiedNumericPrice,
+      duration: currentPlan?.description || '60 Mins',
       date: dateIso,
       dateFormatted: formattedDate,
       timeSlot: `${currentTimeSlot.label} (${currentTimeSlot.range})`,
@@ -429,8 +550,16 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
         {/* Compact Appointment Details Summary */}
         <div className="w-full max-w-sm my-3 sm:my-4 p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#F0CDD7] text-left text-xs space-y-2 shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-medium">Service:</span>
-            <span className="font-bold text-deep-espresso truncate max-w-[200px]">{currentService.name}</span>
+            <span className="text-stone-500 font-medium">Service / Plan:</span>
+            <span className="font-bold text-deep-espresso truncate max-w-[200px]">{currentPlan?.name}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-stone-500 font-medium">Option Tier:</span>
+            <span className="font-semibold text-deep-espresso">{currentSubplan?.name}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-stone-500 font-medium">Price:</span>
+            <span className="font-bold text-[#D6204E]">{displayPrice}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-stone-500 font-medium">Branch:</span>
@@ -527,7 +656,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
       {/* 2. Step Views */}
       <div className="flex flex-col justify-between">
         {/* ============================================================ */}
-        {/* STEP 1: Service Category, Specific Ritual & Atelier Branch  */}
+        {/* STEP 1: Service Category, Specific Ritual, Option & Atelier Branch */}
         {/* ============================================================ */}
         {step === 1 && (
           <div className="space-y-3 animate-fade-in">
@@ -536,45 +665,107 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
                 Category
               </span>
-              <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
-                {CATEGORIES.map((cat) => {
-                  const isCatSelected = category === cat.id;
+              <div className="flex flex-wrap gap-1.5">
+                {normalizedServices.map((svc) => {
+                  const isCatSelected = selectedServiceId === svc.id;
                   return (
                     <button
-                      key={cat.id}
+                      key={svc.id}
                       type="button"
-                      onClick={() => handleCategorySelect(cat.id)}
-                      className={`py-1.5 px-1 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
+                      onClick={() => handleCategorySelect(svc.id)}
+                      className={`py-1.5 px-3 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
                         isCatSelected
                           ? 'bg-[#D6204E] text-white border-[#D6204E] shadow-xs'
                           : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
                       }`}
                     >
-                      <span className="truncate block">{cat.label}</span>
+                      <span className="truncate block">{svc.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Custom Made Service Dropdown matching Website Brand Colors */}
+            {/* Custom Made Service / Plan Dropdown matching Website Brand Colors */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
-                  Select Service
+                  Select Ritual / Plan
                 </span>
                 <span className="text-[10px] text-stone-400 font-mono">
-                  {servicesList.length} rituals available
+                  {availablePlans.length} {availablePlans.length === 1 ? 'ritual' : 'rituals'} available
                 </span>
               </div>
 
               <CustomServiceDropdown
-                services={servicesList}
-                selectedId={selectedServiceId}
-                onSelect={setSelectedServiceId}
-                category={category}
+                services={availablePlans.map((p) => ({
+                  id: p.id,
+                  name: p.name,
+                  price: p.startingPrice ? `From ₹${p.startingPrice.toLocaleString('en-IN')}` : '₹1,499',
+                  duration: p.description || 'Signature Ritual',
+                }))}
+                selectedId={selectedPlanId}
+                onSelect={handlePlanSelect}
+                category={selectedServiceId}
               />
             </div>
+
+            {/* Subplan / Option Tier Selector Grid */}
+            {availableSubplans.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
+                    Select Option / Tier
+                  </span>
+                  <span className="text-[10px] text-[#D6204E] font-medium">
+                    {currentSubplan?.name} · {displayPrice}
+                  </span>
+                </div>
+
+                <div
+                  className={`grid gap-1.5 ${
+                    availableSubplans.length === 2
+                      ? 'grid-cols-2'
+                      : availableSubplans.length >= 3
+                      ? 'grid-cols-3'
+                      : 'grid-cols-1'
+                  }`}
+                >
+                  {availableSubplans.map((sub) => {
+                    const isSelected = selectedSubplanId === sub.id;
+                    const formattedSubPrice =
+                      typeof sub.price === 'number'
+                        ? `₹${sub.price.toLocaleString('en-IN')}`
+                        : (String(sub.price).startsWith('₹') ? sub.price : `₹${sub.price}`);
+
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => setSelectedSubplanId(sub.id)}
+                        className={`py-2 px-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center relative ${
+                          isSelected
+                            ? 'bg-[#FFF3F6] border-[#D6204E] text-[#D6204E] ring-1 ring-[#D6204E]/50 shadow-2xs'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50/60'
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#D6204E] text-white flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                        <span className="text-[11px] sm:text-xs font-bold block truncate max-w-full">
+                          {sub.name}
+                        </span>
+                        <span className="text-xs sm:text-sm font-sans font-price font-bold mt-0.5">
+                          {formattedSubPrice}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Branch Selection Pills */}
             <div>
@@ -705,10 +896,10 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
               <div className="truncate pr-2">
                 <span className="font-semibold text-deep-espresso">{currentBranch.name}</span>
                 <span className="text-stone-400 mx-1.5">·</span>
-                <span className="truncate">{currentService.name}</span>
+                <span className="truncate">{currentPlan?.name} ({currentSubplan?.name})</span>
               </div>
               <span className="font-bold text-[#D6204E] shrink-0 font-sans font-price">
-                {currentService.price}
+                {displayPrice}
               </span>
             </div>
           </div>
@@ -723,14 +914,14 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
             <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] text-xs space-y-1">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-deep-espresso truncate">
-                  {currentService.name}
+                  {currentPlan?.name} · {currentSubplan?.name}
                 </span>
                 <span className="font-bold text-[#D6204E] font-sans font-price shrink-0">
-                  {currentService.price}
+                  {displayPrice}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px] text-[#7A6B70]">
-                <span>{currentBranch.name}</span>
+                <span>{currentService?.name} · {currentBranch.name}</span>
                 <span>{formattedDate} · {currentTimeSlot.label}</span>
               </div>
             </div>
@@ -845,7 +1036,6 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
           )}
         </div>
       </div>
-
     </div>
   );
 }

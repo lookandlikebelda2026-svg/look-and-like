@@ -1,21 +1,31 @@
 import { useState, useEffect } from 'react';
-import { db } from './firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebase.js';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+  onSnapshot,
+} from 'firebase/firestore';
 
-const STORAGE_VIEW_COUNT_KEY = 'look_and_like_view_count';
-const SESSION_VISIT_FLAG = 'look_and_like_view_counted';
+const STORAGE_VIEW_COUNT_KEY = 'look_and_like_site_views_v2';
+const SESSION_VISIT_FLAG = 'look_and_like_view_counted_v2';
 const ANALYTICS_DOC_REF = 'analytics';
-const ANALYTICS_DOC_ID = 'pageViews';
-const DEFAULT_BASELINE_VIEWS = 1482; // Authentic established studio baseline
+const ANALYTICS_DOC_ID = 'siteViews';
+const DEFAULT_BASELINE_VIEWS = 0; // Starts strictly from 0
 
 /**
- * Get current stored view count from local cache
+ * Get current stored view count from local cache (defaults to 0)
  */
 function getCachedViewCount() {
   if (typeof window === 'undefined') return DEFAULT_BASELINE_VIEWS;
   try {
+    // Clean up any legacy baseline storage keys
+    localStorage.removeItem('look_and_like_view_count');
     const val = localStorage.getItem(STORAGE_VIEW_COUNT_KEY);
-    return val ? parseInt(val, 10) : DEFAULT_BASELINE_VIEWS;
+    return val ? Math.max(0, parseInt(val, 10) || 0) : DEFAULT_BASELINE_VIEWS;
   } catch (err) {
     return DEFAULT_BASELINE_VIEWS;
   }
@@ -27,16 +37,16 @@ function getCachedViewCount() {
 function setCachedViewCount(count) {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_VIEW_COUNT_KEY, count.toString());
+    localStorage.setItem(STORAGE_VIEW_COUNT_KEY, String(count));
   } catch (err) {
     // Ignore storage errors
   }
 }
 
 /**
- * Increment and retrieve the aggregate view count.
- * Uses Firestore with automatic fallback to localStorage.
- * Ensures only 1 increment per browser session to prevent false view counts.
+ * Increment and retrieve the aggregate view count starting from 0.
+ * Automatically saves to Firestore with local cache fallback.
+ * Only increments once per browser session so reloads don't create false counts.
  * 
  * @returns {Promise<number>} Current total views
  */
@@ -66,8 +76,8 @@ export async function recordAndFetchPageView() {
             lastVisitedAt: serverTimestamp(),
           });
         } catch (updateErr) {
-          // If doc doesn't exist yet, initialize it
-          const initialCount = currentCount + 1;
+          // If document doesn't exist yet, initialize it starting from 1 (0 + 1)
+          const initialCount = 1;
           await setDoc(pageViewDocRef, {
             count: initialCount,
             createdAt: serverTimestamp(),
@@ -102,7 +112,8 @@ export async function recordAndFetchPageView() {
 }
 
 /**
- * Reactive React hook to display and track studio views
+ * Reactive React hook to display and track studio views starting from 0.
+ * Listens to Firestore in real-time so live visits appear immediately.
  */
 export function useViewCount() {
   const [views, setViews] = useState(getCachedViewCount);
@@ -111,6 +122,7 @@ export function useViewCount() {
   useEffect(() => {
     let isMounted = true;
 
+    // 1. Record this viewer's visit (once per session) and fetch initial count
     recordAndFetchPageView()
       .then((count) => {
         if (isMounted) {
@@ -124,8 +136,36 @@ export function useViewCount() {
         }
       });
 
+    // 2. Subscribe to real-time changes so the count updates live as new viewers visit
+    let unsubscribe = null;
+    try {
+      if (db) {
+        const pageViewDocRef = doc(db, ANALYTICS_DOC_REF, ANALYTICS_DOC_ID);
+        unsubscribe = onSnapshot(
+          pageViewDocRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.data();
+              if (typeof data.count === 'number' && isMounted) {
+                setViews(data.count);
+                setCachedViewCount(data.count);
+              }
+            }
+          },
+          (error) => {
+            console.warn('Real-time view listener notice:', error.message);
+          }
+        );
+      }
+    } catch (err) {
+      console.warn('Real-time listener setup notice:', err);
+    }
+
     return () => {
       isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 
@@ -136,4 +176,3 @@ export default {
   recordAndFetchPageView,
   useViewCount,
 };
-

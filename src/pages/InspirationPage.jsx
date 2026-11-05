@@ -5,7 +5,7 @@ import { useContentStorage } from '../services/contentStorage';
 
 export function InspirationPage({ onOpenBooking, onNotify }) {
   const navigate = useNavigate();
-  const { inspiredImages } = useContentStorage();
+  const { inspiredImages = [] } = useContentStorage();
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
   // Scroll to top on mount
@@ -16,7 +16,7 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
   // Keyboard navigation for lightbox
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (activeLightboxIndex === null) return;
+      if (activeLightboxIndex === null || !inspiredImages || inspiredImages.length === 0) return;
       if (e.key === 'Escape') {
         setActiveLightboxIndex(null);
       } else if (e.key === 'ArrowRight') {
@@ -34,7 +34,7 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeLightboxIndex, inspiredImages.length]);
 
-  const currentLightboxItem = activeLightboxIndex !== null ? inspiredImages[activeLightboxIndex] : null;
+  const currentLightboxItem = activeLightboxIndex !== null && inspiredImages ? inspiredImages[activeLightboxIndex] : null;
 
   return (
     <div className="w-full bg-white py-4 sm:py-8 min-h-screen">
@@ -42,7 +42,6 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
         {/* Gallery Header & Navigation Bar */}
         <div className="mb-6 sm:mb-10 text-center max-w-2xl mx-auto pt-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
-
             Editorial Lookbook &amp; Inspiration
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-deep-espresso tracking-tight">
@@ -77,26 +76,46 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
           </div>
         </div>
 
-        {/* Pure Images Masonry Gallery */}
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
-          {inspiredImages.map((image, idx) => (
-            <div
-              key={image.id || idx}
-              onClick={() => setActiveLightboxIndex(idx)}
-              className="break-inside-avoid relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-50"
+        {/* Pure Images Masonry Gallery or Empty State */}
+        {(!inspiredImages || inspiredImages.length === 0) ? (
+          <div className="max-w-md mx-auto text-center py-12 px-6 rounded-3xl bg-[#FAF8F5] border border-[#F0CDD7] my-8">
+            <span className="text-[#D6204E] text-2xl font-serif">✦</span>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-deep-espresso mt-2 mb-2">
+              Lookbook In Preparation
+            </h3>
+            <p className="text-xs sm:text-sm text-[#7A6B70] leading-relaxed mb-6">
+              Our curated gallery is being updated with fresh seasonal looks. Explore our services or reserve a consultation with our master stylists.
+            </p>
+            <button
+              type="button"
+              onClick={() => onOpenBooking?.()}
+              className="inline-flex items-center justify-center gap-2 bg-[#D6204E] hover:bg-[#B81942] text-white text-xs sm:text-sm font-semibold px-6 py-3 rounded-full shadow-md transition-all cursor-pointer"
             >
-              <img
-                src={image.imageUrl}
-                alt=""
-                loading="lazy"
-                className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
-          ))}
-        </div>
+              <span>Reserve Consultation</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
+            {inspiredImages.map((image, idx) => (
+              <div
+                key={image.id || idx}
+                onClick={() => setActiveLightboxIndex(idx)}
+                className="break-inside-avoid relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-50"
+              >
+                <img
+                  src={image.imageUrl}
+                  alt=""
+                  loading="lazy"
+                  className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Full-Screen Pure Image Lightbox */}
@@ -132,24 +151,25 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
             <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
 
+          {/* Close Action */}
           <button
             type="button"
             onClick={() => setActiveLightboxIndex(null)}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer z-20"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer z-20"
             aria-label="Close"
           >
             <X className="w-6 h-6" />
           </button>
 
-          {/* Central Image */}
+          {/* Image Display */}
           <div 
-            className="relative max-w-5xl max-h-[92vh] flex items-center justify-center cursor-default"
+            className="relative max-w-5xl max-h-[90vh] flex flex-col items-center justify-center cursor-default"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={currentLightboxItem.imageUrl}
               alt=""
-              className="max-h-[90vh] max-w-full w-auto object-contain rounded-xl sm:rounded-2xl shadow-2xl select-none"
+              className="max-h-[85vh] w-auto max-w-full object-contain rounded-lg shadow-2xl select-none"
             />
           </div>
         </div>
@@ -157,3 +177,5 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
     </div>
   );
 }
+
+export default InspirationPage;

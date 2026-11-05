@@ -76,40 +76,34 @@ export function LookbookCard({
       </div>
 
       {/* Metadata & Actions */}
-      <div className="p-3 flex-1 flex flex-col justify-between">
-        <p className="text-xs text-deep-espresso font-medium line-clamp-2 mb-3">
-          {look.alt || 'No description provided'}
-        </p>
+      <div className="p-3 flex items-center justify-between text-xs">
+        <a
+          href={look.imageUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-[10px] text-stone-500 hover:text-[#D6204E] flex items-center gap-1"
+        >
+          <span>Full URL</span>
+          <ExternalLink className="w-2.5 h-2.5" />
+        </a>
 
-        <div className="flex items-center justify-between pt-2 border-t border-stone-100 text-xs">
-          <a
-            href={look.imageUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[10px] text-stone-500 hover:text-[#D6204E] flex items-center gap-1"
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onEdit(look, index)}
+            className="p-1.5 text-stone-600 hover:text-[#D6204E] hover:bg-[#FFF3F6] rounded-lg transition-colors cursor-pointer"
+            title="Edit look"
           >
-            <span>Full URL</span>
-            <ExternalLink className="w-2.5 h-2.5" />
-          </a>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => onEdit(look, index)}
-              className="p-1.5 text-stone-600 hover:text-[#D6204E] hover:bg-[#FFF3F6] rounded-lg transition-colors cursor-pointer"
-              title="Edit look"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onDelete(index)}
-              className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-              title="Delete look"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+            <Edit3 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(index)}
+            className="p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+            title="Delete look"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>

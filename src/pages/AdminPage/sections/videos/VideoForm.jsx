@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Image as ImageIcon, Play } from 'lucide-react';
+import { Check, Play } from 'lucide-react';
 import { YouTubeIcon } from '../../../../components/icons';
-import { ImageKitUploader } from '../../../../components/common/ImageKitUploader';
 import { extractYouTubeId, getYouTubeThumbnailUrl, isValidYouTubeUrl } from '../../../../utils/youtube';
 
 const CATEGORY_PRESETS = [
@@ -13,27 +12,6 @@ const CATEGORY_PRESETS = [
   'Skin Care',
   'Treatments',
   'Editorial',
-];
-
-const PRESET_YOUTUBE_SAMPLES = [
-  {
-    title: 'Bridal Haute Couture Look',
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    category: 'Bridal',
-    duration: '2:45',
-  },
-  {
-    title: 'Atelier Interior Sanctuary Tour',
-    youtubeUrl: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
-    category: 'Salon Tour',
-    duration: '3:15',
-  },
-  {
-    title: 'Japanese Herbal Head Spa Experience',
-    youtubeUrl: 'https://www.youtube.com/watch?v=L_LUpnjgPso',
-    category: 'Head Spa',
-    duration: '2:10',
-  },
 ];
 
 /**
@@ -68,16 +46,6 @@ export function VideoForm({
     img.src = displayThumb;
   }, [displayThumb]);
 
-  const handleApplyPreset = (preset) => {
-    onChange({
-      ...formData,
-      title: preset.title,
-      youtubeUrl: preset.youtubeUrl,
-      category: preset.category,
-      duration: preset.duration,
-    });
-  };
-
   return (
     <form
       onSubmit={onSubmit}
@@ -110,7 +78,7 @@ export function VideoForm({
                   alt="Video thumbnail preview"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    // Fallback to high quality or placeholder if maxres fails
+                    // Fallback to high quality if maxres fails
                     if (formData.youtubeUrl) {
                       e.currentTarget.src = getYouTubeThumbnailUrl(formData.youtubeUrl, 'hq');
                     }
@@ -121,11 +89,6 @@ export function VideoForm({
                     <Play className="w-4 h-4 fill-white ml-0.5" />
                   </div>
                 </div>
-                {formData.duration && (
-                  <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-mono bg-black/85 text-white">
-                    {formData.duration}
-                  </span>
-                )}
               </>
             ) : (
               <div className="text-center p-3 text-stone-500">
@@ -137,21 +100,13 @@ export function VideoForm({
             )}
           </div>
 
-          {/* Pixel Size & Video Metadata Badge */}
-          <div className="w-full mt-2 flex flex-col gap-1 px-1">
-            {thumbPixelSize && (
-              <div className="flex items-center justify-between text-[10px] text-stone-400 font-mono">
-                <span>Thumbnail Size:</span>
-                <span className="text-rose-400 font-semibold">{thumbPixelSize}</span>
-              </div>
-            )}
-            {ytId && (
-              <div className="flex items-center justify-between text-[10px] text-stone-400 font-mono">
-                <span>YouTube ID:</span>
-                <span className="text-stone-300 truncate max-w-[140px]">{ytId}</span>
-              </div>
-            )}
-          </div>
+          {/* Thumbnail Size readout */}
+          {thumbPixelSize && (
+            <div className="w-full mt-2 flex items-center justify-between text-[10px] text-stone-400 font-mono px-1">
+              <span>Thumbnail Size:</span>
+              <span className="text-rose-400 font-semibold">{thumbPixelSize}</span>
+            </div>
+          )}
         </div>
 
         {/* Right Column: Form Inputs */}
@@ -181,21 +136,6 @@ export function VideoForm({
             <p className="text-[10px] text-stone-400 mt-1">
               Supports standard YouTube links, Shorts, youtu.be, or embed URLs.
             </p>
-          </div>
-
-          {/* Preset Samples Quick Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-            <span className="text-stone-400 font-medium">Quick Demo Samples:</span>
-            {PRESET_YOUTUBE_SAMPLES.map((preset) => (
-              <button
-                key={preset.title}
-                type="button"
-                onClick={() => handleApplyPreset(preset)}
-                className="px-2 py-0.5 rounded-md border border-stone-200 hover:border-rose-300 hover:bg-rose-50 text-stone-600 hover:text-rose-700 transition-colors cursor-pointer"
-              >
-                {preset.category}
-              </button>
-            ))}
           </div>
 
           {/* Title & Category Grid */}
@@ -230,49 +170,6 @@ export function VideoForm({
                 ))}
               </select>
             </div>
-          </div>
-
-          {/* Duration & Description */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-deep-espresso mb-1">
-                Duration (mm:ss)
-              </label>
-              <input
-                type="text"
-                value={formData.duration || ''}
-                onChange={(e) => onChange({ ...formData, duration: e.target.value })}
-                placeholder="e.g. 2:45"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40 font-mono"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-deep-espresso mb-1">
-                Description / Story Note
-              </label>
-              <input
-                type="text"
-                value={formData.description || ''}
-                onChange={(e) => onChange({ ...formData, description: e.target.value })}
-                placeholder="e.g. Watch our stylists create a regal bridal transformation"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-              />
-            </div>
-          </div>
-
-          {/* Optional Custom Poster / Thumbnail Upload */}
-          <div>
-            <ImageKitUploader
-              value={formData.thumbnailUrl || ''}
-              onChange={(url) => onChange({ ...formData, thumbnailUrl: url })}
-              folder="/videos"
-              preset="thumbnail"
-              tags={['videos', 'thumbnail']}
-              label="Custom Poster Thumbnail (Optional)"
-              helpText="Leave empty to automatically use high-res YouTube thumbnail"
-              onNotify={onNotify}
-            />
           </div>
 
           {/* Form Actions */}

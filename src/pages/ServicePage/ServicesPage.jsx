@@ -33,16 +33,24 @@ export function ServicesPage({ onNavigate, onNotify, onOpenBooking }) {
 
   // Preselect service and open the booking popup
   const handleBookService = (categoryKey, serviceItem) => {
-    const serviceName =
-      typeof serviceItem === 'object' && serviceItem !== null
-        ? serviceItem.bookingService || serviceItem.name
-        : serviceItem;
-
     if (onOpenBooking) {
-      onOpenBooking({
-        category: categoryKey,
-        service: serviceName,
-      });
+      if (typeof serviceItem === 'object' && serviceItem !== null) {
+        onOpenBooking({
+          category: categoryKey,
+          service: serviceItem.bookingService || serviceItem.name,
+          serviceId: categoryKey,
+          planId: serviceItem.planId || serviceItem.id,
+          planName: serviceItem.planName || serviceItem.name,
+          subplanId: serviceItem.subplanId || null,
+          subplanName: serviceItem.subplanName || serviceItem.subCategory || null,
+          price: serviceItem.price,
+        });
+      } else {
+        onOpenBooking({
+          category: categoryKey,
+          service: serviceItem,
+        });
+      }
     }
   };
 

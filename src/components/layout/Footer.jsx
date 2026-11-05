@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 import { LOGO_URL, CONTACT_INFO } from '../../constants/navigation';
 import { InstagramIcon, FacebookIcon, WhatsAppIcon } from '../icons';
+import { useViewCount } from '../../services/viewCounterService';
 
 const SOCIAL_LINKS = [
   {
@@ -23,6 +25,7 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   const navigate = useNavigate();
+  const { views } = useViewCount();
 
   return (
     <footer className="w-full bg-[#FFF3F6] text-[#5C4D52] border-t border-[#F0CDD7]">
@@ -84,9 +87,19 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Clean Bottom Bar: Copyright & Powered by MERO */}
-        <div className="mt-5 pt-4 border-t border-[#F0CDD7]/60 flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[11px] sm:text-xs text-[#7A6B70] text-center sm:text-left">
+        {/* Clean Bottom Bar: Copyright, View Counter & Powered by MERO */}
+        <div className="mt-5 pt-4 border-t border-[#F0CDD7]/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-[11px] sm:text-xs text-[#7A6B70] text-center sm:text-left">
           <p>© {new Date().getFullYear()} Look &amp; Like Ltd. All rights reserved.</p>
+
+          {/* Studio View Counter Badge starting from 0 */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-[#F0CDD7] shadow-2xs text-[11px] text-[#5C4D52] select-none">
+            <Eye className="w-3.5 h-3.5 text-[#D6204E]" />
+            <span className="font-medium text-[#7A6B70]">Views:</span>
+            <span className="font-bold font-mono text-deep-espresso tracking-tight">
+              {Number(views || 0).toLocaleString('en-IN')}
+            </span>
+          </div>
+
           <p>
             Powered by{' '}
             <a

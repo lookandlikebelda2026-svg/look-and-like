@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Image as ImageIcon, Briefcase } from 'lucide-react';
+import { Image as ImageIcon, Briefcase, Scissors } from 'lucide-react';
 import { YouTubeIcon } from '../../../components/icons';
 import { getLocalAdminSession, logoutAdmin } from '../../../services/authService';
 
@@ -31,6 +31,7 @@ export function Layout({
   onLogout,
   onNotify,
   showFooter = false,
+  title,
 }) {
   const navigate = useNavigate();
   const currentUser = adminUser || getLocalAdminSession();
@@ -40,8 +41,24 @@ export function Layout({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
+  // Tab switch handler with fallback navigation
+  const handleTabSelect = (tabId) => {
+    if (onTabChange) {
+      onTabChange(tabId);
+    } else {
+      navigate(`/admin?tab=${tabId}`);
+    }
+  };
+
   // Core Management Items
   const items = navItems || [
+    {
+      id: 'services',
+      label: 'Salon Services',
+      shortLabel: 'Services',
+      icon: Scissors,
+      count: counts.services,
+    },
     {
       id: 'lookbook',
       label: 'Lookbook Photos',
@@ -68,6 +85,8 @@ export function Layout({
   // Dynamic Header Title Calculation
   const getHeaderTitle = () => {
     switch (activeTab) {
+      case 'services':
+        return 'Salon Services Menu';
       case 'lookbook':
         return 'Lookbook Photos';
       case 'partners':
@@ -100,7 +119,7 @@ export function Layout({
         setDrawerOpen={setDrawerOpen}
         items={items}
         activeTab={activeTab}
-        onTabChange={onTabChange}
+        onTabChange={handleTabSelect}
         currentUser={currentUser}
         handleLogout={() => setIsLogoutModalOpen(true)}
       />
@@ -109,14 +128,14 @@ export function Layout({
       <BottomNav
         items={items}
         activeTab={activeTab}
-        onTabChange={onTabChange}
+        onTabChange={handleTabSelect}
       />
 
       {/* 3. Desktop/Tablet Fixed Collapsible Sidebar */}
       <Sidebar
         items={items}
         activeTab={activeTab}
-        onTabChange={onTabChange}
+        onTabChange={handleTabSelect}
         sidebarCollapsed={sidebarCollapsed}
         setSidebarCollapsed={setSidebarCollapsed}
         currentUser={currentUser}
@@ -133,7 +152,7 @@ export function Layout({
         {/* Fixed Top Header (never scrolls) */}
         <Header
           setDrawerOpen={setDrawerOpen}
-          title={getHeaderTitle()}
+          title={title || getHeaderTitle()}
           handleLogout={() => setIsLogoutModalOpen(true)}
         />
 

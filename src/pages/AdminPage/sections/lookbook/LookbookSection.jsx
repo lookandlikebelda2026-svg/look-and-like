@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, RotateCcw } from 'lucide-react';
+import { Plus, RotateCcw, Image as ImageIcon } from 'lucide-react';
 import { LookbookForm } from './LookbookForm';
 import { LookbookCard } from './LookbookCard';
 
@@ -7,7 +7,7 @@ import { LookbookCard } from './LookbookCard';
  * Section for managing Lookbook Editorial Images ("Get Inspired")
  */
 export function LookbookSection({
-  inspiredImages,
+  inspiredImages = [],
   saveInspiredImages,
   resetInspiredImages,
   onNotify,
@@ -81,9 +81,9 @@ export function LookbookSection({
   };
 
   const handleReset = () => {
-    if (window.confirm('Reset all Get Inspired images to original default collection?')) {
+    if (window.confirm('Clear all lookbook editorial images?')) {
       resetInspiredImages();
-      onNotify?.('Reset to default lookbook images.', 'info');
+      onNotify?.('Cleared lookbook images.', 'info');
     }
   };
 
@@ -94,24 +94,31 @@ export function LookbookSection({
       {/* Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
         <div>
-          <h4 className="font-serif text-lg font-bold text-deep-espresso">
-            Lookbook Editorial Images
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4 className="font-serif text-lg font-bold text-deep-espresso">
+              Lookbook Editorial Images
+            </h4>
+            <span className="text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full">
+              {inspiredImages.length} {inspiredImages.length === 1 ? 'Look' : 'Looks'}
+            </span>
+          </div>
           <p className="text-xs text-[#7A6B70] mt-0.5">
             These images automatically adapt into the responsive 4-column masonry and mobile peek carousel.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl transition-all cursor-pointer"
-            title="Reset to default lookbook"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Defaults</span>
-          </button>
+          {inspiredImages.length > 0 && (
+            <button
+              type="button"
+              onClick={handleReset}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl transition-all cursor-pointer"
+              title="Clear all lookbook images"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Clear All</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -136,23 +143,44 @@ export function LookbookSection({
         />
       )}
 
-      {/* Looks Grid - Full Area Responsive Multi-Column */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
-        {inspiredImages.map((look, idx) => (
-          <LookbookCard
-            key={look.id || idx}
-            look={look}
-            index={idx}
-            totalCount={inspiredImages.length}
-            onMove={handleMove}
-            onEdit={handleOpenEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      {/* Looks Grid or Empty State */}
+      {inspiredImages.length === 0 ? (
+        <div className="text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-stone-200 shadow-2xs">
+          <div className="w-14 h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
+            <ImageIcon className="w-7 h-7" />
+          </div>
+          <h5 className="font-serif text-lg font-bold text-deep-espresso mb-1">
+            No Lookbook Photos Added Yet
+          </h5>
+          <p className="text-xs text-[#7A6B70] max-w-md mx-auto mb-4 leading-relaxed">
+            All demo lookbook photos have been removed. Click below to add your first high-res editorial image.
+          </p>
+          <button
+            type="button"
+            onClick={handleOpenAdd}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl shadow-sm cursor-pointer transition-transform active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add First Look</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
+          {inspiredImages.map((look, idx) => (
+            <LookbookCard
+              key={look.id || idx}
+              look={look}
+              index={idx}
+              totalCount={inspiredImages.length}
+              onMove={handleMove}
+              onEdit={handleOpenEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 export default LookbookSection;
-

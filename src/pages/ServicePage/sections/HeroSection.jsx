@@ -11,7 +11,7 @@ export function HeroSection({ onOpenBooking }) {
         <div className="mb-6 sm:mb-10 text-center max-w-2xl mx-auto pt-2">
           {/* Eyebrow Capsule Badge */}
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
-            Complete Salon Atelier Menu
+            Complete Parlour Atelier Menu
           </span>
 
           {/* Centered Main Headline */}
@@ -24,7 +24,7 @@ export function HeroSection({ onOpenBooking }) {
 
           {/* Subtitle Description */}
           <p className="mt-2 text-xs sm:text-sm text-[#7A6B70] max-w-lg mx-auto leading-relaxed">
-            Explore our curated salon menu of bespoke hair care, glowing clinical facials, couture nail art, and bridal rituals crafted by master artists.
+            Explore our curated parlour menu of bespoke hair care, glowing clinical facials, couture nail art, and bridal rituals crafted by master artists.
           </p>
 
           {/* Dual Action Buttons */}

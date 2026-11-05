@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  ArrowLeft,
   Check,
   Plus,
   Trash2,
@@ -13,73 +12,33 @@ import {
   Loader2,
   Sparkles,
   Layers,
-  HelpCircle,
 } from 'lucide-react';
 import { useContentStorage } from '../../../../services/contentStorage';
 import { Layout } from '../../layout';
 import { uploadImageToImageKit } from '../../../../services/imagekit';
 import { compressImage } from '../../../../utils/imageCompressor';
-import { normalizeService, normalizeServiceImages } from '../../../../constants/services';
-
-const PRESET_SUGGESTIONS = [
-  {
-    name: 'Skin Care',
-    description: 'Facials, Cleanups, Anti-Aging & Bio-Active Cellular Treatments',
-    startingPrice: 1999,
-  },
-  {
-    name: 'Hair Care',
-    description: 'Haircuts, Styling, Japanese Spa, Couture Balayage & Smoothening',
-    startingPrice: 1499,
-  },
-  {
-    name: 'Nail Care',
-    description: 'Manicure, Pedicure, Russian BIAB & Couture Sculpted Extensions',
-    startingPrice: 999,
-  },
-  {
-    name: 'Make Up',
-    description: 'Bridal, Party, HD Airbrush & Editorial Haute Glamour',
-    startingPrice: 3999,
-  },
-  {
-    name: 'Spa Wellness',
-    description: 'Japanese Warm Oil Head Spa, Heated Therapy & Aromatic Body Rituals',
-    startingPrice: 1899,
-  },
-];
+import {
+  MAIN_SERVICE_CATEGORIES,
+  normalizeService,
+  normalizeServiceImages,
+} from '../../../../constants/services';
 
 /**
- * Reusable Multiple Image Manager Component for Service & Plan Images
- * Adheres strictly to: ServiceImage { url: string; path: string; alt: string }
+ * Single Image Uploader Component for Main Category
+ * Exactly 1 image is shown / stored for each main category.
+ * Only photo upload is allowed (no external URL input).
  */
-function MultipleImageManager({
-  images = [],
-  onAddImage,
-  onRemoveImage,
-  label = 'Photos',
+function SingleImageUploader({
+  image = null,
+  onImageChange,
+  label = 'Cover Photo (1 Max)',
   onNotify,
   folder = '/services',
 }) {
-  const [urlInput, setUrlInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const handleAddUrl = (e) => {
-    e.preventDefault();
-    const trimmed = urlInput.trim();
-    if (!trimmed) return;
-    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      onNotify?.('Please enter a valid image URL starting with http:// or https://', 'error');
-      return;
-    }
-    onAddImage({
-      url: trimmed,
-      path: '',
-      alt: label,
-    });
-    setUrlInput('');
-  };
+  const currentUrl = typeof image === 'string' ? image : image?.url || '';
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -102,16 +61,16 @@ function MultipleImageManager({
       });
 
       if (uploadResult?.url) {
-        onAddImage({
+        onImageChange({
           url: uploadResult.url,
           path: uploadResult.filePath || '',
           alt: file.name.replace(/\.[^/.]+$/, ''),
         });
-        onNotify?.('Photo uploaded successfully!', 'success');
+        onNotify?.('Category photo uploaded successfully!', 'success');
       }
     } catch (err) {
       console.error('Image upload failed:', err);
-      onNotify?.(err.message || 'Failed to upload photo. You can paste an image URL instead.', 'error');
+      onNotify?.(err.message || 'Failed to upload photo.', 'error');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -119,100 +78,76 @@ function MultipleImageManager({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="text-xs font-bold uppercase tracking-wider text-deep-espresso flex items-center gap-1.5">
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-1 whitespace-nowrap">
+        <label className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-deep-espresso flex items-center gap-1 shrink-0">
           <ImageIcon className="w-3.5 h-3.5 text-[#D6204E]" />
-          <span>{label} ({images.length})</span>
+          <span>{label}</span>
         </label>
-        <span className="text-[11px] text-stone-400">Upload photo or paste URL</span>
+        <span className="text-[10px] text-stone-400 shrink-0">1 photo</span>
       </div>
 
-      {/* Thumbnails Grid */}
-      {images.length > 0 && (
-        <div className="flex flex-wrap gap-2.5 p-2.5 bg-[#FAF8F5] rounded-2xl border border-stone-200/80">
-          {images.map((img, idx) => {
-            const imgUrl = typeof img === 'string' ? img : img.url;
-            return (
-              <div
-                key={idx}
-                className="relative w-16 h-16 rounded-xl overflow-hidden border border-stone-200 bg-white group shrink-0 shadow-2xs"
-              >
-                <img
-                  src={imgUrl}
-                  alt={img.alt || `Photo ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-                <button
-                  type="button"
-                  onClick={() => onRemoveImage(idx)}
-                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity cursor-pointer"
-                  title="Remove photo"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            );
-          })}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+
+      {currentUrl ? (
+        <div className="relative w-full max-w-xs h-32 sm:h-40 rounded-2xl overflow-hidden border border-[#F0CDD7] bg-[#FFF3F6] group shadow-xs">
+          <img
+            src={currentUrl}
+            alt={label}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <button
+              type="button"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="px-2.5 py-1 bg-white text-xs font-semibold text-deep-espresso rounded-xl hover:bg-stone-100 cursor-pointer shadow-xs"
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              onClick={() => onImageChange(null)}
+              className="px-2.5 py-1 bg-rose-600 text-xs font-semibold text-white rounded-xl hover:bg-rose-700 cursor-pointer shadow-xs"
+            >
+              Remove
+            </button>
+          </div>
         </div>
+      ) : (
+        <button
+          type="button"
+          disabled={isUploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-dashed border-[#F0CDD7] bg-[#FFF3F6] hover:bg-[#FFE8EF] text-[#D6204E] font-semibold text-xs transition-colors cursor-pointer disabled:opacity-60 shadow-2xs"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Uploading photo...</span>
+            </>
+          ) : (
+            <>
+              <UploadCloud className="w-4 h-4" />
+              <span>Upload Category Photo</span>
+            </>
+          )}
+        </button>
       )}
-
-      {/* Add Controls */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex-1 min-w-[200px] flex items-center gap-1.5">
-          <input
-            type="url"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="Paste image URL (https://...)"
-            className="flex-1 px-3 py-2 text-xs rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
-          />
-          <button
-            type="button"
-            onClick={handleAddUrl}
-            disabled={!urlInput.trim()}
-            className="px-3 py-2 text-xs font-semibold text-deep-espresso bg-stone-100 hover:bg-stone-200 disabled:opacity-40 rounded-xl cursor-pointer transition-colors whitespace-nowrap"
-          >
-            Add URL
-          </button>
-        </div>
-
-        <div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*"
-            className="hidden"
-          />
-          <button
-            type="button"
-            disabled={isUploading}
-            onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#D6204E] bg-[#FFF3F6] hover:bg-[#FFE8EF] border border-[#F0CDD7] rounded-xl transition-colors cursor-pointer disabled:opacity-60 whitespace-nowrap shadow-2xs"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Uploading...</span>
-              </>
-            ) : (
-              <>
-                <UploadCloud className="w-3.5 h-3.5" />
-                <span>Upload Photo</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
 
 /**
- * Dedicated Page for Creating or Editing a Salon Service with Nested Plans & Subplans
- * Implements the exact Service data model single source of truth.
+ * Dedicated Page for Creating or Editing a Parlour Service with Nested Plans & Subplans
+ * 4 Main Categories: Hair Care, Nail Care, Skin Care, Make Up.
+ * Clean single-line labels, compact phone inputs, zero placeholders, no URL input for photos.
  */
 export function ServiceFormPage({ onNotify }) {
   const navigate = useNavigate();
@@ -229,7 +164,7 @@ export function ServiceFormPage({ onNotify }) {
 
   const [formData, setFormData] = useState({
     id: `service-${Date.now()}`,
-    name: '',
+    name: 'Hair Care',
     description: '',
     images: [],
     startingPrice: 0,
@@ -267,12 +202,12 @@ export function ServiceFormPage({ onNotify }) {
       if (normalized) {
         setFormData({
           id: normalized.id,
-          name: normalized.name || '',
+          name: normalized.name || 'Hair Care',
           description: normalized.description || '',
-          images: normalized.images || [],
+          images: normalized.images?.slice(0, 1) || [],
           startingPrice: Number(normalized.startingPrice) || 0,
           plans: Array.isArray(normalized.plans) && normalized.plans.length > 0
-            ? JSON.parse(JSON.stringify(normalized.plans))
+            ? JSON.parse(JSON.stringify(normalized.plans)).map((p) => ({ ...p, images: [] }))
             : [
                 {
                   id: `plan-${Date.now()}-1`,
@@ -292,7 +227,7 @@ export function ServiceFormPage({ onNotify }) {
     }
   }, [isEditing, serviceId, servicesData]);
 
-  // Apply Quick Preset Suggestion
+  // Apply Quick Preset Suggestion (4 Main Categories)
   const handleApplyPreset = (preset) => {
     setFormData((prev) => ({
       ...prev,
@@ -302,20 +237,12 @@ export function ServiceFormPage({ onNotify }) {
     }));
   };
 
-  // --- SERVICE IMAGES ---
-  const handleAddServiceImage = (newImg) => {
+  // --- SERVICE IMAGE (Exactly 1) ---
+  const handleServiceImageChange = (newImg) => {
     setFormData((prev) => ({
       ...prev,
-      images: [...(prev.images || []), newImg],
+      images: newImg ? [newImg] : [],
     }));
-  };
-
-  const handleRemoveServiceImage = (idx) => {
-    setFormData((prev) => {
-      const updated = [...(prev.images || [])];
-      updated.splice(idx, 1);
-      return { ...prev, images: updated };
-    });
   };
 
   // Auto-calculate service starting price from lowest plan starting price
@@ -332,7 +259,7 @@ export function ServiceFormPage({ onNotify }) {
 
     const minPrice = Math.min(...validPrices);
     setFormData((prev) => ({ ...prev, startingPrice: minPrice }));
-    onNotify?.(`Set service starting price to lowest plan price: ₹${minPrice.toLocaleString('en-IN')}`, 'success');
+    onNotify?.(`Starting price set to ₹${minPrice.toLocaleString('en-IN')}`, 'success');
   };
 
   // --- PLANS MANAGEMENT ---
@@ -372,7 +299,7 @@ export function ServiceFormPage({ onNotify }) {
     const targetPlan = formData.plans?.[planIdx];
     const planName = targetPlan?.name || `Plan #${planIdx + 1}`;
 
-    if (!window.confirm(`Are you sure you want to delete "${planName}"? All its associated subplans will be removed.`)) {
+    if (!window.confirm(`Delete "${planName}"?`)) {
       return;
     }
 
@@ -403,39 +330,14 @@ export function ServiceFormPage({ onNotify }) {
       .filter((pr) => !isNaN(pr) && pr > 0);
 
     if (prices.length === 0) {
-      onNotify?.('Please enter prices for your subplans first.', 'info');
+      onNotify?.('Please enter prices for subplans first.', 'info');
       return;
     }
 
     const minPrice = Math.min(...prices);
     plan.startingPrice = minPrice;
     setFormData((prev) => ({ ...prev, plans }));
-    onNotify?.(`Set plan starting price to ₹${minPrice.toLocaleString('en-IN')}`, 'success');
-  };
-
-  // --- PLAN IMAGES ---
-  const handleAddPlanImage = (planIdx, newImg) => {
-    const plans = [...(formData.plans || [])];
-    if (plans[planIdx]) {
-      plans[planIdx] = {
-        ...plans[planIdx],
-        images: [...(plans[planIdx].images || []), newImg],
-      };
-      setFormData((prev) => ({ ...prev, plans }));
-    }
-  };
-
-  const handleRemovePlanImage = (planIdx, imgIdx) => {
-    const plans = [...(formData.plans || [])];
-    if (plans[planIdx]) {
-      const updated = [...(plans[planIdx].images || [])];
-      updated.splice(imgIdx, 1);
-      plans[planIdx] = {
-        ...plans[planIdx],
-        images: updated,
-      };
-      setFormData((prev) => ({ ...prev, plans }));
-    }
+    onNotify?.(`Plan price set to ₹${minPrice.toLocaleString('en-IN')}`, 'success');
   };
 
   // --- SUBPLANS MANAGEMENT ---
@@ -497,36 +399,33 @@ export function ServiceFormPage({ onNotify }) {
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
 
-    if (!formData.name?.trim()) {
-      onNotify?.('Please provide a service name (e.g. Skin Care).', 'error');
-      return;
-    }
+    const categoryName = formData.name?.trim() || 'Hair Care';
 
     const plans = formData.plans || [];
     if (plans.length === 0) {
-      onNotify?.('Please configure at least one plan for this service.', 'error');
+      onNotify?.('Please configure at least one plan.', 'error');
       return;
     }
 
     for (let pIdx = 0; pIdx < plans.length; pIdx++) {
       const plan = plans[pIdx];
       if (!plan.name?.trim()) {
-        onNotify?.(`Plan #${pIdx + 1} is missing a name. Please provide a plan name.`, 'error');
+        onNotify?.(`Plan #${pIdx + 1} is missing a name.`, 'error');
         return;
       }
       const subplans = plan.subplans || [];
       if (subplans.length === 0) {
-        onNotify?.(`Plan "${plan.name}" must contain at least one subplan option.`, 'error');
+        onNotify?.(`Plan "${plan.name}" must contain at least one subplan.`, 'error');
         return;
       }
       for (let sIdx = 0; sIdx < subplans.length; sIdx++) {
         const sub = subplans[sIdx];
         if (!sub.name?.trim()) {
-          onNotify?.(`Plan "${plan.name}": Subplan #${sIdx + 1} needs a name (e.g. Basic).`, 'error');
+          onNotify?.(`Plan "${plan.name}": Subplan #${sIdx + 1} needs a name.`, 'error');
           return;
         }
         if (typeof sub.price !== 'number' || sub.price < 0) {
-          onNotify?.(`Plan "${plan.name}": Subplan "${sub.name}" requires a valid numeric price.`, 'error');
+          onNotify?.(`Plan "${plan.name}": Subplan "${sub.name}" requires a valid price.`, 'error');
           return;
         }
       }
@@ -534,7 +433,7 @@ export function ServiceFormPage({ onNotify }) {
 
     const now = new Date().toISOString();
 
-    // Clean and strictly format to Service interface
+    // Clean plans without any images
     const cleanPlans = plans.map((p, pIdx) => {
       const cleanSubplans = (p.subplans || []).map((s, sIdx) => ({
         id: s.id || `subplan-${Date.now()}-${sIdx}`,
@@ -542,7 +441,6 @@ export function ServiceFormPage({ onNotify }) {
         price: Number(s.price) || 0,
       }));
 
-      // Calculate starting price for plan if not provided
       let planStart = Number(p.startingPrice);
       if (isNaN(planStart) || planStart <= 0) {
         const prices = cleanSubplans.map((s) => s.price).filter((pr) => pr > 0);
@@ -553,24 +451,26 @@ export function ServiceFormPage({ onNotify }) {
         id: p.id || `plan-${Date.now()}-${pIdx}`,
         name: p.name.trim(),
         description: p.description?.trim() || '',
-        images: normalizeServiceImages(p.images, p.name.trim()),
+        images: [],
         startingPrice: planStart,
         subplans: cleanSubplans,
       };
     });
 
-    // Calculate service starting price if not provided
     let serviceStart = Number(formData.startingPrice);
     if (isNaN(serviceStart) || serviceStart <= 0) {
       const pPrices = cleanPlans.map((p) => p.startingPrice).filter((pr) => pr > 0);
       serviceStart = pPrices.length > 0 ? Math.min(...pPrices) : 0;
     }
 
+    // Exactly 1 image for main category
+    const cleanImages = normalizeServiceImages(formData.images, categoryName).slice(0, 1);
+
     const cleanService = {
       id: formData.id || `service-${Date.now()}`,
-      name: formData.name.trim(),
+      name: categoryName,
       description: formData.description?.trim() || '',
-      images: normalizeServiceImages(formData.images, formData.name.trim()),
+      images: cleanImages,
       startingPrice: serviceStart,
       plans: cleanPlans,
       createdAt: formData.createdAt || now,
@@ -593,10 +493,10 @@ export function ServiceFormPage({ onNotify }) {
       } else {
         updatedList = [...currentList, cleanService];
       }
-      onNotify?.(`Updated "${cleanService.name}" successfully!`, 'success');
+      onNotify?.(`Updated "${cleanService.name}"!`, 'success');
     } else {
       updatedList = [...currentList, cleanService];
-      onNotify?.(`Created "${cleanService.name}" with ${cleanPlans.length} plans!`, 'success');
+      onNotify?.(`Created "${cleanService.name}"!`, 'success');
     }
 
     saveServicesData(updatedList);
@@ -608,11 +508,32 @@ export function ServiceFormPage({ onNotify }) {
   };
 
   const plans = formData.plans || [];
+  const currentCategoryImg = formData.images?.[0] || null;
 
   return (
     <Layout
       activeTab="services"
-      title={isEditing ? `Edit Service: ${formData.name || 'Service'}` : 'New Salon Service'}
+      title={isEditing ? (formData.name ? `Edit: ${formData.name}` : 'Edit Service') : 'Add Service'}
+      onBack={handleCancel}
+      headerActions={
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-2.5 py-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
+          >
+            <Check className="w-3.5 h-3.5" />
+            <span>Save</span>
+          </button>
+        </div>
+      }
       counts={{
         services: Array.isArray(servicesData) ? servicesData.length : 0,
         lookbook: inspiredImages?.length || 0,
@@ -620,273 +541,194 @@ export function ServiceFormPage({ onNotify }) {
         videos: videos?.length || 0,
       }}
     >
-      <div className="max-w-6xl mx-auto pb-16">
-        {/* Navigation & Action Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl transition-all cursor-pointer shadow-2xs"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Services</span>
-            </button>
-
-            <div className="h-4 w-px bg-stone-300 hidden sm:block" />
-
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-stone-400">
-                Service Management / {isEditing ? 'Edit Service' : 'Create Service'}
-              </span>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-deep-espresso leading-tight">
-                {formData.name || (isEditing ? 'Edit Service' : 'Add New Service')}
-              </h2>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 border border-stone-200 rounded-xl hover:bg-stone-50 cursor-pointer"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
-            >
-              <Check className="w-4 h-4" />
-              <span>{isEditing ? 'Save Changes' : 'Save Service'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2-Column Responsive Workspace */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <div className="max-w-6xl mx-auto pb-24 lg:pb-12">
+        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5 sm:gap-6 items-start">
             {/* PRIMARY COLUMN: Service Information & Plans */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* CARD 1: SERVICE INFORMATION */}
-              <div className="bg-white rounded-3xl border border-stone-200/90 shadow-xs p-5 sm:p-6 space-y-4">
-                <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center text-[#D6204E] shrink-0">
-                    <Sparkles className="w-4 h-4" />
+            <div className="lg:col-span-2 space-y-3.5 sm:space-y-5">
+              {/* CARD 1: MAIN CATEGORY INFORMATION */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs p-3 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2 border-b border-stone-100 pb-2">
+                  <div className="w-6 h-6 rounded-lg bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center text-[#D6204E] shrink-0">
+                    <Sparkles className="w-3.5 h-3.5" />
                   </div>
-                  <div>
-                    <h3 className="font-serif text-base font-bold text-deep-espresso">
-                      Service Information
-                    </h3>
-                    <p className="text-[11px] text-[#7A6B70]">
-                      Primary service category identity and high-level description.
-                    </p>
-                  </div>
+                  <h3 className="font-serif text-xs sm:text-base font-bold text-deep-espresso">
+                    Main Service Category
+                  </h3>
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-deep-espresso uppercase tracking-wider">
-                      Service Name <span className="text-rose-500">*</span>
+                  <div className="flex items-center justify-between mb-1.5 whitespace-nowrap">
+                    <label className="text-[11px] sm:text-xs font-bold text-deep-espresso uppercase tracking-wider">
+                      Category <span className="text-rose-500">*</span>
                     </label>
-                    <span className="text-[11px] text-stone-400">Quick presets:</span>
+                    <span className="text-[10px] text-stone-400">4 Categories</span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5 mb-2.5">
-                    {PRESET_SUGGESTIONS.map((p) => (
-                      <button
-                        key={p.name}
-                        type="button"
-                        onClick={() => handleApplyPreset(p)}
-                        className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all cursor-pointer ${
-                          formData.name === p.name
-                            ? 'bg-[#FFF3F6] text-[#D6204E] border-[#F0CDD7] shadow-2xs font-bold'
-                            : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
-                        }`}
-                      >
-                        {p.name}
-                      </button>
-                    ))}
+                  {/* 4 Main Categories Presets - Only the buttons, no redundant empty text field */}
+                  <div className="grid grid-cols-4 gap-1 sm:gap-1.5">
+                    {MAIN_SERVICE_CATEGORIES.map((cat) => {
+                      const isSelected = formData.name.toLowerCase() === cat.name.toLowerCase();
+                      return (
+                        <button
+                          key={cat.name}
+                          type="button"
+                          onClick={() => handleApplyPreset(cat)}
+                          className={`px-1 py-2 text-[10px] sm:text-xs font-bold rounded-xl border text-center transition-all cursor-pointer truncate ${
+                            isSelected
+                              ? 'bg-[#FFF3F6] text-[#D6204E] border-[#F0CDD7] ring-1 ring-[#D6204E]/30 shadow-2xs'
+                              : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                      );
+                    })}
                   </div>
-
-                  <input
-                    type="text"
-                    required
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Skin Care"
-                    className="w-full px-4 py-2.5 text-xs font-semibold text-deep-espresso rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-                  />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-deep-espresso mb-1">
-                    Service Description
+                  <label className="block text-[11px] sm:text-xs font-bold text-deep-espresso mb-1">
+                    Description (Optional)
                   </label>
                   <textarea
                     rows={2}
                     value={formData.description || ''}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="e.g. Facials, Cleanups, Anti-Aging & Bio-Active Cellular Treatments"
-                    className="w-full px-4 py-2 text-xs rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-bold text-deep-espresso uppercase tracking-wider">
-                        Starting Price (₹)
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleAutoCalculateServicePrice}
-                        className="text-[11px] font-semibold text-[#D6204E] hover:underline cursor-pointer"
-                      >
-                        ✦ Auto-fill from plans
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-xs font-bold text-stone-400">₹</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.startingPrice || ''}
-                        onChange={(e) => setFormData({ ...formData, startingPrice: Number(e.target.value) || 0 })}
-                        placeholder="1999"
-                        className="w-full pl-8 pr-4 py-2 text-xs font-semibold text-deep-espresso rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-                      />
-                    </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1 whitespace-nowrap">
+                    <label className="text-[11px] sm:text-xs font-bold text-deep-espresso uppercase tracking-wider">
+                      Starting Price (₹)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoCalculateServicePrice}
+                      className="text-[10px] font-semibold text-[#D6204E] hover:underline cursor-pointer"
+                    >
+                      ✦ Auto-calculate
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1.5 text-xs font-bold text-stone-400">₹</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.startingPrice || ''}
+                      onChange={(e) => setFormData({ ...formData, startingPrice: Number(e.target.value) || 0 })}
+                      className="w-full pl-6 pr-2.5 py-1.5 text-xs font-semibold text-deep-espresso rounded-xl border border-stone-200 focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                    />
                   </div>
                 </div>
 
-                {/* Service Images Section */}
+                {/* Main Category Image Section - Exactly 1 image, photo upload only */}
                 <div className="pt-2 border-t border-stone-100">
-                  <MultipleImageManager
-                    images={formData.images || []}
-                    onAddImage={handleAddServiceImage}
-                    onRemoveImage={handleRemoveServiceImage}
-                    label="Service Cover Images"
+                  <SingleImageUploader
+                    image={currentCategoryImg}
+                    onImageChange={handleServiceImageChange}
+                    label="Cover Photo (1 Max)"
                     onNotify={onNotify}
                     folder="/services"
                   />
                 </div>
               </div>
 
-              {/* CARD 2: PLANS & SUBPLANS MANAGEMENT */}
-              <div className="bg-white rounded-3xl border border-stone-200/90 shadow-xs p-5 sm:p-6 space-y-5">
-                <div className="flex items-center justify-between border-b border-stone-100 pb-3 flex-wrap gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center text-[#D6204E] shrink-0">
-                      <Layers className="w-4 h-4" />
+              {/* CARD 2: PLANS & SUBPLANS MANAGEMENT (NO IMAGES FOR PLANS) */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 shadow-xs p-3 sm:p-5 space-y-3">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2 flex-nowrap gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center text-[#D6204E] shrink-0">
+                      <Layers className="w-3.5 h-3.5" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-serif text-base font-bold text-deep-espresso">
-                          Plans &amp; Subplans Management
-                        </h3>
-                        <span className="text-[10px] font-bold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full">
-                          {plans.length} {plans.length === 1 ? 'Plan' : 'Plans'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-[#7A6B70]">
-                        Each service contains multiple plans, and each plan contains customizable subplans with prices.
-                      </p>
-                    </div>
+                    <h3 className="font-serif text-xs sm:text-base font-bold text-deep-espresso truncate">
+                      Plans &amp; Subplans
+                    </h3>
+                    <span className="text-[10px] font-semibold text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded-full shrink-0">
+                      {plans.length}
+                    </span>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleAddPlan}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-deep-espresso hover:bg-stone-800 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Plan</span>
-                  </button>
-                </div>
-
-                {/* Plans List */}
-                {plans.length === 0 ? (
-                  <div className="text-center py-10 px-4 rounded-2xl bg-[#FAF8F5] border border-dashed border-stone-300">
-                    <Layers className="w-7 h-7 text-[#D6204E] mx-auto mb-2 opacity-80" />
-                    <p className="text-xs font-semibold text-stone-700">No plans added to this service yet.</p>
-                    <p className="text-[11px] text-stone-400 mt-0.5">
-                      Add treatments like &ldquo;Signature Radiance Glow Facial&rdquo; with Basic, Mid &amp; Advanced tiers.
-                    </p>
+                  {plans.length > 0 && (
                     <button
                       type="button"
                       onClick={handleAddPlan}
-                      className="mt-3 inline-flex items-center gap-1 px-4 py-2 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#D6204E] bg-[#FFF3F6] hover:bg-[#FFE8EF] border border-[#F0CDD7] rounded-xl transition-all cursor-pointer shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Plan</span>
+                    </button>
+                  )}
+                </div>
+
+                {plans.length === 0 ? (
+                  <div className="text-center py-6 px-4 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                    <p className="text-xs text-stone-500 mb-2">No price plans added yet.</p>
+                    <button
+                      type="button"
+                      onClick={handleAddPlan}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-[#D6204E] rounded-xl cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add First Plan</span>
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-3">
                     {plans.map((plan, planIdx) => {
                       const subplans = plan.subplans || [];
                       return (
                         <div
                           key={plan.id || planIdx}
-                          className="p-4 sm:p-5 rounded-2xl bg-[#FFFCFB] border border-[#F0CDD7] shadow-2xs space-y-4"
+                          className="bg-[#FAF8F5] rounded-xl sm:rounded-2xl border border-stone-200/90 p-2.5 sm:p-4 space-y-2.5 relative group"
                         >
-                          {/* Plan Header & Action Bar */}
-                          <div className="flex items-center justify-between pb-3 border-b border-[#F0CDD7]/60 flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FFF3F6] text-[#D6204E] border border-[#F0CDD7]">
-                                Plan #{planIdx + 1}
+                          {/* Plan Top Bar */}
+                          <div className="flex items-center justify-between gap-1.5 border-b border-stone-200/60 pb-1.5">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="w-4 h-4 rounded-full bg-[#D6204E] text-white text-[9px] font-bold flex items-center justify-center shrink-0">
+                                {planIdx + 1}
                               </span>
-                              <span className="text-xs font-bold text-deep-espresso truncate max-w-[240px]">
-                                {plan.name || 'Untitled Plan'}
+                              <span className="text-xs font-bold text-deep-espresso truncate">
+                                {plan.name || `Plan #${planIdx + 1}`}
                               </span>
-                              {plan.startingPrice > 0 && (
-                                <span className="font-sans text-xs font-bold text-[#D6204E]">
-                                  From ₹{Number(plan.startingPrice).toLocaleString('en-IN')}
-                                </span>
-                              )}
                             </div>
 
-                            <div className="flex items-center gap-1">
-                              {/* Reorder Buttons */}
-                              <div className="flex items-center bg-white rounded-lg p-0.5 border border-stone-200">
-                                <button
-                                  type="button"
-                                  onClick={() => handleMovePlan(planIdx, -1)}
-                                  disabled={planIdx === 0}
-                                  className="p-1 text-stone-500 hover:text-deep-espresso disabled:opacity-20 cursor-pointer"
-                                  title="Move Plan Up"
-                                >
-                                  <ArrowUp className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleMovePlan(planIdx, 1)}
-                                  disabled={planIdx === plans.length - 1}
-                                  className="p-1 text-stone-500 hover:text-deep-espresso disabled:opacity-20 cursor-pointer"
-                                  title="Move Plan Down"
-                                >
-                                  <ArrowDown className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-
+                            <div className="flex items-center gap-0.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleMovePlan(planIdx, -1)}
+                                disabled={planIdx === 0}
+                                className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 cursor-pointer rounded-lg hover:bg-stone-200/60 transition-colors"
+                                title="Move up"
+                              >
+                                <ArrowUp className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMovePlan(planIdx, 1)}
+                                disabled={planIdx === plans.length - 1}
+                                className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 cursor-pointer rounded-lg hover:bg-stone-200/60 transition-colors"
+                                title="Move down"
+                              >
+                                <ArrowDown className="w-3 h-3" />
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeletePlan(planIdx)}
-                                className="p-1.5 text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                                title="Delete Plan"
+                                className="p-1 text-stone-400 hover:text-rose-600 cursor-pointer rounded-lg hover:bg-rose-50 transition-colors"
+                                title="Delete plan"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
 
-                          {/* Plan Primary Fields */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="sm:col-span-2">
-                              <label className="block text-xs font-bold text-deep-espresso mb-1">
+                          {/* Plan Fields */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-[11px] font-bold text-deep-espresso mb-1">
                                 Plan Name <span className="text-rose-500">*</span>
                               </label>
                               <input
@@ -894,112 +736,102 @@ export function ServiceFormPage({ onNotify }) {
                                 required
                                 value={plan.name || ''}
                                 onChange={(e) => handleUpdatePlan(planIdx, 'name', e.target.value)}
-                                placeholder="e.g. Signature Radiance Glow Facial"
-                                className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
-                              />
-                            </div>
-
-                            <div className="sm:col-span-2">
-                              <label className="block text-xs font-bold text-deep-espresso mb-1">
-                                Plan Description
-                              </label>
-                              <textarea
-                                rows={2}
-                                value={plan.description || ''}
-                                onChange={(e) => handleUpdatePlan(planIdx, 'description', e.target.value)}
-                                placeholder="Brief treatment procedure details..."
-                                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                                className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
                               />
                             </div>
 
                             <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <label className="text-xs font-bold text-deep-espresso uppercase tracking-wider">
-                                  Plan Starting Price (₹)
+                              <div className="flex items-center justify-between mb-1 whitespace-nowrap">
+                                <label className="text-[11px] font-bold text-deep-espresso">
+                                  Starting Price (₹)
                                 </label>
                                 <button
                                   type="button"
                                   onClick={() => handleAutoCalculatePlanPrice(planIdx)}
                                   className="text-[10px] font-semibold text-[#D6204E] hover:underline cursor-pointer"
                                 >
-                                  ✦ From lowest subplan
+                                  ✦ Auto
                                 </button>
                               </div>
                               <div className="relative">
-                                <span className="absolute left-3 top-2 text-xs font-bold text-stone-400">₹</span>
+                                <span className="absolute left-2.5 top-1.5 text-xs font-bold text-stone-400">₹</span>
                                 <input
                                   type="number"
                                   min="0"
                                   value={plan.startingPrice || ''}
                                   onChange={(e) => handleUpdatePlan(planIdx, 'startingPrice', Number(e.target.value) || 0)}
-                                  placeholder="1999"
-                                  className="w-full pl-7 pr-3 py-1.5 text-xs font-semibold rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                                  className="w-full pl-6 pr-2.5 py-1.5 text-xs font-semibold rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
                                 />
                               </div>
                             </div>
                           </div>
 
-                          {/* SUBPLANS MANAGEMENT (Hierarchical Inside Plan) */}
-                          <div className="p-3.5 bg-white rounded-xl border border-stone-200/90 space-y-3">
-                            <div className="flex items-center justify-between border-b border-stone-100 pb-2">
-                              <div>
-                                <label className="text-xs font-bold uppercase tracking-wider text-deep-espresso flex items-center gap-1.5">
-                                  <span>Subplan Pricing Options ({subplans.length})</span>
-                                </label>
-                                <span className="text-[10px] text-stone-400">
-                                  e.g. Basic, Mid, Advanced tiers with independent pricing
-                                </span>
-                              </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-deep-espresso mb-1">
+                              Description (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              value={plan.description || ''}
+                              onChange={(e) => handleUpdatePlan(planIdx, 'description', e.target.value)}
+                              className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                            />
+                          </div>
 
+                          {/* Subplans List (No images, compact single-row on mobile) */}
+                          <div className="pt-1.5 border-t border-stone-200/60 space-y-1.5">
+                            <div className="flex items-center justify-between whitespace-nowrap">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-deep-espresso">
+                                Options ({subplans.length})
+                              </span>
                               <button
                                 type="button"
                                 onClick={() => handleAddSubplan(planIdx)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] hover:bg-[#FFE8EF] border border-[#F0CDD7] rounded-lg transition-colors cursor-pointer"
+                                className="inline-flex items-center gap-0.5 text-[11px] font-bold text-[#D6204E] hover:underline cursor-pointer"
                               >
                                 <Plus className="w-3 h-3" />
-                                <span>Add Subplan</span>
+                                <span>Add Option</span>
                               </button>
                             </div>
 
-                            {/* Subplans Row List */}
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                               {subplans.map((sub, subIdx) => (
                                 <div
                                   key={sub.id || subIdx}
-                                  className="flex items-center gap-2 p-2 rounded-lg bg-[#FAF8F5] border border-stone-200/70"
+                                  className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-stone-200 shadow-2xs"
                                 >
-                                  <span className="text-[11px] font-bold text-stone-400 w-5 text-center">
+                                  <span className="text-[10px] font-bold text-stone-400 w-4 text-center shrink-0">
                                     #{subIdx + 1}
                                   </span>
 
-                                  {/* Subplan Name */}
                                   <input
                                     type="text"
                                     required
                                     value={sub.name || ''}
-                                    onChange={(e) => handleUpdateSubplan(planIdx, subIdx, 'name', e.target.value)}
-                                    placeholder="Option Name (e.g. Basic, Mid, Advanced)"
-                                    className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                                    onChange={(e) =>
+                                      handleUpdateSubplan(planIdx, subIdx, 'name', e.target.value)
+                                    }
+                                    className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold rounded-lg border border-stone-200 focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
                                   />
 
-                                  {/* Subplan Price */}
-                                  <div className="relative w-32">
-                                    <span className="absolute left-2.5 top-1.5 text-xs font-bold text-stone-400">₹</span>
+                                  <div className="relative w-20 sm:w-24 shrink-0">
+                                    <span className="absolute left-2 top-1 text-xs font-bold text-stone-400">₹</span>
                                     <input
                                       type="number"
-                                      required
                                       min="0"
-                                      value={sub.price || ''}
-                                      onChange={(e) => handleUpdateSubplan(planIdx, subIdx, 'price', e.target.value)}
-                                      placeholder="Price"
-                                      className="w-full pl-6 pr-2 py-1.5 text-xs font-semibold rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
+                                      required
+                                      value={sub.price ?? ''}
+                                      onChange={(e) =>
+                                        handleUpdateSubplan(planIdx, subIdx, 'price', e.target.value)
+                                      }
+                                      className="w-full pl-5 pr-1.5 py-1 text-xs font-bold text-[#D6204E] rounded-lg border border-stone-200 focus:outline-none focus:ring-1 focus:ring-[#D6204E]"
                                     />
                                   </div>
 
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteSubplan(planIdx, subIdx)}
-                                    className="p-1.5 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer rounded-lg hover:bg-rose-50"
+                                    className="p-1 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer rounded-lg hover:bg-rose-50 shrink-0"
                                     title="Delete option"
                                   >
                                     <X className="w-3.5 h-3.5" />
@@ -1007,18 +839,6 @@ export function ServiceFormPage({ onNotify }) {
                                 </div>
                               ))}
                             </div>
-                          </div>
-
-                          {/* Plan Multiple Images */}
-                          <div className="pt-2 border-t border-stone-100">
-                            <MultipleImageManager
-                              images={plan.images || []}
-                              onAddImage={(newImg) => handleAddPlanImage(planIdx, newImg)}
-                              onRemoveImage={(imgIdx) => handleRemovePlanImage(planIdx, imgIdx)}
-                              label={`Plan #${planIdx + 1} Photos`}
-                              onNotify={onNotify}
-                              folder="/services/plans"
-                            />
                           </div>
                         </div>
                       );
@@ -1028,29 +848,34 @@ export function ServiceFormPage({ onNotify }) {
               </div>
             </div>
 
-            {/* SIDEBAR COLUMN: Save & Actions */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-3xl border border-stone-200/90 p-5 space-y-4 shadow-xs">
-                <div className="border-b border-stone-100 pb-3">
+            {/* SIDEBAR COLUMN: Summary */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200/90 p-4 sm:p-5 space-y-3.5 shadow-xs">
+                <div className="border-b border-stone-100 pb-2">
                   <h4 className="font-serif text-sm font-bold text-deep-espresso">
-                    Service Status &amp; Save
+                    Summary
                   </h4>
-                  <p className="text-[11px] text-[#7A6B70]">
-                    Save updates to Firestore and immediately refresh all client pages.
-                  </p>
                 </div>
 
-                <div className="space-y-2 text-xs">
+                <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between items-center text-stone-600">
-                    <span>Service:</span>
-                    <strong className="text-deep-espresso">{formData.name || 'Untitled'}</strong>
+                    <span>Category:</span>
+                    <strong className="text-deep-espresso truncate max-w-[140px]">
+                      {formData.name || 'Hair Care'}
+                    </strong>
                   </div>
                   <div className="flex justify-between items-center text-stone-600">
-                    <span>Configured Plans:</span>
+                    <span>Cover Photo:</span>
+                    <strong className="text-deep-espresso">
+                      {formData.images?.length > 0 ? '1 Photo' : 'None'}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between items-center text-stone-600">
+                    <span>Plans:</span>
                     <strong className="text-deep-espresso">{plans.length}</strong>
                   </div>
                   <div className="flex justify-between items-center text-stone-600">
-                    <span>Total Subplans:</span>
+                    <span>Subplans:</span>
                     <strong className="text-[#D6204E]">
                       {plans.reduce((acc, p) => acc + (p.subplans?.length || 0), 0)}
                     </strong>
@@ -1061,25 +886,6 @@ export function ServiceFormPage({ onNotify }) {
                       ₹{Number(formData.startingPrice || 0).toLocaleString('en-IN')}
                     </strong>
                   </div>
-                </div>
-
-                <div className="pt-3 border-t border-stone-100 space-y-2">
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>{isEditing ? 'Save Changes' : 'Create Service'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="w-full py-2.5 px-4 text-xs font-semibold text-stone-600 hover:text-stone-900 border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors cursor-pointer"
-                  >
-                    Cancel
-                  </button>
                 </div>
               </div>
             </div>

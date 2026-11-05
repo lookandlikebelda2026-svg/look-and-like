@@ -3,6 +3,7 @@ import { HeroSection } from './sections/HeroSection';
 import { PartnersSection } from './sections/partners/PartnersSection';
 import { GetInspiredSection } from './sections/GetInspiredSection';
 import { ServicesSection } from './sections/services/ServicesSection';
+import { CoursesSection } from './sections/CoursesSection';
 import { ContactSection } from './sections/ContactSection';
 import { CtaBannerSection } from './sections/CtaBannerSection';
 import { AboutSection } from './sections/AboutSection';
@@ -40,16 +41,19 @@ export function Home({ onNavigate, onNotify, onOpenBooking }) {
         onNavigate={onNavigate}
       />
 
-      {/* 5. BRANCH */}
+      {/* 5. ACADEMY COURSES */}
+      <CoursesSection />
+
+      {/* 6. BRANCH */}
       <ContactSection onNotify={onNotify} />
 
-      {/* 6. BOOK APPOINTMENT */}
+      {/* 7. BOOK APPOINTMENT */}
       <CtaBannerSection onOpenBooking={onOpenBooking} />
 
-      {/* 7. ABOUT US */}
+      {/* 8. ABOUT US */}
       <AboutSection />
 
-      {/* 8. VIDEO */}
+      {/* 9. VIDEO */}
       <VideoTourSection />
     </div>
   );

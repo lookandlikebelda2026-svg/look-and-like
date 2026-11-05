@@ -12,21 +12,17 @@ export function PartnersSection({
   resetPartners,
   onNotify,
 }) {
-  const [editingPartner, setEditingPartner] = useState(null); // null or { index, item }
+  const [editingPartner, setEditingPartner] = useState(null);
   const [isAddingPartner, setIsAddingPartner] = useState(false);
   const [partnerForm, setPartnerForm] = useState({
     name: '',
     logoUrl: '',
-    specialty: '',
-    country: '',
   });
 
   const handleOpenAdd = () => {
     setPartnerForm({
       name: '',
       logoUrl: '',
-      specialty: '',
-      country: '',
     });
     setIsAddingPartner(true);
     setEditingPartner(null);
@@ -38,8 +34,6 @@ export function PartnersSection({
     setPartnerForm({
       name: partner.name || '',
       logoUrl: partner.logoUrl || '',
-      specialty: partner.specialty || '',
-      country: partner.country || '',
     });
   };
 
@@ -48,44 +42,48 @@ export function PartnersSection({
     setEditingPartner(null);
   };
 
-  const handleSaveForm = (e) => {
-    e.preventDefault();
-    if (!partnerForm.name.trim()) {
-      onNotify?.('Please provide a Brand Name.', 'error');
-      return;
-    }
-    if (!partnerForm.logoUrl.trim()) {
-      onNotify?.('Please provide a Logo URL.', 'error');
+  const handleSaveForm = (items) => {
+    if (!items || items.length === 0) {
+      onNotify?.('Please provide at least one brand logo.', 'error');
       return;
     }
 
-    const newItem = {
-      name: partnerForm.name.trim(),
-      logoUrl: partnerForm.logoUrl.trim(),
-      specialty: partnerForm.specialty.trim() || 'Hair & Beauty Care',
-      country: partnerForm.country.trim() || 'Atelier',
-    };
-
-    let updatedList;
     if (editingPartner !== null) {
-      updatedList = [...partners];
-      updatedList[editingPartner.index] = newItem;
-      onNotify?.('Brand partner updated successfully!', 'success');
+      const single = items[0];
+      const updatedList = [...partners];
+      updatedList[editingPartner.index] = {
+        ...editingPartner.partner,
+        logoUrl: single.logoUrl || single.url,
+        name: single.name || editingPartner.partner.name || 'Brand Partner',
+      };
+      savePartners(updatedList);
+      onNotify?.('Brand partner updated!', 'success');
     } else {
-      updatedList = [...partners, newItem];
-      onNotify?.('New brand partner added successfully!', 'success');
+      const newItems = items.map((item, idx) => ({
+        id: `partner-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+        name: item.name || 'Brand Partner',
+        logoUrl: item.logoUrl || item.url,
+        specialty: 'Hair & Beauty Care',
+        country: 'Atelier',
+      }));
+      const updatedList = [...partners, ...newItems];
+      savePartners(updatedList);
+      onNotify?.(
+        `${newItems.length} brand ${newItems.length === 1 ? 'partner' : 'partners'} added!`,
+        'success'
+      );
     }
 
-    savePartners(updatedList);
     handleCloseForm();
   };
 
   const handleDelete = (index) => {
     const item = partners[index];
-    if (window.confirm(`Are you sure you want to remove ${item?.name || 'this partner'}?`)) {
+    const name = item?.name || 'this partner';
+    if (window.confirm(`Remove ${name}?`)) {
       const updatedList = partners.filter((_, i) => i !== index);
       savePartners(updatedList);
-      onNotify?.('Partner brand removed.', 'info');
+      onNotify?.(`Removed "${name}".`, 'info');
     }
   };
 
@@ -110,43 +108,34 @@ export function PartnersSection({
   return (
     <div>
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
-        <div>
+      <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#F0CDD7]">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="font-serif text-lg font-bold text-deep-espresso">
-              Brand Partner Logos
+            <h4 className="font-serif text-base sm:text-lg font-bold text-deep-espresso truncate">
+              Brand Partners
             </h4>
-            <span className="text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full shrink-0">
               {partners.length} {partners.length === 1 ? 'Brand' : 'Brands'}
             </span>
           </div>
-          <p className="text-xs text-[#7A6B70] mt-0.5">
-            These brands stream across the infinite marquee carousel across the home page.
+          <p className="hidden sm:block text-xs text-[#7A6B70] mt-0.5">
+            Brand logos featured on the home page marquee.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {partners.length > 0 && (
+        {/* Hide Add button when form/model is open */}
+        {!isFormOpen && (
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl transition-all cursor-pointer"
-              title="Clear all brand partners"
+              onClick={handleOpenAdd}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Clear All</span>
+              <Plus className="w-4 h-4" />
+              <span>Add Partner</span>
             </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New Partner</span>
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Add / Edit Form */}
@@ -154,39 +143,40 @@ export function PartnersSection({
         <PartnerForm
           isEditing={editingPartner !== null}
           formData={partnerForm}
-          onChange={setPartnerForm}
           onSubmit={handleSaveForm}
           onCancel={handleCloseForm}
           onNotify={onNotify}
         />
       )}
 
-      {/* Partners Grid or Empty State */}
+      {/* Partners Grid or Empty State (Do not render empty state card when form is open) */}
       {partners.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-stone-200 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
-            <Briefcase className="w-7 h-7" />
+        !isFormOpen && (
+          <div className="text-center py-12 sm:py-16 px-4 bg-white rounded-2xl sm:rounded-3xl border border-dashed border-stone-200 shadow-2xs">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
+              <Briefcase className="w-6 h-6 sm:w-7 sm:h-7" />
+            </div>
+            <h5 className="font-serif text-base sm:text-lg font-bold text-deep-espresso mb-1">
+              No Brand Partners Yet
+            </h5>
+            <p className="text-xs text-[#7A6B70] max-w-sm mx-auto mb-4">
+              Upload parlour product and beauty brand partner logos.
+            </p>
+            <button
+              type="button"
+              onClick={handleOpenAdd}
+              className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl shadow-xs cursor-pointer transition-transform active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add First Partner</span>
+            </button>
           </div>
-          <h5 className="font-serif text-lg font-bold text-deep-espresso mb-1">
-            No Brand Partners Added Yet
-          </h5>
-          <p className="text-xs text-[#7A6B70] max-w-md mx-auto mb-4 leading-relaxed">
-            All demo brand partners have been removed. Click below to add your first salon brand partner.
-          </p>
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl shadow-sm cursor-pointer transition-transform active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add First Partner</span>
-          </button>
-        </div>
+        )
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-2.5 sm:gap-4">
           {partners.map((partner, idx) => (
             <PartnerCard
-              key={`${partner.name}-${idx}`}
+              key={partner.id || `${partner.name}-${idx}`}
               partner={partner}
               index={idx}
               totalCount={partners.length}

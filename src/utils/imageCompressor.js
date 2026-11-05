@@ -4,7 +4,7 @@
  */
 
 /**
- * Standard Presets tailored for Salon & Admin Media
+ * Standard Presets tailored for Parlour & Admin Media
  */
 export const COMPRESSION_PRESETS = {
   photo: {

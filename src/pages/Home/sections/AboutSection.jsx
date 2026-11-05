@@ -1,7 +1,79 @@
-import React from 'react';
-import { ABOUT_ASSETS } from '../../../constants/team';
+import React, { useState } from 'react';
+import { Sparkles, GraduationCap, Award, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { InstagramIcon, FacebookIcon } from '../../../components/icons';
+import { SOCIAL_LINKS } from '../../../constants/navigation';
+import shiuliAwardDev from '../../../asset/founder/shiuli-award-dev.jpg';
+import shiuliPortraitRed from '../../../asset/founder/shiuli-portrait-red.jpg';
+import shiuliAwardKoel from '../../../asset/founder/shiuli-award-koel.jpg';
+import shiuliEventAflairza from '../../../asset/founder/shiuli-event-aflairza.jpg';
+import shiuliAwardGlam2025 from '../../../asset/founder/shiuli-award-glam2025.jpg';
+
+const FOUNDER_PHOTOS = [
+  {
+    id: 1,
+    url: shiuliAwardDev,
+    alt: 'Shiuli Giri Maity receiving award from superstar Dev on stage',
+  },
+  {
+    id: 2,
+    url: shiuliPortraitRed,
+    alt: 'Shiuli Giri Maity portrait in elegant traditional attire',
+  },
+  {
+    id: 3,
+    url: shiuliAwardKoel,
+    alt: 'Shiuli Giri Maity receiving trophy with actress Koel Mallick',
+  },
+  {
+    id: 4,
+    url: shiuliEventAflairza,
+    alt: 'Shiuli Giri Maity at celebrity beauty brand showcase event',
+  },
+  {
+    id: 5,
+    url: shiuliAwardGlam2025,
+    alt: 'Shiuli Giri Maity on stage at The Global Glam Awards 2025',
+  },
+];
 
 export function AboutSection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? FOUNDER_PHOTOS.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev === FOUNDER_PHOTOS.length - 1 ? 0 : prev + 1));
+  };
+
+  // Touch handlers for mobile finger slide
+  const minSwipeDistance = 40;
+
+  const handleTouchStart = (e) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    if (distance > minSwipeDistance) {
+      nextSlide(); // Finger slide left -> next
+    } else if (distance < -minSwipeDistance) {
+      prevSlide(); // Finger slide right -> prev
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
+
   return (
     <section className="w-full bg-white py-8 sm:py-12 lg:py-16 scroll-mt-20" id="about-us">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
@@ -15,51 +87,148 @@ export function AboutSection() {
           </h2>
         </div>
 
-        {/* Story Narrative & Architectural Framing Grid */}
+        {/* Framing Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
-          {/* Interior Architecture Photo Cluster */}
-          <div className="lg:col-span-6 relative">
-            <div className="w-full h-[280px] sm:h-[380px] lg:h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-[#F0CDD7]/80">
-              <img
-                className="w-full h-full object-cover"
-                alt={ABOUT_ASSETS.interiorAlt}
-                src={ABOUT_ASSETS.interiorUrl}
-                loading="lazy"
-              />
+          {/* Photo Slider / Carousel Column */}
+          <div className="lg:col-span-6 flex flex-col items-center">
+            {/* Main Interactive Carousel Card */}
+            <div
+              className="relative w-full h-[380px] xs:h-[430px] sm:h-[480px] lg:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-[#F0CDD7] select-none touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* Slides Track */}
+              <div
+                className="w-full h-full flex transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+              >
+                {FOUNDER_PHOTOS.map((photo, index) => (
+                  <div
+                    key={photo.id}
+                    className="w-full h-full shrink-0 relative flex items-center justify-center bg-[#1A1215] overflow-hidden"
+                  >
+                    {/* Ambient blurred background layer for aspect ratio perfection */}
+                    <img
+                      src={photo.url}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110"
+                    />
+
+                    {/* Crisp foreground image */}
+                    <img
+                      className="relative z-10 max-h-full max-w-full object-contain mx-auto select-none pointer-events-none drop-shadow-md"
+                      alt={photo.alt}
+                      src={photo.url}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Slide Counter Chip (Top-Right) - Only element kept */}
+              <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-semibold tracking-wider">
+                {currentIndex + 1} / {FOUNDER_PHOTOS.length}
+              </div>
+
+              {/* Laptop / Desktop Navigation Arrows */}
+              <button
+                type="button"
+                onClick={prevSlide}
+                aria-label="Previous photo"
+                className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
+              >
+                <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+              </button>
+
+              <button
+                type="button"
+                onClick={nextSlide}
+                aria-label="Next photo"
+                className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
+              >
+                <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+              </button>
             </div>
 
-            {/* Overlapping Secondary Detail Card */}
-            <div className="absolute -bottom-5 sm:-bottom-7 -right-3 sm:-right-6 w-44 sm:w-60 bg-white/95 backdrop-blur-xs p-2.5 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl hidden sm:block border border-[#F0CDD7]">
-              <div className="w-full h-24 sm:h-32 rounded-lg sm:rounded-xl overflow-hidden mb-2">
-                <img
-                  className="w-full h-full object-cover"
-                  alt={ABOUT_ASSETS.suiteAlt}
-                  src={ABOUT_ASSETS.suiteUrl}
-                  loading="lazy"
-                />
-              </div>
-              <p className="font-bold text-xs sm:text-sm text-deep-espresso">Private Suites</p>
-              <p className="text-[10px] sm:text-[11px] text-[#7A6B70] leading-snug">
-                Uninterrupted peace for mindful restoration.
-              </p>
+            {/* Thumbnail Indicators Strip (Clickable on laptop & phone) */}
+            <div className="flex items-center justify-center gap-2 mt-4 w-full">
+              {FOUNDER_PHOTOS.map((photo, idx) => {
+                const isActive = idx === currentIndex;
+                return (
+                  <button
+                    key={photo.id}
+                    type="button"
+                    onClick={() => setCurrentIndex(idx)}
+                    aria-label={`Go to slide ${idx + 1}`}
+                    className={`relative rounded-lg overflow-hidden transition-all duration-300 border focus:outline-hidden ${
+                      isActive
+                        ? 'w-12 sm:w-14 h-12 sm:h-14 ring-2 ring-[#D6204E] border-[#D6204E] shadow-md scale-105'
+                        : 'w-9 sm:w-10 h-9 sm:h-10 border-[#F0CDD7] opacity-60 hover:opacity-100 hover:scale-100'
+                    }`}
+                  >
+                    <img
+                      src={photo.url}
+                      alt={photo.title}
+                      className="w-full h-full object-cover"
+                    />
+                    {isActive && (
+                      <div className="absolute inset-0 bg-[#D6204E]/15" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Narrative Content */}
+          {/* Narrative / Points Content */}
           <div className="lg:col-span-6 flex flex-col items-start lg:pl-6">
             <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
-              OUR STUDIO PHILOSOPHY
+              FOUNDER &amp; MASTER BEAUTICIAN
             </span>
-            <h3 className="font-serif text-xl sm:text-2xl md:text-3xl lg:text-[2.2rem] font-bold text-deep-espresso leading-tight mb-3 sm:mb-4">
-              A sanctuary for  
-              <span className="italic font-normal text-black font-serif"> your</span> beauty ritual
+            <h3 className="font-serif text-2xl sm:text-3xl lg:text-[2.2rem] font-bold text-deep-espresso leading-tight mb-4 sm:mb-6">
+              Shiuli Giri Maity
             </h3>
-            <p className="text-xs sm:text-sm md:text-base text-[#5C4D52] mb-3 sm:mb-4 leading-relaxed">
-              Look &amp; Like was created for people who want salon results without the salon rush. Private styling stations, premium international products, and artists who truly listen.
-            </p>
-            <p className="text-xs sm:text-sm text-[#7A6B70] mb-5 sm:mb-6 leading-relaxed">
-              Sip a warm herbal infusion or artisanal espresso, unwind in acoustic tranquility, and leave feeling like the most radiant version of yourself.
-            </p>
+
+            {/* Key Information Points */}
+            <ul className="space-y-3 sm:space-y-3.5 mb-6 sm:mb-8 w-full">
+              <li className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-sm text-[#4A3E42] leading-relaxed">
+                <span className="w-5 h-5 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[#D6204E] flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles className="w-3 h-3" />
+                </span>
+                <span>
+                  <strong>Shiuli Giri Maity</strong>, wife of Manaskam Maity, is a professional beautician based in <strong>Belda, West Bengal</strong>.
+                </span>
+              </li>
+
+              <li className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-sm text-[#4A3E42] leading-relaxed">
+                <span className="w-5 h-5 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[#D6204E] flex items-center justify-center shrink-0 mt-0.5">
+                  <GraduationCap className="w-3 h-3" />
+                </span>
+                <span>
+                  <strong>Educational Qualification:</strong> Master of Arts (M.A.).
+                </span>
+              </li>
+
+              <li className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-sm text-[#4A3E42] leading-relaxed">
+                <span className="w-5 h-5 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[#D6204E] flex items-center justify-center shrink-0 mt-0.5">
+                  <Award className="w-3 h-3" />
+                </span>
+                <span>
+                  <strong>Specialization:</strong> Professional beauty services, makeup artistry, nail &amp; celebrity makeup.
+                </span>
+              </li>
+
+              <li className="flex items-start gap-2.5 sm:gap-3 text-xs sm:text-sm text-[#4A3E42] leading-relaxed">
+                <span className="w-5 h-5 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[#D6204E] flex items-center justify-center shrink-0 mt-0.5">
+                  <Heart className="w-3 h-3" />
+                </span>
+                <span>
+                  With a passion for beauty, creativity, and style, dedicated to providing professional beauty and makeup services.
+                </span>
+              </li>
+            </ul>
 
             {/* 3 Stats Counters */}
             <div className="grid grid-cols-3 gap-2 xs:gap-3 sm:gap-6 w-full pt-5 border-t border-[#F0CDD7]/70">

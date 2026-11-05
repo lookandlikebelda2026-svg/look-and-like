@@ -9,8 +9,9 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  onSnapshot,
 } from 'firebase/firestore';
-import { DEFAULT_SERVICES_DATA, normalizeService } from '../constants/services.js';
+import { normalizeService } from '../constants/services.js';
 
 const SERVICES_COLLECTION = 'services';
 const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes in-memory cache
@@ -20,7 +21,7 @@ let lastCacheTime = 0;
 
 /**
  * Fetch all services from Firebase Firestore with intelligent in-memory caching.
- * Prevents redundant read queries during client navigation.
+ * Only returns real services added by the admin; returns empty array if none exist.
  */
 export async function getServicesFromFirebase(forceRefresh = false) {
   const now = Date.now();
@@ -33,12 +34,9 @@ export async function getServicesFromFirebase(forceRefresh = false) {
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      // If collection is empty in Firestore, return cached or defaults
-      if (!cachedServices || cachedServices.length === 0) {
-        cachedServices = DEFAULT_SERVICES_DATA.map((s, idx) => normalizeService(s, idx));
-        lastCacheTime = now;
-      }
-      return cachedServices;
+      cachedServices = [];
+      lastCacheTime = now;
+      return [];
     }
 
     const services = [];
@@ -51,11 +49,11 @@ export async function getServicesFromFirebase(forceRefresh = false) {
     lastCacheTime = now;
     return services;
   } catch (error) {
-    console.warn('Firestore service read failed (falling back to local cache):', error.message);
+    console.warn('Firestore service read failed:', error.message);
     if (cachedServices && cachedServices.length > 0) {
       return cachedServices;
     }
-    return DEFAULT_SERVICES_DATA.map((s, idx) => normalizeService(s, idx));
+    return [];
   }
 }
 
@@ -80,12 +78,12 @@ export async function getServiceByIdFromFirebase(serviceId) {
     return null;
   } catch (error) {
     console.warn('Error fetching service by ID from Firestore:', error.message);
-    return DEFAULT_SERVICES_DATA.find((s) => s.id === serviceId) || null;
+    return null;
   }
 }
 
 /**
- * Save or update a service in Firebase Firestore adhering to the new Service data model
+ * Save or update a service in Firebase Firestore adhering to the Service data model
  */
 export async function saveServiceToFirebase(serviceData) {
   const normalized = normalizeService(serviceData);
@@ -99,69 +97,45 @@ export async function saveServiceToFirebase(serviceData) {
     const isNew = !existingSnap.exists();
 
     const payload = {
-      id: normalized.id,
-      name: normalized.name,
-      description: normalized.description,
-      images: normalized.images || [],
-      startingPrice: Number(normalized.startingPrice) || 0,
-      plans: (normalized.plans || []).map((plan) => ({
-        id: plan.id,
-        name: plan.name,
-        description: plan.description || '',
-        images: plan.images || [],
-        startingPrice: Number(plan.startingPrice) || 0,
-        subplans: (plan.subplans || []).map((sub) => ({
-          id: sub.id,
-          name: sub.name,
-          price: Number(sub.price) || 0,
-        })),
-      })),
-      updatedAt: serverTimestamp(),
+      ...normalized,
+      updatedAt: new Date().toISOString(),
+      ...(isNew ? { createdAt: new Date().toISOString() } : {}),
     };
-
-    if (isNew) {
-      payload.createdAt = serverTimestamp();
-    }
 
     await setDoc(docRef, payload, { merge: true });
 
-    // Update in-memory cache
+    // Invalidate local in-memory cache
     if (cachedServices) {
-      const idx = cachedServices.findIndex((s) => s.id === normalized.id);
-      if (idx !== -1) {
-        cachedServices[idx] = normalized;
+      const existingIdx = cachedServices.findIndex((s) => s.id === normalized.id);
+      if (existingIdx !== -1) {
+        cachedServices[existingIdx] = payload;
       } else {
-        cachedServices.push(normalized);
+        cachedServices.push(payload);
       }
-    } else {
-      cachedServices = [normalized];
     }
-    lastCacheTime = Date.now();
 
-    return { success: true, service: normalized };
+    return { success: true, service: payload };
   } catch (error) {
     console.error('Error saving service to Firebase:', error);
-    // Still update local cache so admin changes persist in current session
-    if (cachedServices) {
-      const idx = cachedServices.findIndex((s) => s.id === normalized.id);
-      if (idx !== -1) cachedServices[idx] = normalized;
-      else cachedServices.push(normalized);
-    }
-    return { success: false, error: error.message, service: normalized };
+    throw error;
   }
 }
 
 /**
- * Delete a service from Firestore
+ * Delete a service from Firebase Firestore
  */
 export async function deleteServiceFromFirebase(serviceId) {
+  if (!serviceId) return { success: false, error: 'No serviceId provided' };
+
   try {
     const docRef = doc(db, SERVICES_COLLECTION, serviceId);
     await deleteDoc(docRef);
 
+    // Update in-memory cache
     if (cachedServices) {
       cachedServices = cachedServices.filter((s) => s.id !== serviceId);
     }
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting service from Firebase:', error);
@@ -173,11 +147,106 @@ export async function deleteServiceFromFirebase(serviceId) {
 }
 
 /**
- * Price Verification Helper (Rule 4: Never trust client-submitted purchase prices)
+ * Real-time subscription to Services from Firestore
+ */
+export function subscribeToServices(onUpdate, onError) {
+  try {
+    const q = query(collection(db, SERVICES_COLLECTION), orderBy('createdAt', 'asc'));
+    return onSnapshot(
+      q,
+      (querySnapshot) => {
+        const services = [];
+        querySnapshot.forEach((docSnap) => {
+          const normalized = normalizeService({ id: docSnap.id, ...docSnap.data() });
+          if (normalized) services.push(normalized);
+        });
+        cachedServices = services;
+        lastCacheTime = Date.now();
+        onUpdate(services);
+      },
+      (err) => {
+        console.warn('Real-time services subscription warning:', err.message);
+        onError?.(err);
+      }
+    );
+  } catch (err) {
+    console.warn('Failed to initialize services subscription:', err.message);
+    onError?.(err);
+    return () => {};
+  }
+}
+
+/**
+ * Synchronize full list of services with Firestore:
+ * Writes updated services and deletes removed services.
+ */
+export async function syncAllServicesToFirebase(servicesList) {
+  try {
+    const cleanList = Array.isArray(servicesList)
+      ? servicesList.map((s, idx) => normalizeService(s, idx)).filter(Boolean)
+      : [];
+
+    const existingSnap = await getDocs(collection(db, SERVICES_COLLECTION));
+    const keepIds = new Set(cleanList.map((s) => s.id));
+
+    // Delete any documents that are no longer present in cleanList
+    const deletePromises = [];
+    existingSnap.forEach((docSnap) => {
+      if (!keepIds.has(docSnap.id)) {
+        deletePromises.push(deleteDoc(docSnap.ref));
+      }
+    });
+    await Promise.all(deletePromises);
+
+    // Save/update each service in cleanList
+    const savePromises = cleanList.map((svc) => {
+      const docRef = doc(db, SERVICES_COLLECTION, svc.id);
+      return setDoc(
+        docRef,
+        {
+          ...svc,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    });
+    await Promise.all(savePromises);
+
+    cachedServices = cleanList;
+    lastCacheTime = Date.now();
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to sync all services to Firestore:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Clear all services from Firestore
+ */
+export async function clearAllServicesFromFirebase() {
+  try {
+    const existingSnap = await getDocs(collection(db, SERVICES_COLLECTION));
+    const deletePromises = [];
+    existingSnap.forEach((docSnap) => {
+      deletePromises.push(deleteDoc(docSnap.ref));
+    });
+    await Promise.all(deletePromises);
+    cachedServices = [];
+    lastCacheTime = Date.now();
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to clear services from Firestore:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Price Verification Helper
  * Verifies the selected subplan price against the stored service data.
  */
 export function verifySubplanPrice(servicesList, serviceId, planId, subplanId) {
-  const list = Array.isArray(servicesList) ? servicesList : cachedServices || DEFAULT_SERVICES_DATA;
+  const list = Array.isArray(servicesList) ? servicesList : cachedServices || [];
   const service = list.find((s) => s.id === serviceId);
   if (!service) return null;
 
@@ -199,3 +268,13 @@ export function verifySubplanPrice(servicesList, serviceId, planId, subplanId) {
   };
 }
 
+export default {
+  getServicesFromFirebase,
+  getServiceByIdFromFirebase,
+  saveServiceToFirebase,
+  deleteServiceFromFirebase,
+  subscribeToServices,
+  syncAllServicesToFirebase,
+  clearAllServicesFromFirebase,
+  verifySubplanPrice,
+};

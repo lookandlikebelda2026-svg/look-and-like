@@ -38,7 +38,7 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
         <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] min-h-[220px] xs:min-h-[240px] overflow-hidden bg-[#FFF3F6]">
           <img
             src={heroBgImage}
-            alt="Look & Like Luxury Beauty Salon Experience"
+            alt="Look & Like Luxury Beauty Parlour Experience"
             loading="eager"
             fetchPriority="high"
             className="h-full w-full object-cover object-[78%_center] xs:object-center select-none"
@@ -126,7 +126,7 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
         {/* Background Image */}
         <img
           src={heroBgImage}
-          alt="Look & Like Luxury Beauty Salon Experience"
+          alt="Look & Like Luxury Beauty Parlour Experience"
           loading="eager"
           fetchPriority="high"
           className="absolute inset-0 -z-20 h-full w-full select-none object-cover sm:object-center"

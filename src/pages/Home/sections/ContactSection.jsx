@@ -43,7 +43,7 @@ export function ContactSection() {
           className="mx-auto mb-5 max-w-xl text-center sm:mb-10 lg:mb-12 scroll-mt-24"
         >
           <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
-            SALON BRANCHES
+            PARLOUR BRANCHES
           </span>
 
           <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold leading-tight tracking-tight text-deep-espresso">

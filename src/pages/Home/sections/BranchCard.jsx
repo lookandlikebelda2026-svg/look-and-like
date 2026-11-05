@@ -8,7 +8,7 @@ export function BranchCard({ branch }) {
       <div className="relative w-full h-36 xs:h-40 sm:h-40 md:h-44 overflow-hidden bg-[#FFF3F6]">
         <img
           src={branch.imageUrl}
-          alt={`${branch.name} salon branch interior`}
+          alt={`${branch.name} parlour branch interior`}
           onError={(e) => {
             if (branch.fallbackImageUrl && e.currentTarget.src !== branch.fallbackImageUrl) {
               e.currentTarget.src = branch.fallbackImageUrl;
@@ -56,7 +56,7 @@ export function BranchCard({ branch }) {
             <a
               href={`tel:${branch.phone.replace(/\s+/g, '')}`}
               className="flex items-center justify-between py-0.5 group/phone hover:text-[#D6204E] transition-colors"
-              title="Call salon branch"
+              title="Call parlour branch"
             >
               <span className="flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-[#D6204E] shrink-0" />
@@ -88,7 +88,7 @@ export function BranchCard({ branch }) {
 
           {/* WhatsApp Button */}
           <a
-            href={`https://api.whatsapp.com/send?phone=${String(branch.whatsAppNumber || '917872624993').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(branch.prefillMessage)}`}
+            href={`https://api.whatsapp.com/send?phone=${String(branch.whatsAppNumber || '919647357421').replace(/[^0-9]/g, '')}&text=${encodeURIComponent(branch.prefillMessage)}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] text-white py-1.5 xs:py-2 sm:py-2.5 px-2.5 sm:px-3.5 rounded-full text-[11px] sm:text-xs font-semibold shadow-xs hover:shadow-md active:scale-95 transition-all text-center flex-1"

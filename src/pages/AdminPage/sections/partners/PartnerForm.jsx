@@ -1,74 +1,50 @@
 import React from 'react';
-import { Check } from 'lucide-react';
-import { ImageKitUploader } from '../../../../components/common/ImageKitUploader';
+import { MultiImageUploader } from '../common/MultiImageUploader';
 
 /**
  * Add / Edit Brand Partner Form
- * Clean, compact full-width layout relying on ImageKitUploader's integrated logo preview.
+ * Stages logo images locally with cross icon preview, compressing and uploading to ImageKit only when saved.
  */
 export function PartnerForm({
   isEditing,
   formData,
-  onChange,
   onSubmit,
   onCancel,
   onNotify,
 }) {
   return (
-    <form
-      onSubmit={onSubmit}
-      className="mb-6 p-4 sm:p-5 rounded-2xl bg-white border border-[#F0CDD7] shadow-sm space-y-4"
-    >
-      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-        <h5 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#D6204E]">
-          {isEditing ? 'Edit Brand Partner' : 'Add New Brand Partner'}
+    <div className="mb-4 sm:mb-6 p-3 sm:p-5 rounded-xl sm:rounded-2xl bg-white border border-[#F0CDD7] shadow-xs space-y-3">
+      <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+        <h5 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#D6204E] truncate">
+          {isEditing ? 'Edit Partner Logo' : 'Add Brand Partners'}
         </h5>
         <button
           type="button"
           onClick={onCancel}
-          className="text-stone-400 hover:text-stone-700 text-xs font-semibold cursor-pointer"
+          className="text-stone-400 hover:text-stone-700 text-xs font-semibold cursor-pointer shrink-0"
         >
           Cancel
         </button>
       </div>
 
-      <div className="space-y-3.5">
-        <div>
-          <label className="block text-xs font-bold text-deep-espresso mb-1">
-            Brand Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.name}
-            onChange={(e) => onChange({ ...formData, name: e.target.value })}
-            placeholder="e.g. KÉRASTASE"
-            className="w-full px-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-[#D6204E]/40"
-          />
-        </div>
-
-        <ImageKitUploader
-          value={formData.logoUrl}
-          onChange={(url) => onChange({ ...formData, logoUrl: url })}
-          folder="/partners"
-          preset="logo"
-          tags={['partners', 'logo']}
-          label="Brand Logo Photo"
-          helpText="Upload brand logo (SVG, PNG or WEBP with transparency)"
-          onNotify={onNotify}
-        />
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-deep-espresso hover:bg-stone-800 rounded-lg shadow-xs cursor-pointer active:scale-95"
-          >
-            <Check className="w-3.5 h-3.5" />
-            <span>{isEditing ? 'Update Partner' : 'Save Partner'}</span>
-          </button>
-        </div>
-      </div>
-    </form>
+      <MultiImageUploader
+        folder="/partners"
+        preset="logo"
+        label="Brand Logos"
+        itemSingular="Partner"
+        itemPlural="Partners"
+        multiple={!isEditing}
+        showNameTag={true}
+        initialItem={
+          isEditing && formData?.logoUrl
+            ? { url: formData.logoUrl, name: formData.name || 'Brand Partner' }
+            : null
+        }
+        onSubmit={onSubmit}
+        onCancel={onCancel}
+        onNotify={onNotify}
+      />
+    </div>
   );
 }
 

@@ -9,12 +9,12 @@ const SOCIAL_LINKS = [
   {
     name: 'Instagram',
     icon: InstagramIcon,
-    href: 'https://instagram.com',
+    href: 'https://www.instagram.com/mua_shiuli_maity_official?utm_source=ig_web_button_share_sheet&exln=ZDNlZDc0MzIxNw==',
   },
   {
     name: 'Facebook',
     icon: FacebookIcon,
-    href: 'https://facebook.com',
+    href: 'https://www.facebook.com/lookandlikebelda/',
   },
   {
     name: 'WhatsApp',
@@ -41,21 +41,20 @@ export function Footer() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               aria-label="Look & Like home"
-              className="flex items-center gap-2.5 active:scale-95 transition-transform"
+              className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
             >
-              <img
-                src={LOGO_URL}
-                alt="Look & Like"
-                loading="lazy"
-                className="h-8 sm:h-9 w-auto object-contain mix-blend-multiply"
-              />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
+                <img
+                  src={LOGO_URL}
+                  alt="Look & Like"
+                  loading="lazy"
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-deep-espresso">
                 Look &amp; Like
               </span>
             </a>
-            <p className="text-xs sm:text-sm text-[#6B5A60]">
-              Editorial Luxury Hair, Beauty &amp; Spa Studio.
-            </p>
           </div>
 
           {/* Social Links & Phone */}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { X, Phone, Calendar } from 'lucide-react';
-import { NAV_LINKS, CONTACT_INFO } from '../../constants/navigation';
+import { NAV_LINKS, CONTACT_INFO, SOCIAL_LINKS, LOGO_URL } from '../../constants/navigation';
+import { InstagramIcon, FacebookIcon, WhatsAppIcon } from '../icons';
 
 export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
     <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-white/85 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -88,8 +89,11 @@ export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
       <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-white p-5 sm:p-6 shadow-2xl flex flex-col justify-between border-l border-border-warm animate-in slide-in-from-right duration-300 overflow-y-auto z-10">
         <div>
           <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-border-warm">
-            <div className="flex items-center gap-2">
-              <span className="font-display-md text-lg font-bold text-deep-espresso">Look &amp; Like</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-serif text-lg font-bold text-deep-espresso">Look &amp; Like</span>
             </div>
             <button
               onClick={onClose}
@@ -148,6 +152,37 @@ export function MobileMenu({ isOpen, onClose, onOpenBooking }) {
             <Calendar size={16} />
             <span>Book Appointment</span>
           </button>
+
+          {/* Social Links */}
+          <div className="flex items-center justify-center gap-3 pt-2 mt-1">
+            <a
+              href={SOCIAL_LINKS.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#F0CDD7] bg-[#FFF3F6] text-[#D6204E] hover:bg-[#D6204E] hover:text-white transition-all active:scale-95"
+            >
+              <InstagramIcon className="h-4 w-4" />
+            </a>
+            <a
+              href={SOCIAL_LINKS.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#F0CDD7] bg-[#FFF3F6] text-[#D6204E] hover:bg-[#D6204E] hover:text-white transition-all active:scale-95"
+            >
+              <FacebookIcon className="h-4 w-4" />
+            </a>
+            <a
+              href={SOCIAL_LINKS.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#F0CDD7] bg-[#FFF3F6] text-[#D6204E] hover:bg-[#D6204E] hover:text-white transition-all active:scale-95"
+            >
+              <WhatsAppIcon className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import ctaBannerImage from '../../../asset/cta-banner.jpg';
 import { ArrowRight } from 'lucide-react';
-import { LotusIcon } from '../../../components/icons';
+import { LOGO_URL } from '../../../constants/navigation';
 
 export function CtaBannerSection({ onOpenBooking }) {
   const handleBooking = (e) => {
@@ -22,7 +22,7 @@ export function CtaBannerSection({ onOpenBooking }) {
           {/* Background Image: High-Resolution Atelier Beauty Banner */}
           <img
             src={ctaBannerImage}
-            alt="Look & Like Beauty Salon Experience"
+            alt="Look & Like Beauty Parlour Experience"
             className="absolute inset-0 w-full h-full object-cover object-[85%_center] xs:object-[80%_center] sm:object-right select-none pointer-events-none"
             loading="lazy"
           />
@@ -33,13 +33,15 @@ export function CtaBannerSection({ onOpenBooking }) {
           {/* PHONE LAYOUT (< sm): Stacked brand + button in the left 60%, model on right */}
           <div className="relative z-10 flex sm:hidden flex-col justify-center items-start pl-4 xs:pl-6 pr-2 max-w-[62%] h-full py-4 gap-2.5">
             <div className="flex items-center gap-2">
-              <LotusIcon className="w-5 h-5 text-[#D6204E] shrink-0" />
+              <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
+              </div>
               <div className="flex flex-col">
                 <span className="font-serif text-lg xs:text-xl font-bold text-black tracking-tight leading-none">
                   Look &amp; Like
                 </span>
                 <span className="text-[7.5px] xs:text-[8.5px] uppercase tracking-[0.22em] text-black font-semibold mt-0.5">
-                  Beauty Salon
+                  Beauty Parlour
                 </span>
               </div>
             </div>
@@ -58,12 +60,14 @@ export function CtaBannerSection({ onOpenBooking }) {
           <div className="relative z-10 hidden sm:flex items-center justify-between w-full h-full px-8 md:px-12 lg:px-16">
             {/* Left: Brand Logo & Title */}
             <div className="flex flex-col items-center text-center select-none shrink-0">
-              <LotusIcon className="w-6 h-6 md:w-8 md:h-8 lg:w-9 lg:h-9 text-[#D6204E] mb-1 drop-shadow-xs" />
+              <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mb-1 drop-shadow-xs shrink-0">
+                <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
+              </div>
               <h2 className="font-serif text-2xl md:text-3xl lg:text-[2.2rem] font-bold text-black tracking-tight leading-none whitespace-nowrap">
                 Look &amp; Like
               </h2>
               <span className="font-sans text-[8.5px] md:text-[9.5px] lg:text-[11px] uppercase tracking-[0.28em] text-black font-semibold mt-1 whitespace-nowrap">
-                Beauty Salon
+                Beauty Parlour
               </span>
             </div>
 

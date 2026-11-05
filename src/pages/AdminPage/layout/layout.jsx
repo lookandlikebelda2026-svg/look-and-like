@@ -15,11 +15,7 @@ import { Footer } from './Footer';
 
 /**
  * Admin Layout (Entry Point)
- * A restructured, highly responsive, production-ready SaaS administration dashboard.
- * Inspired by modern administrative workspaces:
- * - Desktop/Tablet: Fixed collapsible Sidebar (w-[260px] or w-20), fixed Header, smooth margin transition.
- * - Mobile: Sliding Off-Canvas Drawer (hamburger trigger), and Ergonomic Bottom Navigation bar.
- * - Modals: Dedicated Logout Confirmation Dialog.
+ * Modern SaaS dashboard layout with fixed sidebar, ergonomic header, and mobile navigation.
  */
 export function Layout({
   children,
@@ -32,6 +28,8 @@ export function Layout({
   onNotify,
   showFooter = false,
   title,
+  onBack,
+  headerActions,
 }) {
   const navigate = useNavigate();
   const currentUser = adminUser || getLocalAdminSession();
@@ -54,7 +52,7 @@ export function Layout({
   const items = navItems || [
     {
       id: 'services',
-      label: 'Salon Services',
+      label: 'Parlour Services',
       shortLabel: 'Services',
       icon: Scissors,
       count: counts.services,
@@ -86,7 +84,7 @@ export function Layout({
   const getHeaderTitle = () => {
     switch (activeTab) {
       case 'services':
-        return 'Salon Services Menu';
+        return 'Parlour Services';
       case 'lookbook':
         return 'Lookbook Photos';
       case 'partners':
@@ -153,6 +151,8 @@ export function Layout({
         <Header
           setDrawerOpen={setDrawerOpen}
           title={title || getHeaderTitle()}
+          onBack={onBack}
+          actions={headerActions}
           handleLogout={() => setIsLogoutModalOpen(true)}
         />
 

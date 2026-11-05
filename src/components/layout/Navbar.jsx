@@ -95,16 +95,18 @@ export function Navbar({ onOpenBooking }) {
           <a
             href="#"
             onClick={handleLogoClick}
-            className="flex items-center gap-2 sm:gap-3 group cursor-pointer shrink min-w-0"
+            className="flex items-center gap-2 sm:gap-2.5 group cursor-pointer shrink min-w-0"
           >
-            <img
-              alt="Look & Like Logo"
-              className="h-7 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
-              src={LOGO_URL}
-            />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <img
+                alt="Look & Like Logo"
+                className="w-full h-full object-contain select-none"
+                src={LOGO_URL}
+              />
+            </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-display-md text-base sm:text-xl font-bold text-deep-espresso tracking-tight leading-none truncate">
-               Look &amp; Like
+              <span className="font-serif text-base sm:text-xl font-bold text-deep-espresso tracking-tight leading-none truncate">
+                Look &amp; Like
               </span>
               <span className="font-label-sm text-[10px] text-tertiary uppercase tracking-widest leading-none mt-1 hidden sm:block">
                 Hair · Beauty · Spa

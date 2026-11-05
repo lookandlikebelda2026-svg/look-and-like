@@ -61,7 +61,7 @@ export function CategoryCard({ meta = {}, category = {}, onBookCategory }) {
           </div>
         )}
 
-        {/* Prominent Action Button matching Salon Brand Crimson */}
+        {/* Prominent Action Button matching Parlour Brand Crimson */}
         <button
           type="button"
           onClick={() => onBookCategory?.(category?.key)}

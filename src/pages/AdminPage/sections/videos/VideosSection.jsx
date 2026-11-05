@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, RotateCcw, Video, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Video } from 'lucide-react';
 import { YouTubeIcon } from '../../../../components/icons';
 import { VideoCard } from './VideoCard';
 import { VideoForm } from './VideoForm';
-import { extractYouTubeId, isValidYouTubeUrl } from '../../../../utils/youtube';
 
 const EMPTY_VIDEO = {
   id: '',
@@ -56,27 +55,25 @@ export function VideosSection({
   const handleSubmitForm = (e) => {
     e.preventDefault();
 
-    if (!formData.title?.trim()) {
-      onNotify?.('Please provide a title for the video', 'error');
+    if (!formData.youtubeUrl?.trim()) {
+      onNotify?.('Please provide a YouTube URL.', 'error');
       return;
     }
 
-    if (!formData.youtubeUrl?.trim()) {
-      onNotify?.('Please provide a valid YouTube URL', 'error');
-      return;
-    }
+    const cleanTitle = formData.title?.trim() || `${formData.category || 'Atelier'} Film`;
 
     const nextVideos = [...videos];
 
     if (editingIndex !== null) {
-      nextVideos[editingIndex] = { ...formData };
-      onNotify?.('Video film updated successfully', 'success');
+      nextVideos[editingIndex] = { ...formData, title: cleanTitle };
+      onNotify?.('Video updated!', 'success');
     } else {
       nextVideos.unshift({
         ...formData,
+        title: cleanTitle,
         id: formData.id || `vid_${Date.now()}`,
       });
-      onNotify?.('New YouTube film added to the collection', 'success');
+      onNotify?.('New video added!', 'success');
     }
 
     saveVideos(nextVideos);
@@ -85,14 +82,12 @@ export function VideosSection({
 
   const handleDelete = (index) => {
     const video = videos[index];
-    const confirmDelete = window.confirm(
-      `Are you sure you want to remove "${video?.title || 'this video'}" from the salon showcase?`
-    );
-    if (!confirmDelete) return;
-
-    const nextVideos = videos.filter((_, idx) => idx !== index);
-    saveVideos(nextVideos);
-    onNotify?.('Video removed from showcase', 'info');
+    const name = video?.title || 'this video';
+    if (window.confirm(`Remove "${name}"?`)) {
+      const nextVideos = videos.filter((_, idx) => idx !== index);
+      saveVideos(nextVideos);
+      onNotify?.('Video removed.', 'info');
+    }
   };
 
   const handleMove = (index, direction) => {
@@ -104,17 +99,13 @@ export function VideosSection({
     nextVideos.splice(targetIndex, 0, moved);
 
     saveVideos(nextVideos);
-    onNotify?.('Video order updated', 'info');
   };
 
-  const handleResetDefaults = () => {
-    const confirmReset = window.confirm(
-      'Reset all videos to the initial studio showcase collection? Custom additions will be replaced.'
-    );
-    if (!confirmReset) return;
-
-    resetVideos();
-    onNotify?.('Showcase videos reset to default collection', 'info');
+  const handleClearAll = () => {
+    if (window.confirm('Clear all YouTube videos?')) {
+      resetVideos();
+      onNotify?.('Cleared all videos.', 'info');
+    }
   };
 
   const filteredVideos = selectedCategory === 'all'
@@ -122,45 +113,37 @@ export function VideosSection({
     : videos.filter((v) => v.category === selectedCategory);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#F0CDD7]">
-        <div>
+      <div className="flex items-center justify-between gap-2 pb-3 sm:pb-4 border-b border-[#F0CDD7]">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <YouTubeIcon className="w-5 h-5 text-rose-600" />
-            <h3 className="font-serif text-lg sm:text-xl font-bold text-deep-espresso">
-              YouTube Beauty Story Films
+            <YouTubeIcon className="w-4 h-4 text-rose-600 shrink-0" />
+            <h3 className="font-serif text-base sm:text-lg font-bold text-deep-espresso truncate">
+              YouTube Films
             </h3>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#FFF3F6] text-[#D6204E] border border-[#F0CDD7]">
-              {videos.length} Films
+            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-[#FFF3F6] text-[#D6204E] border border-[#F0CDD7] shrink-0">
+              {videos.length} {videos.length === 1 ? 'Film' : 'Films'}
             </span>
           </div>
-          <p className="text-xs text-[#7A6B70] mt-1">
-            Manage video stories shown in the &quot;Watch our beauty stories&quot; section on the home page.
+          <p className="hidden sm:block text-xs text-[#7A6B70] mt-0.5">
+            Manage video stories displayed on the home page showcase.
           </p>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleResetDefaults}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-xs font-medium text-stone-600 transition-colors cursor-pointer"
-            title="Reset to default salon videos"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Reset Defaults</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleStartAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D6204E] hover:bg-[#B81942] text-xs font-semibold text-white shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add YouTube Film</span>
-          </button>
-        </div>
+        {/* Action Controls - Hidden while form is open */}
+        {!showForm && (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleStartAdd}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-[#D6204E] hover:bg-[#B81942] text-xs font-semibold text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Video</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Embedded Add / Edit Form */}
@@ -177,16 +160,13 @@ export function VideosSection({
 
       {/* Category Filter Chips */}
       {categories.length > 2 && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          <span className="text-[11px] text-stone-500 font-medium shrink-0 mr-1">
-            Filter:
-          </span>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {categories.map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                 selectedCategory === cat
                   ? 'bg-deep-espresso text-white shadow-2xs'
                   : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300'
@@ -198,27 +178,24 @@ export function VideosSection({
         </div>
       )}
 
-      {/* Videos Grid */}
+      {/* Videos Grid / Empty State (Do not render empty state card when form is open) */}
       {filteredVideos.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-stone-300 p-6">
-          <Video className="w-10 h-10 mx-auto text-stone-300 mb-2" />
-          <h4 className="text-sm font-bold text-stone-700">No videos found</h4>
-          <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
-            {selectedCategory !== 'all'
-              ? `No films categorized under "${selectedCategory}".`
-              : 'Add your first YouTube film or restore default salon stories.'}
-          </p>
-          <button
-            type="button"
-            onClick={handleStartAdd}
-            className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-deep-espresso text-white text-xs font-semibold cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add YouTube Film</span>
-          </button>
-        </div>
+        !showForm && (
+          <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-stone-300 p-4">
+            <Video className="w-8 h-8 mx-auto text-stone-300 mb-2" />
+            <h4 className="text-sm font-bold text-stone-700">No videos found</h4>
+            <button
+              type="button"
+              onClick={handleStartAdd}
+              className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-deep-espresso text-white text-xs font-semibold cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Video</span>
+            </button>
+          </div>
+        )
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {filteredVideos.map((video, index) => (
             <VideoCard
               key={video.id || index}

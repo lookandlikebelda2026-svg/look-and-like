@@ -306,8 +306,7 @@ export function ImageKitUploader({
             type="url"
             value={typeof value === 'string' ? value : ''}
             onChange={(e) => onChange?.(e.target.value)}
-            placeholder="https://..."
-            className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#F0CDD7] focus:outline-none focus:border-[#D6204E] focus:ring-1 focus:ring-[#D6204E] bg-white font-mono"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#F0CDD7] focus:outline-none focus:border-[#D6204E] focus:ring-1 focus:ring-[#D6204E] bg-white font-mono"
           />
           <p className="text-[11px] text-[#7A6B70]">
             Paste any direct image link or ImageKit delivery URL.
@@ -351,7 +350,7 @@ export function ImageKitUploader({
                 <div className="flex items-center gap-1.5">
 
                   <span className="text-xs font-bold text-deep-espresso">
-                    Review Compressed Preview Before Upload
+                    Image Preview
                   </span>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F8EE] text-[#1EBE5D] border border-[#25D366]/30">
@@ -409,7 +408,7 @@ export function ImageKitUploader({
                           </div>
                         </div>
 
-                        <p className="text-[10px] text-[#7A6B70]">
+                        <p className="hidden sm:block text-[10px] text-[#7A6B70]">
                           Format: <strong className="font-mono text-stone-700 uppercase">{res.format.replace('image/', '')}</strong> · Saved: <strong className="font-mono text-emerald-600">{formatBytes(res.savedBytes)}</strong>
                         </p>
                       </div>
@@ -513,7 +512,7 @@ export function ImageKitUploader({
                 <div className="flex flex-wrap items-center gap-1.5 mb-1">
                   <div className="flex items-center gap-1 text-emerald-600 text-xs font-semibold">
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                    <span>Uploaded to ImageKit CDN</span>
+                    <span>Uploaded<span className="hidden sm:inline"> to CDN</span></span>
                   </div>
                   {pixelDimensions && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#FFF3F6] text-[#D6204E] border border-[#F0CDD7] shadow-2xs">
@@ -576,10 +575,10 @@ export function ImageKitUploader({
               </div>
               <div>
                 <p className="text-xs font-semibold text-deep-espresso">
-                  Click to select photo <span className="font-normal text-[#7A6B70]">or drag and drop</span>
+                  Choose photo <span className="hidden sm:inline font-normal text-[#7A6B70]">or drag and drop</span>
                 </p>
                 <p className="text-[11px] text-[#7A6B70] mt-0.5">
-                  {helpText} · Automatically compressed &amp; previewed before upload
+                  {helpText}
                 </p>
               </div>
             </div>

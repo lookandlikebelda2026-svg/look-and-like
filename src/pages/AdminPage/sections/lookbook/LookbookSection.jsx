@@ -12,7 +12,7 @@ export function LookbookSection({
   resetInspiredImages,
   onNotify,
 }) {
-  const [editingInspired, setEditingInspired] = useState(null); // null or { index, item }
+  const [editingInspired, setEditingInspired] = useState(null);
   const [isAddingInspired, setIsAddingInspired] = useState(false);
   const [inspiredForm, setInspiredForm] = useState({ imageUrl: '', alt: '' });
 
@@ -36,35 +36,41 @@ export function LookbookSection({
     setEditingInspired(null);
   };
 
-  const handleSaveForm = (e) => {
-    e.preventDefault();
-    if (!inspiredForm.imageUrl.trim()) {
-      onNotify?.('Please provide an Image URL.', 'error');
+  const handleSaveForm = (items) => {
+    if (!items || items.length === 0) {
+      onNotify?.('Please provide at least one photo.', 'error');
       return;
     }
 
-    const newItem = {
-      id: editingInspired ? editingInspired.item.id : `inspired-${Date.now()}`,
-      imageUrl: inspiredForm.imageUrl.trim(),
-      alt: inspiredForm.alt.trim() || 'Look & Like Lookbook Look',
-    };
-
-    let updatedList;
     if (editingInspired !== null) {
-      updatedList = [...inspiredImages];
-      updatedList[editingInspired.index] = newItem;
-      onNotify?.('Lookbook image updated successfully!', 'success');
+      const single = items[0];
+      const updatedList = [...inspiredImages];
+      updatedList[editingInspired.index] = {
+        id: editingInspired.item.id || `inspired-${Date.now()}`,
+        imageUrl: single.imageUrl || single.url,
+        alt: single.alt || single.name || 'Look & Like Lookbook Look',
+      };
+      saveInspiredImages(updatedList);
+      onNotify?.('Lookbook updated!', 'success');
     } else {
-      updatedList = [...inspiredImages, newItem];
-      onNotify?.('New lookbook image added successfully!', 'success');
+      const newItems = items.map((item, idx) => ({
+        id: `inspired-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+        imageUrl: item.imageUrl || item.url,
+        alt: item.alt || item.name || 'Look & Like Lookbook Look',
+      }));
+      const updatedList = [...inspiredImages, ...newItems];
+      saveInspiredImages(updatedList);
+      onNotify?.(
+        `${newItems.length} ${newItems.length === 1 ? 'look' : 'looks'} added!`,
+        'success'
+      );
     }
 
-    saveInspiredImages(updatedList);
     handleCloseForm();
   };
 
   const handleDelete = (index) => {
-    if (window.confirm('Are you sure you want to delete this lookbook image?')) {
+    if (window.confirm('Delete this lookbook image?')) {
       const updatedList = inspiredImages.filter((_, i) => i !== index);
       saveInspiredImages(updatedList);
       onNotify?.('Image deleted.', 'info');
@@ -83,7 +89,7 @@ export function LookbookSection({
   const handleReset = () => {
     if (window.confirm('Clear all lookbook editorial images?')) {
       resetInspiredImages();
-      onNotify?.('Cleared lookbook images.', 'info');
+      onNotify?.('Cleared lookbook.', 'info');
     }
   };
 
@@ -92,43 +98,34 @@ export function LookbookSection({
   return (
     <div>
       {/* Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F0CDD7]">
-        <div>
+      <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#F0CDD7]">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="font-serif text-lg font-bold text-deep-espresso">
-              Lookbook Editorial Images
+            <h4 className="font-serif text-base sm:text-lg font-bold text-deep-espresso truncate">
+              Lookbook Photos
             </h4>
-            <span className="text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-[#D6204E] bg-[#FFF3F6] border border-[#F0CDD7] px-2 py-0.5 rounded-full shrink-0">
               {inspiredImages.length} {inspiredImages.length === 1 ? 'Look' : 'Looks'}
             </span>
           </div>
-          <p className="text-xs text-[#7A6B70] mt-0.5">
-            These images automatically adapt into the responsive 4-column masonry and mobile peek carousel.
+          <p className="hidden sm:block text-xs text-[#7A6B70] mt-0.5">
+            Images display in the inspiration masonry and peek carousel.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {inspiredImages.length > 0 && (
+        {/* Hide Add button when form/model is open */}
+        {!isFormOpen && (
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl transition-all cursor-pointer"
-              title="Clear all lookbook images"
+              onClick={handleOpenAdd}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Clear All</span>
+              <Plus className="w-4 h-4" />
+              <span>Add Look</span>
             </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#D6204E] to-[#B81942] hover:from-[#B81942] hover:to-[#961234] rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New Look</span>
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Add / Edit Form */}
@@ -136,36 +133,37 @@ export function LookbookSection({
         <LookbookForm
           isEditing={editingInspired !== null}
           formData={inspiredForm}
-          onChange={setInspiredForm}
           onSubmit={handleSaveForm}
           onCancel={handleCloseForm}
           onNotify={onNotify}
         />
       )}
 
-      {/* Looks Grid or Empty State */}
+      {/* Looks Grid or Empty State (Do not render empty state card when form is open) */}
       {inspiredImages.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-white rounded-3xl border border-dashed border-stone-200 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
-            <ImageIcon className="w-7 h-7" />
+        !isFormOpen && (
+          <div className="text-center py-12 sm:py-16 px-4 bg-white rounded-2xl sm:rounded-3xl border border-dashed border-stone-200 shadow-2xs">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
+              <ImageIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+            </div>
+            <h5 className="font-serif text-base sm:text-lg font-bold text-deep-espresso mb-1">
+              No Lookbook Photos Yet
+            </h5>
+            <p className="text-xs text-[#7A6B70] max-w-sm mx-auto mb-4">
+              Add high-res editorial looks to inspire parlour clients.
+            </p>
+            <button
+              type="button"
+              onClick={handleOpenAdd}
+              className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl shadow-xs cursor-pointer transition-transform active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add First Look</span>
+            </button>
           </div>
-          <h5 className="font-serif text-lg font-bold text-deep-espresso mb-1">
-            No Lookbook Photos Added Yet
-          </h5>
-          <p className="text-xs text-[#7A6B70] max-w-md mx-auto mb-4 leading-relaxed">
-            All demo lookbook photos have been removed. Click below to add your first high-res editorial image.
-          </p>
-          <button
-            type="button"
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-[#D6204E] hover:bg-[#B81942] rounded-xl shadow-sm cursor-pointer transition-transform active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add First Look</span>
-          </button>
-        </div>
+        )
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-2.5 sm:gap-4">
           {inspiredImages.map((look, idx) => (
             <LookbookCard
               key={look.id || idx}

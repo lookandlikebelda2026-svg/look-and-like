@@ -50,7 +50,7 @@ export function MobileDrawer({
               className="flex items-center gap-2.5 cursor-pointer group"
               title="View Storefront"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center p-1.5 shadow-2xs">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
                 <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
               </div>
               <div className="min-w-0">

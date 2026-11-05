@@ -46,11 +46,11 @@ export function Sidebar({
               className="flex items-center gap-2.5 cursor-pointer overflow-hidden min-w-0 group"
               title="View Storefront"
             >
-              <div className="w-8 h-8 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center p-1 shrink-0 shadow-2xs">
+              <div className="w-8 h-8 flex items-center justify-center shrink-0">
                 <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
               </div>
               <div className="min-w-0">
-                <span className="font-serif font-bold text-sm xl:text-base text-deep-espresso uppercase tracking-tight block truncate group-hover:text-[#D6204E] transition-colors leading-none">
+                <span className="font-serif font-bold text-sm xl:text-base text-deep-espresso tracking-tight block truncate group-hover:text-[#D6204E] transition-colors leading-none">
                   Look &amp; Like
                 </span>
                 <span className="text-[9px] font-bold uppercase tracking-wider text-[#D6204E] bg-[#FFF3F6] px-1.5 py-0.2 rounded-full border border-[#F0CDD7]/60 inline-block mt-0.5">
@@ -72,10 +72,12 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => setSidebarCollapsed(false)}
-            className="w-10 h-10 flex items-center justify-center text-stone-500 hover:text-[#D6204E] hover:bg-[#FFF3F6] rounded-xl transition-colors cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center hover:bg-[#FFF3F6] rounded-xl transition-colors cursor-pointer"
             title="Expand sidebar"
           >
-            <PanelLeftOpen className="w-5 h-5" />
+            <div className="w-7 h-7 flex items-center justify-center shrink-0">
+              <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
+            </div>
           </button>
         )}
       </div>

@@ -51,7 +51,7 @@ export function AppRoutes({ onOpenBooking, onNotify }) {
         }
       />
 
-      {/* Dedicated Page for Salon Service Form (Create / Edit) */}
+      {/* Dedicated Page for Parlour Service Form (Create / Edit) */}
       <Route
         path="/admin/services/new"
         element={

@@ -194,7 +194,7 @@ export function ImageCompressorSection({ onNotify }) {
             </span>
           </div>
           <p className="text-xs text-[#7A6B70] mt-1">
-            Downscale, optimize pixel resolution and compress high-res salon photos in-browser before publishing to the Lookbook.
+            Downscale, optimize pixel resolution and compress high-res parlour photos in-browser before publishing to the Lookbook.
           </p>
         </div>
 

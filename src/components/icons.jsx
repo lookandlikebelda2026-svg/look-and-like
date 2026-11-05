@@ -26,7 +26,7 @@ export function LotusIcon({ className = "w-5 h-5 text-[#D6204E]" }) {
 }
 
 /**
- * Salon Styling Shears SVG Icon
+ * Parlour Styling Shears SVG Icon
  */
 export function HairShearsIcon({ className = "w-5 h-5 text-[#D6204E]" }) {
   return (

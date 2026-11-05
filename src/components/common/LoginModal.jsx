@@ -90,7 +90,7 @@ export function LoginModal({
           {/* Header branding */}
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center p-1.5">
+              <div className="w-8 h-8 flex items-center justify-center shrink-0">
                 <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
               </div>
               <span className="font-serif text-base font-bold text-deep-espresso">
@@ -103,7 +103,7 @@ export function LoginModal({
             </h2>
             <p className="text-xs text-[#7A6B70] mt-1">
               {mode === 'login'
-                ? 'Authenticate via Firebase to access the salon management suite.'
+                ? 'Authenticate via Firebase to access the parlour management suite.'
                 : 'Create a new staff or manager profile in Firebase Authentication.'}
             </p>
           </div>

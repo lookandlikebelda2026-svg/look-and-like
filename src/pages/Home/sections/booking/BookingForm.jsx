@@ -8,13 +8,9 @@ import {
   ArrowLeft,
   Check,
   ChevronDown,
-  ShieldCheck,
 } from 'lucide-react';
 import { BRANCHES } from '../../../../constants/branches';
-import {
-  DEFAULT_SERVICES_DATA,
-  normalizeService,
-} from '../../../../constants/services';
+import { normalizeService } from '../../../../constants/services';
 import { useContentStorage } from '../../../../services/contentStorage';
 import { saveBookingToFirebase } from '../../../../services/bookingFirebaseService';
 import { verifySubplanPrice } from '../../../../services/serviceFirebaseService';
@@ -56,9 +52,137 @@ function getQuickDates() {
 }
 
 /**
- * Custom Made Luxury Service Dropdown
- * Styled precisely to match Look & Like brand colors (#D6204E, #F0CDD7, #FFF3F6, Deep Espresso #2A1F1B)
- * Smooth floating popover with dedicated luxury rose scrollbar, peek indicator, and zero layout breakage.
+ * Unified resolver to find exact Service, Plan, and Subplan matching user pre-selection.
+ */
+function resolveSelection(preselected, services) {
+  if (!services || services.length === 0) {
+    return { serviceId: '', planId: '', subplanId: '' };
+  }
+
+  let targetCat = '';
+  let targetPlanId = '';
+  let targetPlanName = '';
+  let targetSubId = '';
+  let targetSubName = '';
+
+  if (typeof preselected === 'string') {
+    targetCat = preselected;
+  } else if (typeof preselected === 'object' && preselected !== null) {
+    targetCat = preselected.category || preselected.serviceId || '';
+    targetPlanId = preselected.planId || '';
+    targetPlanName = preselected.planName || preselected.service || '';
+    targetSubId = preselected.subplanId || '';
+    targetSubName = preselected.subplanName || preselected.subCategory || '';
+  }
+
+  let matchedService = null;
+  let matchedPlan = null;
+  let matchedSubplan = null;
+
+  // 1. Search across ALL services and plans for matching planId or planName
+  if (targetPlanId || targetPlanName) {
+    const pIdSearch = String(targetPlanId).toLowerCase().trim();
+    const pNameSearch = String(targetPlanName).toLowerCase().trim();
+
+    for (const svc of services) {
+      const p = (svc.plans || []).find((plan) => {
+        const idMatch =
+          pIdSearch &&
+          (plan.id.toLowerCase() === pIdSearch ||
+            plan.id.toLowerCase().includes(pIdSearch) ||
+            pIdSearch.includes(plan.id.toLowerCase()));
+        const nameMatch =
+          pNameSearch &&
+          (plan.name.toLowerCase() === pNameSearch ||
+            plan.name.toLowerCase().includes(pNameSearch) ||
+            pNameSearch.includes(plan.name.toLowerCase()));
+        return idMatch || nameMatch;
+      });
+
+      if (p) {
+        matchedService = svc;
+        matchedPlan = p;
+        break;
+      }
+    }
+  }
+
+  // 2. If plan wasn't matched or not passed, match service by category
+  if (!matchedService && targetCat) {
+    const cSearch = String(targetCat).toLowerCase().trim();
+    matchedService = services.find(
+      (svc) =>
+        svc.id.toLowerCase() === cSearch ||
+        svc.name.toLowerCase() === cSearch ||
+        svc.id.toLowerCase().includes(cSearch) ||
+        svc.name.toLowerCase().includes(cSearch)
+    );
+  }
+
+  // 3. Fallback to first available service
+  if (!matchedService) {
+    matchedService = services[0];
+  }
+
+  // 4. Resolve plan inside matched service
+  const availablePlans = matchedService?.plans || [];
+  if (!matchedPlan && availablePlans.length > 0) {
+    if (targetPlanId || targetPlanName) {
+      const pIdSearch = String(targetPlanId).toLowerCase().trim();
+      const pNameSearch = String(targetPlanName).toLowerCase().trim();
+      matchedPlan = availablePlans.find((plan) => {
+        const idMatch =
+          pIdSearch &&
+          (plan.id.toLowerCase() === pIdSearch ||
+            plan.id.toLowerCase().includes(pIdSearch) ||
+            pIdSearch.includes(plan.id.toLowerCase()));
+        const nameMatch =
+          pNameSearch &&
+          (plan.name.toLowerCase() === pNameSearch ||
+            plan.name.toLowerCase().includes(pNameSearch) ||
+            pNameSearch.includes(plan.name.toLowerCase()));
+        return idMatch || nameMatch;
+      });
+    }
+    if (!matchedPlan) {
+      matchedPlan = availablePlans[0];
+    }
+  }
+
+  // 5. Resolve subplan inside matched plan
+  const availableSubplans = matchedPlan?.subplans || [];
+  if (availableSubplans.length > 0) {
+    if (targetSubId || targetSubName) {
+      const sIdSearch = String(targetSubId).toLowerCase().trim();
+      const sNameSearch = String(targetSubName).toLowerCase().trim();
+      matchedSubplan = availableSubplans.find((sub) => {
+        const idMatch =
+          sIdSearch &&
+          (sub.id.toLowerCase() === sIdSearch ||
+            sub.id.toLowerCase().includes(sIdSearch) ||
+            sIdSearch.includes(sub.id.toLowerCase()));
+        const nameMatch =
+          sNameSearch &&
+          (sub.name.toLowerCase() === sNameSearch ||
+            sub.name.toLowerCase().includes(sNameSearch) ||
+            sNameSearch.includes(sub.name.toLowerCase()));
+        return idMatch || nameMatch;
+      });
+    }
+    if (!matchedSubplan) {
+      matchedSubplan = availableSubplans[0];
+    }
+  }
+
+  return {
+    serviceId: matchedService?.id || '',
+    planId: matchedPlan?.id || '',
+    subplanId: matchedSubplan?.id || '',
+  };
+}
+
+/**
+ * Custom Made Luxury Plan Dropdown
  */
 function CustomServiceDropdown({ services = [], selectedId, onSelect, category }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +196,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
     setIsOpen(false);
   }, [category]);
 
-  // Smooth container-isolated scroll to selected item when opened
+  // Smooth scroll to selected item when opened
   useEffect(() => {
     if (isOpen && listRef.current) {
       const selectedBtn = listRef.current.querySelector('[data-selected="true"]');
@@ -104,7 +228,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      {/* Dropdown Trigger Header */}
+      {/* Dropdown Trigger Button */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -118,11 +242,13 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
       >
         <div className="min-w-0 flex-1 pr-2">
           <p className="text-xs sm:text-sm font-bold text-deep-espresso truncate">
-            {selectedService?.name || 'Select a ritual'}
+            {selectedService?.name || 'Select a plan'}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-[#7A6B70] mt-0.5 truncate">
-            {selectedService?.duration || 'Signature Ritual'}
-          </p>
+          {selectedService?.duration ? (
+            <p className="text-[10px] sm:text-[11px] text-[#7A6B70] mt-0.5 truncate">
+              {selectedService.duration}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -139,7 +265,7 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
         </div>
       </button>
 
-      {/* Floating Scrollable Dropdown Menu with Luxury Rose Scrollbar */}
+      {/* Floating Dropdown List */}
       {isOpen && (
         <div
           ref={listRef}
@@ -167,13 +293,19 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
                     {isSelected && (
                       <Check className="w-3.5 h-3.5 text-[#D6204E] stroke-[2.5] shrink-0" />
                     )}
-                    <p className={`text-xs font-bold truncate ${isSelected ? 'text-[#D6204E]' : 'text-deep-espresso'}`}>
+                    <p
+                      className={`text-xs font-bold truncate ${
+                        isSelected ? 'text-[#D6204E]' : 'text-deep-espresso'
+                      }`}
+                    >
                       {srv.name}
                     </p>
                   </div>
-                  <p className="text-[10px] text-[#7A6B70] mt-0.5 pl-0.5 truncate">
-                    {srv.duration}
-                  </p>
+                  {srv.duration ? (
+                    <p className="text-[10px] text-[#7A6B70] mt-0.5 pl-0.5 truncate">
+                      {srv.duration}
+                    </p>
+                  ) : null}
                 </div>
 
                 <span className="text-xs font-sans font-price font-bold text-[#D6204E] shrink-0">
@@ -189,19 +321,16 @@ function CustomServiceDropdown({ services = [], selectedId, onSelect, category }
 }
 
 /**
- * Professional Luxury Mobile-First Booking Form
- * Fits 100% within mobile viewport without vertical scrolling.
- * Automatically saves to Firestore and redirects directly to WhatsApp.
- * Supports the hierarchical Service -> Plan -> Subplan data model.
+ * Clean & Streamlined Booking Modal
  */
 export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const quickDates = useMemo(() => getQuickDates(), []);
 
-  // Wizard Step: 1 (Ritual & Studio), 2 (Date & Time), 3 (Guest Info), or 'confirmed'
+  // Wizard Step: 1 (Service & Branch), 2 (Date & Time), 3 (Your Details)
   const [step, setStep] = useState(1);
 
-  // 3-Level Data Hierarchy State: Service -> Plan -> Subplan
-  const [selectedServiceId, setSelectedServiceId] = useState('hair');
+  // 3-Level Data State: Service -> Plan -> Subplan
+  const [selectedServiceId, setSelectedServiceId] = useState('');
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [selectedSubplanId, setSelectedSubplanId] = useState('');
   const [branchId, setBranchId] = useState('belda');
@@ -224,15 +353,18 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const { servicesData } = useContentStorage();
 
   const normalizedServices = useMemo(() => {
-    const source =
-      Array.isArray(servicesData) && servicesData.length > 0
-        ? servicesData
-        : DEFAULT_SERVICES_DATA;
-
-    return source
-      .map((svc, sIdx) => normalizeService(svc, sIdx))
-      .filter(Boolean);
+    const source = Array.isArray(servicesData) ? servicesData : [];
+    return source.map((svc, sIdx) => normalizeService(svc, sIdx)).filter(Boolean);
   }, [servicesData]);
+
+  // Synchronize preselected category, plan, and subplan cleanly in one step
+  useEffect(() => {
+    if (!normalizedServices || normalizedServices.length === 0) return;
+    const resolved = resolveSelection(preselectedCategory, normalizedServices);
+    if (resolved.serviceId) setSelectedServiceId(resolved.serviceId);
+    if (resolved.planId) setSelectedPlanId(resolved.planId);
+    if (resolved.subplanId) setSelectedSubplanId(resolved.subplanId);
+  }, [preselectedCategory, normalizedServices]);
 
   // Current Service Object
   const currentService = useMemo(() => {
@@ -260,11 +392,9 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   // Available Subplans for the selected Plan
   const availableSubplans = useMemo(() => {
     if (!currentPlan?.subplans || currentPlan.subplans.length === 0) {
-      const basePrice = Number(currentPlan?.startingPrice) || 1499;
+      const basePrice = Number(currentPlan?.startingPrice) || 999;
       return [
         { id: `${currentPlan?.id || 'plan'}-basic`, name: 'Basic', price: basePrice },
-        { id: `${currentPlan?.id || 'plan'}-mid`, name: 'Mid', price: Math.round(basePrice * 1.35) },
-        { id: `${currentPlan?.id || 'plan'}-adv`, name: 'Advanced', price: Math.round(basePrice * 1.75) },
       ];
     }
     return currentPlan.subplans;
@@ -273,7 +403,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   // Current Subplan Object
   const currentSubplan = useMemo(() => {
     if (!availableSubplans || availableSubplans.length === 0) {
-      return { id: 'default-sub', name: 'Standard', price: 1499 };
+      return { id: 'default-sub', name: 'Standard', price: 999 };
     }
     return (
       availableSubplans.find((s) => s.id === selectedSubplanId) ||
@@ -281,7 +411,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     );
   }, [availableSubplans, selectedSubplanId]);
 
-  // Formatted display price for the selected subplan
+  // Formatted display price
   const displayPrice = useMemo(() => {
     const p = currentSubplan?.price;
     if (typeof p === 'number') {
@@ -291,97 +421,10 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
       return p;
     }
     if (p) return `₹${p}`;
-    return '₹1,499';
+    return '₹999';
   }, [currentSubplan]);
 
-  // Synchronize preselected category, plan, and subplan from props
-  useEffect(() => {
-    if (!normalizedServices || normalizedServices.length === 0) return;
-
-    if (!preselectedCategory) {
-      if (!selectedServiceId && normalizedServices[0]) {
-        setSelectedServiceId(normalizedServices[0].id);
-      }
-      return;
-    }
-
-    let targetCat = '';
-    let targetPlan = '';
-    let targetSub = '';
-
-    if (typeof preselectedCategory === 'string') {
-      targetCat = preselectedCategory;
-    } else if (typeof preselectedCategory === 'object' && preselectedCategory !== null) {
-      targetCat = preselectedCategory.category || preselectedCategory.serviceId || '';
-      targetPlan = preselectedCategory.planId || preselectedCategory.service || '';
-      targetSub = preselectedCategory.subplanId || preselectedCategory.subplanName || preselectedCategory.subCategory || '';
-    }
-
-    // Match Service / Category
-    const foundService = normalizedServices.find((s) =>
-      s.id.toLowerCase() === targetCat.toLowerCase() ||
-      s.name.toLowerCase() === targetCat.toLowerCase()
-    ) || normalizedServices[0];
-
-    if (foundService) {
-      setSelectedServiceId(foundService.id);
-
-      const plans = foundService.plans || [];
-      let matchedPlan = null;
-      if (targetPlan && plans.length > 0) {
-        const search = String(targetPlan).toLowerCase().trim();
-        matchedPlan = plans.find(
-          (p) =>
-            p.id.toLowerCase() === search ||
-            p.name.toLowerCase() === search ||
-            p.name.toLowerCase().includes(search)
-        );
-      }
-      const resolvedPlan = matchedPlan || plans[0] || null;
-      if (resolvedPlan) {
-        setSelectedPlanId(resolvedPlan.id);
-
-        const subs = resolvedPlan.subplans || [];
-        let matchedSub = null;
-        if (targetSub && subs.length > 0) {
-          const subSearch = String(targetSub).toLowerCase().trim();
-          matchedSub = subs.find(
-            (s) =>
-              s.id.toLowerCase() === subSearch ||
-              s.name.toLowerCase() === subSearch ||
-              s.name.toLowerCase().includes(subSearch)
-          );
-        }
-        const resolvedSub = matchedSub || subs[0] || null;
-        if (resolvedSub) {
-          setSelectedSubplanId(resolvedSub.id);
-        }
-      }
-    }
-  }, [preselectedCategory, normalizedServices]);
-
-  // Ensure selectedServiceId is initialized/valid
-  useEffect(() => {
-    if (normalizedServices.length > 0 && (!selectedServiceId || !normalizedServices.some((s) => s.id === selectedServiceId))) {
-      setSelectedServiceId(normalizedServices[0].id);
-    }
-  }, [normalizedServices, selectedServiceId]);
-
-  // Ensure selectedPlanId is valid
-  useEffect(() => {
-    if (availablePlans.length > 0 && (!selectedPlanId || !availablePlans.some((p) => p.id === selectedPlanId))) {
-      setSelectedPlanId(availablePlans[0].id);
-    }
-  }, [availablePlans, selectedPlanId]);
-
-  // Ensure selectedSubplanId is valid
-  useEffect(() => {
-    if (availableSubplans.length > 0 && (!selectedSubplanId || !availableSubplans.some((s) => s.id === selectedSubplanId))) {
-      setSelectedSubplanId(availableSubplans[0].id);
-    }
-  }, [availableSubplans, selectedSubplanId]);
-
-  // Category and Plan selection handlers
+  // Selection handlers that cascade downward smoothly
   const handleCategorySelect = (newCatId) => {
     setSelectedServiceId(newCatId);
     const targetSvc = normalizedServices.find((s) => s.id === newCatId);
@@ -389,9 +432,10 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     if (firstPlan) {
       setSelectedPlanId(firstPlan.id);
       const firstSub = firstPlan.subplans?.[0];
-      if (firstSub) {
-        setSelectedSubplanId(firstSub.id);
-      }
+      setSelectedSubplanId(firstSub?.id || '');
+    } else {
+      setSelectedPlanId('');
+      setSelectedSubplanId('');
     }
   };
 
@@ -399,9 +443,11 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     setSelectedPlanId(newPlanId);
     const targetPlan = availablePlans.find((p) => p.id === newPlanId);
     const firstSub = targetPlan?.subplans?.[0];
-    if (firstSub) {
-      setSelectedSubplanId(firstSub.id);
-    }
+    setSelectedSubplanId(firstSub?.id || '');
+  };
+
+  const handleSubplanSelect = (newSubId) => {
+    setSelectedSubplanId(newSubId);
   };
 
   // Current Selected Branch Object
@@ -430,33 +476,32 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
     }
   }, [dateIso]);
 
-  // Build Formatted WhatsApp Message adhering to 3-level data hierarchy
+  // Build clean WhatsApp booking message
   const buildWhatsAppMessage = () => {
     return (
-      `Hello Look & Like Salon,\n\n` +
-      `I would like to reserve a chair:\n` +
+      `Hello Look & Like Parlour,\n\n` +
+      `I would like to book an appointment:\n` +
       `• Branch: ${currentBranch.name}\n` +
-      `• Service: ${currentService?.name || 'Salon Care'}\n` +
-      `• Ritual / Plan: ${currentPlan?.name || 'Selected Ritual'}\n` +
-      `• Option Tier: ${currentSubplan?.name || 'Standard'} (${displayPrice})\n` +
+      `• Category: ${currentService?.name || 'Parlour Service'}\n` +
+      `• Plan: ${currentPlan?.name || 'Selected Plan'}\n` +
+      `• Option: ${currentSubplan?.name || 'Standard'} (${displayPrice})\n` +
       `• Date: ${formattedDate} (${dateIso})\n` +
       `• Time Slot: ${currentTimeSlot.label} (${currentTimeSlot.range})\n\n` +
       `Guest Details:\n` +
       `• Name: ${name.trim()}\n` +
       `• WhatsApp: ${phone.trim()}\n` +
-      (notes.trim() ? `• Special Note: ${notes.trim()}\n\n` : `\n`) +
+      (notes.trim() ? `• Special Request: ${notes.trim()}\n\n` : `\n`) +
       `Please confirm availability. Thank you!`
     );
   };
 
-  // Final Submit: Direct WhatsApp Dispatch & Background Persistence
+  // Final Submit
   const handleFinalSubmit = (e) => {
     if (e) e.preventDefault();
 
     const trimmedName = name.trim();
     const trimmedPhone = phone.trim();
 
-    // Field-level validation
     const errors = {};
     if (!trimmedName) errors.name = true;
     if (!trimmedPhone || trimmedPhone.replace(/[^0-9]/g, '').length < 8) errors.phone = true;
@@ -476,12 +521,12 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
 
     const messageText = buildWhatsAppMessage();
     const encodedMessage = encodeURIComponent(messageText);
-    const cleanNumber = String(currentBranch.whatsAppNumber || '917872624993').replace(/[^0-9]/g, '');
+    const cleanNumber = String(currentBranch.whatsAppNumber || '919647357421').replace(/[^0-9]/g, '');
     const whatsAppUrl = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encodedMessage}`;
 
     setGeneratedWhatsAppUrl(whatsAppUrl);
 
-    // 1. Immediately launch WhatsApp synchronously within user gesture (avoids browser popup blocker)
+    // Launch WhatsApp immediately
     const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       window.location.href = whatsAppUrl;
@@ -492,9 +537,13 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
       }
     }
 
-    // 2. Verify subplan price against stored data & persist booking to Firebase asynchronously in background
+    // Persist booking to Firestore in background
     const verified = verifySubplanPrice(normalizedServices, currentService?.id, currentPlan?.id, currentSubplan?.id);
-    const verifiedNumericPrice = verified?.price || (typeof currentSubplan?.price === 'number' ? currentSubplan.price : Number(String(currentSubplan?.price || 0).replace(/[^0-9.]/g, '')) || 0);
+    const verifiedNumericPrice =
+      verified?.price ||
+      (typeof currentSubplan?.price === 'number'
+        ? currentSubplan.price
+        : Number(String(currentSubplan?.price || 0).replace(/[^0-9.]/g, '')) || 0);
 
     saveBookingToFirebase({
       name: trimmedName,
@@ -525,36 +574,34 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   };
 
   // -------------------------------------------------------------
-  // RENDER: Confirmation & Redirect State
+  // RENDER: Confirmation State
   // -------------------------------------------------------------
   if (isConfirmed) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-3 sm:py-5 animate-fade-in select-none">
-        {/* WhatsApp Green Icon Badge */}
         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E8F8EE] border border-[#25D366]/40 text-[#25D366] flex items-center justify-center mb-3 sm:mb-4 shadow-sm">
           <WhatsAppIcon className="w-7 h-7 sm:w-8 sm:h-8" />
         </div>
 
         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#E8F8EE] text-[#1EBE5D] border border-[#25D366]/30 mb-2">
-          WhatsApp Dispatch
+          WhatsApp Booking
         </span>
 
         <h3 className="font-serif text-xl sm:text-2xl font-bold text-deep-espresso">
-          Reservation Request Prepared
+          Booking Prepared
         </h3>
 
         <p className="text-xs sm:text-sm text-[#7A6B70] max-w-sm mx-auto mt-1 sm:mt-1.5 leading-relaxed">
-          Thank you, <strong className="text-deep-espresso">{name}</strong>. Opening WhatsApp to connect with our concierge. If it didn't open automatically, tap below:
+          Thank you, <strong className="text-deep-espresso">{name}</strong>. Opening WhatsApp to confirm your appointment. If it didn't open automatically, tap below:
         </p>
 
-        {/* Compact Appointment Details Summary */}
         <div className="w-full max-w-sm my-3 sm:my-4 p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#F0CDD7] text-left text-xs space-y-2 shadow-2xs">
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-medium">Service / Plan:</span>
+            <span className="text-stone-500 font-medium">Plan:</span>
             <span className="font-bold text-deep-espresso truncate max-w-[200px]">{currentPlan?.name}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-medium">Option Tier:</span>
+            <span className="text-stone-500 font-medium">Option:</span>
             <span className="font-semibold text-deep-espresso">{currentSubplan?.name}</span>
           </div>
           <div className="flex justify-between items-center">
@@ -566,12 +613,11 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
             <span className="font-semibold text-deep-espresso">{currentBranch.name}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-stone-500 font-medium">Schedule:</span>
+            <span className="text-stone-500 font-medium">Date &amp; Time:</span>
             <span className="font-semibold text-[#D6204E]">{formattedDate} · {currentTimeSlot.label}</span>
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="w-full max-w-sm flex flex-col gap-2 pt-1">
           <a
             href={generatedWhatsAppUrl}
@@ -600,27 +646,27 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   }
 
   // -------------------------------------------------------------
-  // RENDER: 3-Step Wizard Layout (Compact & Zero Scroll)
+  // RENDER: Clean & Streamlined 3-Step Wizard Layout
   // -------------------------------------------------------------
   return (
     <div className="w-full flex flex-col justify-between select-none">
-      {/* 1. Header & Stepper Progress Indicator */}
+      {/* 1. Clean Header with Step Indicator */}
       <div className="mb-3 sm:mb-4 pb-2.5 sm:pb-3 border-b border-[#F0CDD7]/80 pr-9 sm:pr-10">
-        <div className="flex items-center gap-2.5 mb-2">
-          <h4 className="font-serif text-sm sm:text-base font-bold text-deep-espresso tracking-tight">
-            Reserve Your Chair
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <h4 className="font-serif text-base sm:text-lg font-bold text-deep-espresso tracking-tight">
+            Book Appointment
           </h4>
           <span className="text-[10px] font-semibold text-[#D6204E] bg-[#FFF3F6] px-2 py-0.5 rounded-full border border-[#F0CDD7]">
             Step {step} of 3
           </span>
         </div>
 
-        {/* 3 Step Pills */}
+        {/* 3 Step Navigation Tabs without ellipsis clipping */}
         <div className="grid grid-cols-3 gap-1.5">
           {[
-            { s: 1, label: 'Ritual & Branch' },
-            { s: 2, label: 'Date & Time' },
-            { s: 3, label: 'Your Details' },
+            { s: 1, label: '1. Service' },
+            { s: 2, label: '2. Date & Time' },
+            { s: 3, label: '3. Details' },
           ].map(({ s, label }) => {
             const isActive = step === s;
             const isCompleted = step > s;
@@ -633,7 +679,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                   if (isCompleted) setStep(s);
                 }}
                 disabled={!isCompleted && !isActive}
-                className={`flex items-center justify-center gap-1.5 py-1 px-1 text-[9px] sm:text-[10px] font-semibold transition-all cursor-pointer rounded-lg ${
+                className={`flex items-center justify-center gap-1 py-1.5 px-1 text-[10px] sm:text-[11px] font-semibold transition-all rounded-lg cursor-pointer ${
                   isActive
                     ? 'border-b-2 border-[#D6204E] text-[#D6204E] bg-[#FFF8FA]'
                     : isCompleted
@@ -641,12 +687,10 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                     : 'text-stone-400'
                 }`}
               >
-                {isCompleted ? (
+                {isCompleted && (
                   <Check className="w-3 h-3 stroke-[2.5]" />
-                ) : (
-                  <span>{s}.</span>
                 )}
-                <span className="truncate">{label}</span>
+                <span>{label}</span>
               </button>
             );
           })}
@@ -656,156 +700,154 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
       {/* 2. Step Views */}
       <div className="flex flex-col justify-between">
         {/* ============================================================ */}
-        {/* STEP 1: Service Category, Specific Ritual, Option & Atelier Branch */}
+        {/* STEP 1: Category, Plan, Option, Branch                       */}
         {/* ============================================================ */}
-        {step === 1 && (
-          <div className="space-y-3 animate-fade-in">
-            {/* Category Selector Pills (Clean Typography, No Emojis) */}
-            <div>
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
-                Category
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {normalizedServices.map((svc) => {
-                  const isCatSelected = selectedServiceId === svc.id;
-                  return (
-                    <button
-                      key={svc.id}
-                      type="button"
-                      onClick={() => handleCategorySelect(svc.id)}
-                      className={`py-1.5 px-3 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
-                        isCatSelected
-                          ? 'bg-[#D6204E] text-white border-[#D6204E] shadow-xs'
-                          : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
-                      }`}
-                    >
-                      <span className="truncate block">{svc.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
+        {step === 1 &&
+          (normalizedServices.length === 0 ? (
+            <div className="text-center py-10 px-4 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+              <p className="text-xs font-semibold text-stone-700">No services currently available for booking.</p>
+              <p className="text-[11px] text-stone-400 mt-1">Please check back soon or contact our parlour directly.</p>
             </div>
-
-            {/* Custom Made Service / Plan Dropdown matching Website Brand Colors */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
-                  Select Ritual / Plan
-                </span>
-                <span className="text-[10px] text-stone-400 font-mono">
-                  {availablePlans.length} {availablePlans.length === 1 ? 'ritual' : 'rituals'} available
-                </span>
-              </div>
-
-              <CustomServiceDropdown
-                services={availablePlans.map((p) => ({
-                  id: p.id,
-                  name: p.name,
-                  price: p.startingPrice ? `From ₹${p.startingPrice.toLocaleString('en-IN')}` : '₹1,499',
-                  duration: p.description || 'Signature Ritual',
-                }))}
-                selectedId={selectedPlanId}
-                onSelect={handlePlanSelect}
-                category={selectedServiceId}
-              />
-            </div>
-
-            {/* Subplan / Option Tier Selector Grid */}
-            {availableSubplans.length > 0 && (
+          ) : (
+            <div className="space-y-3 animate-fade-in">
+              {/* Category */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500">
-                    Select Option / Tier
-                  </span>
-                  <span className="text-[10px] text-[#D6204E] font-medium">
-                    {currentSubplan?.name} · {displayPrice}
-                  </span>
-                </div>
-
-                <div
-                  className={`grid gap-1.5 ${
-                    availableSubplans.length === 2
-                      ? 'grid-cols-2'
-                      : availableSubplans.length >= 3
-                      ? 'grid-cols-3'
-                      : 'grid-cols-1'
-                  }`}
-                >
-                  {availableSubplans.map((sub) => {
-                    const isSelected = selectedSubplanId === sub.id;
-                    const formattedSubPrice =
-                      typeof sub.price === 'number'
-                        ? `₹${sub.price.toLocaleString('en-IN')}`
-                        : (String(sub.price).startsWith('₹') ? sub.price : `₹${sub.price}`);
-
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
+                  Category
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {normalizedServices.map((svc) => {
+                    const isCatSelected = selectedServiceId === svc.id;
                     return (
                       <button
-                        key={sub.id}
+                        key={svc.id}
                         type="button"
-                        onClick={() => setSelectedSubplanId(sub.id)}
-                        className={`py-2 px-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center relative ${
-                          isSelected
-                            ? 'bg-[#FFF3F6] border-[#D6204E] text-[#D6204E] ring-1 ring-[#D6204E]/50 shadow-2xs'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50/60'
+                        onClick={() => handleCategorySelect(svc.id)}
+                        className={`py-1.5 px-3 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
+                          isCatSelected
+                            ? 'bg-[#D6204E] text-white border-[#D6204E] shadow-xs'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
                         }`}
                       >
-                        {isSelected && (
-                          <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#D6204E] text-white flex items-center justify-center">
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                          </span>
-                        )}
-                        <span className="text-[11px] sm:text-xs font-bold block truncate max-w-full">
-                          {sub.name}
-                        </span>
-                        <span className="text-xs sm:text-sm font-sans font-price font-bold mt-0.5">
-                          {formattedSubPrice}
-                        </span>
+                        <span className="truncate block">{svc.name}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
-            )}
 
-            {/* Branch Selection Pills */}
-            <div>
-              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
-                Select Branch
-              </span>
-              <div className="grid grid-cols-3 gap-1.5">
-                {BRANCHES.map((b) => {
-                  const isBranchSelected = branchId === b.id;
-                  return (
-                    <button
-                      key={b.id}
-                      type="button"
-                      onClick={() => setBranchId(b.id)}
-                      className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${
-                        isBranchSelected
-                          ? 'bg-deep-espresso text-white border-deep-espresso shadow-xs'
-                          : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
-                      }`}
-                    >
-                      <p className="text-[11px] sm:text-xs font-bold truncate leading-tight">
-                        {b.name}
-                      </p>
-                      <p className="text-[9px] opacity-75 truncate mt-0.5">
-                        {b.addressShort}
-                      </p>
-                    </button>
-                  );
-                })}
+              {/* Plan Dropdown */}
+              <div>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
+                  Plan
+                </span>
+
+                <CustomServiceDropdown
+                  services={availablePlans.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.startingPrice ? `From ₹${Number(p.startingPrice).toLocaleString('en-IN')}` : '₹999',
+                    duration: p.description || '',
+                  }))}
+                  selectedId={selectedPlanId}
+                  onSelect={handlePlanSelect}
+                  category={selectedServiceId}
+                />
+              </div>
+
+              {/* Option / Tier */}
+              {availableSubplans.length > 0 && (
+                <div>
+                  <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
+                    Option
+                  </span>
+
+                  <div
+                    className={`grid gap-1.5 ${
+                      availableSubplans.length === 2
+                        ? 'grid-cols-2'
+                        : availableSubplans.length >= 3
+                        ? 'grid-cols-3'
+                        : 'grid-cols-1'
+                    }`}
+                  >
+                    {availableSubplans.map((sub) => {
+                      const isSelected = selectedSubplanId === sub.id;
+                      const formattedSubPrice =
+                        typeof sub.price === 'number'
+                          ? `₹${sub.price.toLocaleString('en-IN')}`
+                          : String(sub.price).startsWith('₹')
+                          ? sub.price
+                          : `₹${sub.price}`;
+
+                      return (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() => handleSubplanSelect(sub.id)}
+                          className={`py-2 px-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center relative ${
+                            isSelected
+                              ? 'bg-[#FFF3F6] border-[#D6204E] text-[#D6204E] ring-1 ring-[#D6204E]/50 shadow-2xs'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50/60'
+                          }`}
+                        >
+                          {isSelected && (
+                            <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#D6204E] text-white flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </span>
+                          )}
+                          <span className="text-[11px] sm:text-xs font-bold block truncate max-w-full">
+                            {sub.name}
+                          </span>
+                          <span className="text-xs sm:text-sm font-sans font-price font-bold mt-0.5">
+                            {formattedSubPrice}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Branch */}
+              <div>
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
+                  Branch
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {BRANCHES.map((b) => {
+                    const isBranchSelected = branchId === b.id;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setBranchId(b.id)}
+                        className={`py-2 px-1 rounded-xl border text-center transition-all cursor-pointer ${
+                          isBranchSelected
+                            ? 'bg-deep-espresso text-white border-deep-espresso shadow-xs'
+                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        }`}
+                      >
+                        <p className="text-[11px] sm:text-xs font-bold truncate leading-tight">
+                          {b.tag || b.name.replace(/\s*Branch/i, '')}
+                        </p>
+                        <p className="text-[9px] opacity-75 truncate mt-0.5">
+                          Branch
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          ))}
 
         {/* ============================================================ */}
-        {/* STEP 2: Date & Time Window (No Artist, No Emojis)            */}
+        {/* STEP 2: Date & Time Window                                   */}
         {/* ============================================================ */}
         {step === 2 && (
           <div className="space-y-3.5 animate-fade-in">
-            {/* Quick Date Pills */}
+            {/* Quick Date Selection */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1">
@@ -859,7 +901,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
               )}
             </div>
 
-            {/* Time Slot Window Chips */}
+            {/* Time Slot */}
             <div>
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5 flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-[#D6204E]" />
@@ -896,7 +938,9 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
               <div className="truncate pr-2">
                 <span className="font-semibold text-deep-espresso">{currentBranch.name}</span>
                 <span className="text-stone-400 mx-1.5">·</span>
-                <span className="truncate">{currentPlan?.name} ({currentSubplan?.name})</span>
+                <span className="truncate">
+                  {currentPlan?.name} ({currentSubplan?.name})
+                </span>
               </div>
               <span className="font-bold text-[#D6204E] shrink-0 font-sans font-price">
                 {displayPrice}
@@ -906,11 +950,11 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
         )}
 
         {/* ============================================================ */}
-        {/* STEP 3: Guest Details & Direct WhatsApp Dispatch             */}
+        {/* STEP 3: Guest Details                                        */}
         {/* ============================================================ */}
         {step === 3 && (
           <form onSubmit={handleFinalSubmit} className="space-y-3 animate-fade-in">
-            {/* Live Appointment Summary Card */}
+            {/* Appointment Summary Card */}
             <div className="p-2.5 sm:p-3 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] text-xs space-y-1">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-deep-espresso truncate">
@@ -921,14 +965,21 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px] text-[#7A6B70]">
-                <span>{currentService?.name} · {currentBranch.name}</span>
-                <span>{formattedDate} · {currentTimeSlot.label}</span>
+                <span>
+                  {currentService?.name} · {currentBranch.name}
+                </span>
+                <span>
+                  {formattedDate} · {currentTimeSlot.label}
+                </span>
               </div>
             </div>
 
             {/* Guest Name Input */}
             <div>
-              <label htmlFor="guest-full-name" className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">
+              <label
+                htmlFor="guest-full-name"
+                className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1"
+              >
                 Your Full Name <span className="text-[#D6204E]">*</span>
               </label>
               <div className="relative">
@@ -937,7 +988,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                   id="guest-full-name"
                   type="text"
                   required
-                  placeholder="e.g. Eleanor Vance"
+                  placeholder="e.g. Priya Sharma"
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
@@ -955,9 +1006,12 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
               )}
             </div>
 
-            {/* Guest WhatsApp Number Input */}
+            {/* Guest WhatsApp Mobile Input */}
             <div>
-              <label htmlFor="guest-whatsapp-number" className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">
+              <label
+                htmlFor="guest-whatsapp-number"
+                className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1"
+              >
                 WhatsApp Mobile Number <span className="text-[#D6204E]">*</span>
               </label>
               <div className="relative">
@@ -980,13 +1034,18 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                 />
               </div>
               {formErrors.phone && (
-                <p className="text-[10px] text-red-500 mt-0.5 pl-1">Please enter a valid mobile number (min 8 digits)</p>
+                <p className="text-[10px] text-red-500 mt-0.5 pl-1">
+                  Please enter a valid mobile number (min 8 digits)
+                </p>
               )}
             </div>
 
             {/* Optional Special Request */}
             <div>
-              <label htmlFor="booking-notes" className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1">
+              <label
+                htmlFor="booking-notes"
+                className="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-600 mb-1"
+              >
                 Special Request (Optional)
               </label>
               <input

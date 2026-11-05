@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GET_INSPIRED_IMAGES, INSTAGRAM_URL } from '../../../constants/inspiration';
 import { useContentStorage } from '../../../services/contentStorage';
@@ -9,8 +9,6 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
   const { inspiredImages: storedImages } = useContentStorage();
   const images = propImages || storedImages || GET_INSPIRED_IMAGES;
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
-  const [activeLook, setActiveLook] = useState(0);
-  const scrollRef = useRef(null);
 
   // Lock body scroll when Lightbox is active
   useEffect(() => {
@@ -43,45 +41,8 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
 
   if (!images || images.length === 0) return null;
 
-  // Handle mobile pagination dot click
-  const handleDotClick = (index) => {
-    setActiveLook(index);
-    const container = scrollRef.current;
-    if (!container) return;
-    const card = container.children[index];
-    if (card) {
-      const targetLeft = card.offsetLeft - (container.offsetWidth - card.offsetWidth) / 2;
-      container.scrollTo({
-        left: Math.max(0, targetLeft),
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  // Handle mobile touch carousel scroll to update active dot
-  const handleScroll = () => {
-    const container = scrollRef.current;
-    if (!container || !container.children.length) return;
-    const center = container.scrollLeft + container.offsetWidth / 2;
-    let closestIndex = 0;
-    let minDistance = Infinity;
-
-    Array.from(container.children).forEach((child, idx) => {
-      const childCenter = child.offsetLeft + child.offsetWidth / 2;
-      const distance = Math.abs(center - childCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestIndex = idx;
-      }
-    });
-
-    if (closestIndex !== activeLook && closestIndex >= 0 && closestIndex < images.length) {
-      setActiveLook(closestIndex);
-    }
-  };
-
   return (
-    <section className="w-full bg-white py-8 sm:py-12 lg:py-14 scroll-mt-20 overflow-hidden" id="inspiration">
+    <section className="w-full bg-white py-8 sm:py-12 lg:py-16 scroll-mt-20 overflow-hidden" id="inspiration">
       <span id="get-inspired" className="sr-only" aria-hidden="true" />
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 lg:px-12">
 
@@ -97,41 +58,41 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
 
         {/* Desktop View (≥ md): 4-Column Editorial Collage
             Column 1: 1 Tall Portrait Look (Full Height)
-            Column 2: 2 Stacked Looks (Half Height each)
+            Column 2: 2 Stacked Looks (Upper + Lower, perfectly sized, no overflow slice)
             Column 3: 1 Tall Portrait Look (Full Height)
-            Column 4: 2 Stacked Looks (Half Height each)
+            Column 4: 2 Stacked Looks (Upper + Lower, perfectly sized, no overflow slice)
         */}
-        <div className="hidden md:grid md:grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none h-[460px] lg:h-[520px] xl:h-[560px] rounded-2xl lg:rounded-3xl overflow-hidden">
+        <div className="hidden md:grid md:grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none items-stretch">
           {/* Column 1: Tall Look 1 */}
           {images[0] && (
             <div
               onClick={() => setActiveLightboxIndex(0)}
-              className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out h-full w-full"
+              className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 h-[500px] lg:h-[560px] xl:h-[600px] w-full"
               title="Click to preview full screen"
             >
               <img
                 src={images[0].imageUrl}
                 alt={images[0].alt || "Lookbook Look 1"}
                 loading="lazy"
-                className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
               />
               <div className="absolute inset-4 lg:inset-5 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
             </div>
           )}
 
           {/* Column 2: Stacked Pair (Look 2 & Look 3) */}
-          <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+          <div className="flex flex-col gap-3.5 lg:gap-4.5 h-[500px] lg:h-[560px] xl:h-[600px]">
             {images[1] && (
               <div
                 onClick={() => setActiveLightboxIndex(1)}
-                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out flex-1 h-1/2 w-full"
+                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 flex-1 min-h-0 w-full"
                 title="Click to preview full screen"
               >
                 <img
                   src={images[1].imageUrl}
                   alt={images[1].alt || "Lookbook Look 2"}
                   loading="lazy"
-                  className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
                 />
                 <div className="absolute inset-3.5 lg:inset-4 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
               </div>
@@ -139,14 +100,14 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
             {images[2] && (
               <div
                 onClick={() => setActiveLightboxIndex(2)}
-                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out flex-1 h-1/2 w-full"
+                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 flex-1 min-h-0 w-full"
                 title="Click to preview full screen"
               >
                 <img
                   src={images[2].imageUrl}
                   alt={images[2].alt || "Lookbook Look 3"}
                   loading="lazy"
-                  className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
                 />
                 <div className="absolute inset-3.5 lg:inset-4 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
               </div>
@@ -157,32 +118,32 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
           {images[3] && (
             <div
               onClick={() => setActiveLightboxIndex(3)}
-              className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out h-full w-full"
+              className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 h-[500px] lg:h-[560px] xl:h-[600px] w-full"
               title="Click to preview full screen"
             >
               <img
                 src={images[3].imageUrl}
                 alt={images[3].alt || "Lookbook Look 4"}
                 loading="lazy"
-                className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
               />
               <div className="absolute inset-4 lg:inset-5 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
             </div>
           )}
 
           {/* Column 4: Stacked Pair (Look 5 & Look 6) */}
-          <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+          <div className="flex flex-col gap-3.5 lg:gap-4.5 h-[500px] lg:h-[560px] xl:h-[600px]">
             {images[4] && (
               <div
                 onClick={() => setActiveLightboxIndex(4)}
-                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out flex-1 h-1/2 w-full"
+                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 flex-1 min-h-0 w-full"
                 title="Click to preview full screen"
               >
                 <img
                   src={images[4].imageUrl}
                   alt={images[4].alt || "Lookbook Look 5"}
                   loading="lazy"
-                  className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
                 />
                 <div className="absolute inset-3.5 lg:inset-4 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
               </div>
@@ -190,14 +151,14 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
             {images[5] && (
               <div
                 onClick={() => setActiveLightboxIndex(5)}
-                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-500 ease-out flex-1 h-1/2 w-full"
+                className="group/card relative overflow-hidden rounded-2xl lg:rounded-3xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs hover:shadow-lg transition-all duration-300 flex-1 min-h-0 w-full"
                 title="Click to preview full screen"
               >
                 <img
                   src={images[5].imageUrl}
                   alt={images[5].alt || "Lookbook Look 6"}
                   loading="lazy"
-                  className="h-full w-full object-cover object-[center_top] transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
+                  className="h-full w-full object-cover object-center transition-transform duration-700 ease-out select-none group-hover/card:scale-105"
                 />
                 <div className="absolute inset-3.5 lg:inset-4 border-2 border-white rounded-xs sm:rounded-sm pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 z-20 shadow-[0_0_12px_rgba(0,0,0,0.35)]" />
               </div>
@@ -205,51 +166,117 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
           </div>
         </div>
 
-        {/* Mobile View (< md): Touch-Snap Carousel with Peek */}
-        <div className="-mx-4 md:hidden">
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {images.map((img, idx) => (
+        {/* Mobile View (< md): 2-Column x 3-Row Asymmetrical Editorial Collage
+            Column 1 (width 57%) has 3 rows: Tall (215px), Short (145px), Medium (190px)
+            Column 2 (width 43%) has 3 rows: Short (155px), Tall (225px), Medium (170px)
+            Total heights match (550px) so columns align at the bottom with zero cutoffs!
+        */}
+        <div className="md:hidden grid grid-cols-[1.14fr_0.86fr] gap-2.5 xs:gap-3 w-full select-none">
+          {/* Column 1 (Wider) */}
+          <div className="flex flex-col gap-2.5 xs:gap-3">
+            {/* Row 1: Tall Look 1 */}
+            {images[0] && (
               <div
-                key={img.id || idx}
-                onClick={() => setActiveLightboxIndex(idx)}
-                className="w-[82%] xs:w-[76%] max-w-[300px] flex-none snap-center group cursor-pointer"
+                onClick={() => setActiveLightboxIndex(0)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[215px] xs:h-[240px] w-full"
+                title="Click to preview full screen"
               >
-                <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-[#F0CDD7]/80 shadow-xs bg-[#FFF3F6]">
-                  <img
-                    src={img.imageUrl}
-                    alt={img.alt || "Lookbook Look"}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 select-none"
-                  />
-                </div>
+                <img
+                  src={images[0].imageUrl}
+                  alt={images[0].alt || "Lookbook Look 1"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
               </div>
-            ))}
+            )}
+
+            {/* Row 2: Shorter Look 3 */}
+            {images[2] && (
+              <div
+                onClick={() => setActiveLightboxIndex(2)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[145px] xs:h-[160px] w-full"
+                title="Click to preview full screen"
+              >
+                <img
+                  src={images[2].imageUrl}
+                  alt={images[2].alt || "Lookbook Look 3"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
+              </div>
+            )}
+
+            {/* Row 3: Medium Look 5 */}
+            {images[4] && (
+              <div
+                onClick={() => setActiveLightboxIndex(4)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[190px] xs:h-[210px] w-full"
+                title="Click to preview full screen"
+              >
+                <img
+                  src={images[4].imageUrl}
+                  alt={images[4].alt || "Lookbook Look 5"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
+              </div>
+            )}
           </div>
 
-          {/* Interactive Pagination Indicator Dots */}
-          <div className="flex items-center justify-center gap-1.5 mt-3">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleDotClick(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  activeLook === idx
-                    ? 'w-6 bg-[#D6204E]'
-                    : 'w-2 bg-[#F0CDD7] hover:bg-[#D6204E]/60'
-                }`}
-              />
-            ))}
+          {/* Column 2 (Narrower) */}
+          <div className="flex flex-col gap-2.5 xs:gap-3">
+            {/* Row 1: Shorter Look 2 */}
+            {images[1] && (
+              <div
+                onClick={() => setActiveLightboxIndex(1)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[155px] xs:h-[170px] w-full"
+                title="Click to preview full screen"
+              >
+                <img
+                  src={images[1].imageUrl}
+                  alt={images[1].alt || "Lookbook Look 2"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
+              </div>
+            )}
+
+            {/* Row 2: Tall Look 4 */}
+            {images[3] && (
+              <div
+                onClick={() => setActiveLightboxIndex(3)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[225px] xs:h-[250px] w-full"
+                title="Click to preview full screen"
+              >
+                <img
+                  src={images[3].imageUrl}
+                  alt={images[3].alt || "Lookbook Look 4"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
+              </div>
+            )}
+
+            {/* Row 3: Medium Look 6 */}
+            {images[5] && (
+              <div
+                onClick={() => setActiveLightboxIndex(5)}
+                className="group/card relative overflow-hidden rounded-xl xs:rounded-2xl cursor-pointer bg-stone-900 border border-[#F0CDD7]/80 shadow-xs active:scale-[0.98] transition-transform h-[170px] xs:h-[190px] w-full"
+                title="Click to preview full screen"
+              >
+                <img
+                  src={images[5].imageUrl}
+                  alt={images[5].alt || "Lookbook Look 6"}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-center select-none"
+                />
+              </div>
+            )}
           </div>
         </div>
 
         {/* Clean Dedicated Action Button Placed Below the Gallery */}
-        <div className="mt-6 sm:mt-8 flex justify-center">
+        <div className="mt-7 sm:mt-10 flex justify-center">
           <button
             type="button"
             onClick={(e) => {
@@ -257,7 +284,7 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
               navigate('/inspiration');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-black hover:bg-neutral-800 text-white px-4.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium tracking-wide shadow-2xs hover:shadow-sm active:scale-95 transition-all duration-200 cursor-pointer group whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-black hover:bg-neutral-800 text-white px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium tracking-wide shadow-2xs hover:shadow-sm active:scale-95 transition-all duration-200 cursor-pointer group whitespace-nowrap"
           >
             <span>Explore Lookbook</span>
             <ArrowRight className="w-3.5 h-3.5 text-white/90 transition-transform duration-200 group-hover:translate-x-0.5 shrink-0" />

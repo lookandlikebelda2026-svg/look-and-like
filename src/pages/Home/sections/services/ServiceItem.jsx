@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
 /**
- * ServiceItem with clean horizontal scrollable images,
- * interactive sub category list display, and bottom price + book appointment button.
+ * ServiceItem with clean sub category / plan options list display,
+ * and bottom price + book appointment button (no images for plans/subplans).
  */
 export function ServiceItem({ item, isExpanded, onToggle, onBook }) {
   // Normalize sub categories / sub-plans list
@@ -107,7 +107,7 @@ export function ServiceItem({ item, isExpanded, onToggle, onBook }) {
         </span>
       </button>
 
-      {/* Expandable Details Section: Horizontal Image Gallery + Sub Category List + Bottom Price & Booking */}
+      {/* Expandable Details Section: Sub Category List + Bottom Price & Booking (NO IMAGES FOR PLANS) */}
       <div
         id={`service-details-${item.id}`}
         role="region"
@@ -119,35 +119,14 @@ export function ServiceItem({ item, isExpanded, onToggle, onBook }) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="bg-[#FAF8F5]/90 rounded-2xl p-3.5 sm:p-5 border border-border-warm/70 shadow-xs ml-0 sm:ml-7 flex flex-col gap-4">
-            {/* Horizontal Scroll Image Gallery */}
-            {item.photos && item.photos.length > 0 && (
-              <div className="relative">
-                <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth">
-                  {item.photos.map((photo, pIdx) => (
-                    <div
-                      key={pIdx}
-                      className="w-36 sm:w-56 shrink-0 aspect-[4/3] rounded-xl overflow-hidden bg-white border border-border-warm/60 shadow-xs group/img"
-                    >
-                      <img
-                        src={photo.url}
-                        alt={photo.alt || `${item.name} photo ${pIdx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
+          <div className="bg-[#FAF8F5]/90 rounded-2xl p-3.5 sm:p-5 border border-border-warm/70 shadow-xs ml-0 sm:ml-7 flex flex-col gap-3">
             {/* Sub Category List Type Display */}
             {subCategories && subCategories.length > 0 && (
-              <div className="pt-2 border-t border-border-warm/60">
+              <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-deep-espresso flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#D6204E]" />
-                    Sub Categories / Plan Options
+                    Plan Options / Pricing Tiers
                   </span>
                   <span className="text-[10px] text-[#7A6B70] font-medium">
                     {subCategories.length} Options

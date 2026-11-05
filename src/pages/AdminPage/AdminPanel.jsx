@@ -11,7 +11,7 @@ import {
 
 /**
  * AdminPanel
- * Master admin studio for managing Salon Services, Lookbook Editorial Photos, Brand Partners, and YouTube Films.
+ * Master admin studio for managing Parlour Services, Lookbook Editorial Photos, Brand Partners, and YouTube Films.
  */
 export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const location = useLocation();

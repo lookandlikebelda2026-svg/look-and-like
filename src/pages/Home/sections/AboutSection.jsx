@@ -174,7 +174,7 @@ export function AboutSection() {
               FOUNDER &amp; MASTER BEAUTICIAN
             </span>
             <h3 className="font-serif text-2xl sm:text-3xl lg:text-[2.2rem] font-bold text-deep-espresso leading-tight mb-4 sm:mb-6">
-              Shiuli Giri Maity
+              Shiule Giri Maity
             </h3>
 
             {/* Key Information Points */}

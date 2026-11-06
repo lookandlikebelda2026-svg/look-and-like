@@ -60,7 +60,7 @@ export function LookbookSection({
         id: editingInspired.item.id || `inspired-${Date.now()}`,
         imageUrl: newUrl,
         fileId: single.fileId || editingInspired.item?.fileId || '',
-        alt: single.alt || single.name || 'Look & Like Lookbook Look',
+        alt: 'Look & Like Lookbook Look',
       };
       saveInspiredImages(updatedList);
       onNotify?.('Lookbook updated!', 'success');
@@ -69,7 +69,7 @@ export function LookbookSection({
         id: `inspired-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
         imageUrl: item.imageUrl || item.url,
         fileId: item.fileId || '',
-        alt: item.alt || item.name || 'Look & Like Lookbook Look',
+        alt: 'Look & Like Lookbook Look',
       }));
       const updatedList = [...inspiredImages, ...newItems];
       saveInspiredImages(updatedList);

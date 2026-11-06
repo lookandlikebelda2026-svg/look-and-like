@@ -74,10 +74,10 @@ export function LookbookCard({
         </div>
       </div>
 
-      {/* Metadata & Actions */}
+      {/* Actions */}
       <div className="p-2 sm:p-2.5 flex items-center justify-between text-xs">
-        <span className="text-[10px] text-stone-500 font-medium truncate max-w-[85%]">
-          {look.alt || `Look #${index + 1}`}
+        <span className="text-[11px] sm:text-xs font-semibold text-deep-espresso">
+          Look #{index + 1}
         </span>
 
         <button

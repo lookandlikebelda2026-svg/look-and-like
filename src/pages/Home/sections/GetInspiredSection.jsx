@@ -288,6 +288,38 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
   // Display 12 curated looks on the home page (2 balanced blocks)
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
+  // Touch gestures for mobile finger sliding in Lightbox
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchDeltaX, setTouchDeltaX] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      setTouchStartX(e.touches[0].clientX);
+      setTouchDeltaX(0);
+      setIsSwiping(true);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isSwiping || touchStartX === null) return;
+    const currentX = e.touches[0].clientX;
+    setTouchDeltaX(currentX - touchStartX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping) return;
+    const swipeThreshold = 45;
+    if (touchDeltaX < -swipeThreshold) {
+      setActiveLightboxIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    } else if (touchDeltaX > swipeThreshold) {
+      setActiveLightboxIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+    setTouchStartX(null);
+    setTouchDeltaX(0);
+    setIsSwiping(false);
+  };
+
   // Lock body scroll when Lightbox is active
   useEffect(() => {
     if (activeLightboxIndex !== null) {
@@ -436,19 +468,21 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
 
           {/* Active Image */}
           <div
-            className="relative max-w-5xl max-h-[90vh] flex flex-col items-center justify-center cursor-default"
+            className="relative max-w-5xl max-h-[90vh] flex flex-col items-center justify-center cursor-default will-change-transform"
+            style={{
+              transform: `translateX(${touchDeltaX}px)`,
+              transition: isSwiping ? 'none' : 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={images[activeLightboxIndex].imageUrl}
-              alt={images[activeLightboxIndex].alt || 'Lookbook Look'}
-              className="max-h-[82vh] max-w-[92vw] w-auto h-auto object-contain rounded-xl sm:rounded-2xl shadow-2xl select-none"
+              alt="Lookbook Look"
+              className="max-h-[82vh] max-w-[92vw] w-auto h-auto object-contain rounded-xl sm:rounded-2xl shadow-2xl select-none pointer-events-none"
             />
-            {images[activeLightboxIndex].alt && (
-              <p className="mt-2.5 text-center text-xs sm:text-sm text-white/80 max-w-md px-4">
-                {images[activeLightboxIndex].alt}
-              </p>
-            )}
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, ArrowDown, Edit3, Trash2, ExternalLink, Briefcase } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2, Briefcase } from 'lucide-react';
 import { getOptimizedImageUrl } from '../../../../services/imagekit';
 
 /**
@@ -10,7 +10,6 @@ export function PartnerCard({
   index,
   totalCount,
   onMove,
-  onEdit,
   onDelete,
 }) {
   const brandName = partner.name || 'Brand Partner';
@@ -68,49 +67,19 @@ export function PartnerCard({
         </div>
       </div>
 
-      {/* Details & Actions */}
-      <div className="p-2 sm:p-2.5 flex flex-col justify-between flex-1 gap-1.5 bg-white">
-        <div>
-          <h4 className="text-xs sm:text-sm font-bold text-deep-espresso uppercase tracking-wider truncate leading-tight">
-            {brandName}
-          </h4>
-        </div>
-
-        {/* Bottom Actions Bar */}
-        <div className="pt-1.5 border-t border-stone-100 flex items-center justify-between text-xs">
-          {partner.logoUrl ? (
-            <a
-              href={partner.logoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[10px] text-stone-500 hover:text-[#D6204E] flex items-center gap-1 font-medium transition-colors"
-            >
-              <ExternalLink className="w-2.5 h-2.5" />
-              <span className="hidden sm:inline">Logo</span>
-            </a>
-          ) : (
-            <span className="text-[10px] text-stone-400">No URL</span>
-          )}
-
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              onClick={() => onEdit(partner, index)}
-              className="p-1 text-stone-600 hover:text-[#D6204E] hover:bg-[#FFF3F6] rounded-md transition-colors cursor-pointer"
-              title="Edit partner"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onDelete(index)}
-              className="p-1 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-              title="Delete partner"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+      {/* Details & Delete Action */}
+      <div className="p-2 sm:p-2.5 flex items-center justify-between gap-1.5 bg-white">
+        <h4 className="text-xs sm:text-sm font-bold text-deep-espresso uppercase tracking-wider truncate leading-tight">
+          {brandName}
+        </h4>
+        <button
+          type="button"
+          onClick={() => onDelete(index)}
+          className="p-1 text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer shrink-0"
+          title="Delete partner"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Edit3, Trash2, ExternalLink } from 'lucide-react';
+import { ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 
 /**
  * Individual Lookbook Editorial Card in the Management Panel
@@ -9,7 +9,6 @@ export function LookbookCard({
   index,
   totalCount,
   onMove,
-  onEdit,
   onDelete,
 }) {
   const [dimensions, setDimensions] = useState(null);
@@ -77,35 +76,18 @@ export function LookbookCard({
 
       {/* Metadata & Actions */}
       <div className="p-2 sm:p-2.5 flex items-center justify-between text-xs">
-        <a
-          href={look.imageUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="text-[10px] text-stone-500 hover:text-[#D6204E] flex items-center gap-1"
-          title="Open image in new tab"
-        >
-          <ExternalLink className="w-3 h-3" />
-          <span className="hidden sm:inline">URL</span>
-        </a>
+        <span className="text-[10px] text-stone-500 font-medium truncate max-w-[85%]">
+          {look.alt || `Look #${index + 1}`}
+        </span>
 
-        <div className="flex items-center gap-0.5">
-          <button
-            type="button"
-            onClick={() => onEdit(look, index)}
-            className="p-1 sm:p-1.5 text-stone-600 hover:text-[#D6204E] hover:bg-[#FFF3F6] rounded-md transition-colors cursor-pointer"
-            title="Edit look"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(index)}
-            className="p-1 sm:p-1.5 text-stone-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-            title="Delete look"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onDelete(index)}
+          className="p-1 sm:p-1.5 text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer shrink-0"
+          title="Delete look"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );

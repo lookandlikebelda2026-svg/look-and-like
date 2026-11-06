@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, RotateCcw, Image as ImageIcon } from 'lucide-react';
 import { LookbookForm } from './LookbookForm';
 import { LookbookCard } from './LookbookCard';
+import { deleteImageFromImageKit } from '../../../../services/imagekit';
 
 /**
  * Section for managing Lookbook Editorial Images ("Get Inspired")
@@ -45,10 +46,20 @@ export function LookbookSection({
 
     if (editingInspired !== null) {
       const single = items[0];
+      const oldUrl = editingInspired.item?.imageUrl;
+      const oldFileId = editingInspired.item?.fileId;
+      const newUrl = single.imageUrl || single.url;
+
+      // If the image was replaced, delete old image from ImageKit
+      if (oldUrl && newUrl && oldUrl !== newUrl) {
+        deleteImageFromImageKit(oldFileId || oldUrl);
+      }
+
       const updatedList = [...inspiredImages];
       updatedList[editingInspired.index] = {
         id: editingInspired.item.id || `inspired-${Date.now()}`,
-        imageUrl: single.imageUrl || single.url,
+        imageUrl: newUrl,
+        fileId: single.fileId || editingInspired.item?.fileId || '',
         alt: single.alt || single.name || 'Look & Like Lookbook Look',
       };
       saveInspiredImages(updatedList);
@@ -57,6 +68,7 @@ export function LookbookSection({
       const newItems = items.map((item, idx) => ({
         id: `inspired-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
         imageUrl: item.imageUrl || item.url,
+        fileId: item.fileId || '',
         alt: item.alt || item.name || 'Look & Like Lookbook Look',
       }));
       const updatedList = [...inspiredImages, ...newItems];
@@ -71,7 +83,11 @@ export function LookbookSection({
   };
 
   const handleDelete = (index) => {
+    const item = inspiredImages[index];
     if (window.confirm('Delete this lookbook image?')) {
+      if (item?.imageUrl) {
+        deleteImageFromImageKit(item.fileId || item.imageUrl);
+      }
       const updatedList = inspiredImages.filter((_, i) => i !== index);
       saveInspiredImages(updatedList);
       onNotify?.('Image deleted.', 'info');
@@ -88,7 +104,10 @@ export function LookbookSection({
   };
 
   const handleReset = () => {
-    if (window.confirm('Clear all lookbook editorial images?')) {
+    if (window.confirm('Clear all lookbook editorial images? This will also remove images from ImageKit.')) {
+      inspiredImages.forEach((img) => {
+        if (img?.imageUrl) deleteImageFromImageKit(img.fileId || img.imageUrl);
+      });
       resetInspiredImages();
       onNotify?.('Cleared lookbook.', 'info');
     }

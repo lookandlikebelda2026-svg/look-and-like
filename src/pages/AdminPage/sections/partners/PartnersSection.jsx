@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, RotateCcw, Briefcase } from 'lucide-react';
 import { PartnerForm } from './PartnerForm';
 import { PartnerCard } from './PartnerCard';
+import { deleteImageFromImageKit } from '../../../../services/imagekit';
 
 /**
  * Section for managing Brand Partner logos ("Trusted Beauty Partners")
@@ -51,10 +52,20 @@ export function PartnersSection({
 
     if (editingPartner !== null) {
       const single = items[0];
+      const oldUrl = editingPartner.partner?.logoUrl;
+      const oldFileId = editingPartner.partner?.fileId;
+      const newUrl = single.logoUrl || single.url;
+
+      // If the logo was replaced, delete old logo from ImageKit
+      if (oldUrl && newUrl && oldUrl !== newUrl) {
+        deleteImageFromImageKit(oldFileId || oldUrl);
+      }
+
       const updatedList = [...partners];
       updatedList[editingPartner.index] = {
         ...editingPartner.partner,
-        logoUrl: single.logoUrl || single.url,
+        logoUrl: newUrl,
+        fileId: single.fileId || editingPartner.partner?.fileId || '',
         name: single.name || editingPartner.partner.name || 'Brand Partner',
       };
       savePartners(updatedList);
@@ -64,6 +75,7 @@ export function PartnersSection({
         id: `partner-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
         name: item.name || 'Brand Partner',
         logoUrl: item.logoUrl || item.url,
+        fileId: item.fileId || '',
         specialty: 'Hair & Beauty Care',
         country: 'Atelier',
       }));
@@ -82,6 +94,9 @@ export function PartnersSection({
     const item = partners[index];
     const name = item?.name || 'this partner';
     if (window.confirm(`Remove ${name}?`)) {
+      if (item?.logoUrl) {
+        deleteImageFromImageKit(item.fileId || item.logoUrl);
+      }
       const updatedList = partners.filter((_, i) => i !== index);
       savePartners(updatedList);
       onNotify?.(`Removed "${name}".`, 'info');
@@ -98,7 +113,10 @@ export function PartnersSection({
   };
 
   const handleReset = () => {
-    if (window.confirm('Clear all brand partners?')) {
+    if (window.confirm('Clear all brand partners? This will also remove logos from ImageKit.')) {
+      partners.forEach((p) => {
+        if (p?.logoUrl) deleteImageFromImageKit(p.fileId || p.logoUrl);
+      });
       resetPartners();
       onNotify?.('Cleared brand partners.', 'info');
     }

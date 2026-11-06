@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/imagekit/:path*",
+      "destination": "https://api.imagekit.io/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

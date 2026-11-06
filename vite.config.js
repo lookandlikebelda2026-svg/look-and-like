@@ -15,6 +15,13 @@ export default defineConfig({
     host: '0.0.0.0', 
     allowedHosts: [
       'track-finch-graves.ngrok-free.dev'
-    ]
+    ],
+    proxy: {
+      '/api/imagekit': {
+        target: 'https://api.imagekit.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/imagekit/, ''),
+      },
+    },
   }, 
 });

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Scissors } from 'lucide-react';
 import { ServiceCard } from './ServiceCard';
 import { AdminCardSkeleton } from '../../../../components/common/Skeleton';
+import { deleteImageFromImageKit } from '../../../../services/imagekit';
 
 /**
  * ServicesSection Component
@@ -35,6 +36,20 @@ export function ServicesSection({
     const target = servicesList[index];
     const name = target?.name || 'this service';
     if (window.confirm(`Delete "${name}" and all of its price plans?`)) {
+      if (target?.imageUrl) {
+        deleteImageFromImageKit(target.imageUrl);
+      }
+      if (Array.isArray(target?.images)) {
+        target.images.forEach((img) => {
+          const url = typeof img === 'string' ? img : img?.url;
+          if (url) deleteImageFromImageKit(url);
+        });
+      }
+      if (Array.isArray(target?.plans)) {
+        target.plans.forEach((p) => {
+          if (p?.imageUrl) deleteImageFromImageKit(p.imageUrl);
+        });
+      }
       const updatedList = servicesList.filter((_, i) => i !== index);
       saveServicesData(updatedList);
       onNotify?.(`Deleted "${name}".`, 'info');

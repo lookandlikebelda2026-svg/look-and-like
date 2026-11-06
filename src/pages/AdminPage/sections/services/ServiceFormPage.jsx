@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useContentStorage } from '../../../../services/contentStorage';
 import { Layout } from '../../layout';
-import { uploadImageToImageKit } from '../../../../services/imagekit';
+import { uploadImageToImageKit, deleteImageFromImageKit } from '../../../../services/imagekit';
 import { compressImage } from '../../../../utils/imageCompressor';
 import {
   MAIN_SERVICE_CATEGORIES,
@@ -61,8 +61,12 @@ function SingleImageUploader({
       });
 
       if (uploadResult?.url) {
+        if (currentUrl && currentUrl !== uploadResult.url) {
+          deleteImageFromImageKit(currentUrl);
+        }
         onImageChange({
           url: uploadResult.url,
+          fileId: uploadResult.fileId,
           path: uploadResult.filePath || '',
           alt: file.name.replace(/\.[^/.]+$/, ''),
         });
@@ -113,7 +117,10 @@ function SingleImageUploader({
             </button>
             <button
               type="button"
-              onClick={() => onImageChange(null)}
+              onClick={() => {
+                if (currentUrl) deleteImageFromImageKit(currentUrl);
+                onImageChange(null);
+              }}
               className="px-2.5 py-1 bg-rose-600 text-xs font-semibold text-white rounded-xl hover:bg-rose-700 cursor-pointer shadow-xs"
             >
               Remove

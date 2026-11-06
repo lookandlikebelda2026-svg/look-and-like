@@ -150,3 +150,138 @@ export function getOptimizedImageUrl(pathOrUrl, options = {}) {
   return `${IMAGEKIT_CONFIG.urlEndpoint}/tr:${trParam}${cleanPath}`;
 }
 
+/**
+ * Look up the ImageKit fileId corresponding to a public ImageKit image URL
+ * @param {string} imageUrl - The public URL of the image
+ * @returns {Promise<string|null>} Resolves to fileId or null
+ */
+export async function getFileIdFromUrl(imageUrl) {
+  if (!imageUrl || typeof imageUrl !== 'string') return null;
+  if (!imageUrl.includes('ik.imagekit.io')) return null;
+
+  try {
+    const cleanUrl = imageUrl.split('?')[0];
+    const fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+    if (!fileName) return null;
+
+    const privateKey =
+      import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY ||
+      import.meta.env.IMAGEKIT_PRIVATE_KEY;
+
+    if (!privateKey) return null;
+    const authHeader = 'Basic ' + btoa(privateKey + ':');
+
+    const endpoints = [
+      `/api/imagekit/v1/files?name=${encodeURIComponent(fileName)}`,
+      `https://api.imagekit.io/v1/files?name=${encodeURIComponent(fileName)}`,
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            Authorization: authHeader,
+          },
+        });
+
+        if (res.ok) {
+          const files = await res.json();
+          if (Array.isArray(files) && files.length > 0) {
+            return files[0].fileId;
+          }
+        }
+      } catch (e) {
+        // Continue to fallback endpoint
+      }
+    }
+
+    return null;
+  } catch (err) {
+    console.warn('ImageKit: could not locate fileId from URL:', err);
+    return null;
+  }
+}
+
+/**
+ * Permanently delete a photo from ImageKit by fileId or ImageKit URL
+ * @param {string} fileIdOrUrl - The ImageKit fileId or the public ImageKit URL
+ * @returns {Promise<{success: boolean, fileId?: string, skipped?: boolean, error?: string}>}
+ */
+export async function deleteImageFromImageKit(fileIdOrUrl) {
+  if (!fileIdOrUrl) return { success: false, reason: 'Empty identifier' };
+
+  try {
+    let fileId = fileIdOrUrl;
+
+    // If full URL is passed, resolve the fileId first
+    if (
+      typeof fileIdOrUrl === 'string' &&
+      (fileIdOrUrl.startsWith('http://') || fileIdOrUrl.startsWith('https://'))
+    ) {
+      if (!fileIdOrUrl.includes('ik.imagekit.io')) {
+        // Not hosted on ImageKit (e.g. Unsplash, placeholder, external URL); skip gracefully
+        return { success: true, skipped: true };
+      }
+      fileId = await getFileIdFromUrl(fileIdOrUrl);
+      if (!fileId) {
+        console.warn('ImageKit delete: fileId could not be found for URL:', fileIdOrUrl);
+        return { success: false, reason: 'File not found on ImageKit' };
+      }
+    }
+
+    const privateKey =
+      import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY ||
+      import.meta.env.IMAGEKIT_PRIVATE_KEY;
+
+    if (!privateKey) {
+      console.warn('ImageKit private key missing; skipping remote deletion.');
+      return { success: false, error: 'Missing private key' };
+    }
+
+    const authHeader = 'Basic ' + btoa(privateKey + ':');
+
+    // Try same-origin proxy first, fallback to direct API
+    const endpoints = [
+      `/api/imagekit/v1/files/${fileId}`,
+      `https://api.imagekit.io/v1/files/${fileId}`,
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const res = await fetch(endpoint, {
+          method: 'DELETE',
+          headers: {
+            Authorization: authHeader,
+          },
+        });
+
+        if (res.ok || res.status === 204 || res.status === 404) {
+          console.log(`[ImageKit] Successfully deleted file: ${fileId}`);
+          return { success: true, fileId };
+        }
+      } catch (e) {
+        // Continue to fallback
+      }
+    }
+
+    return { success: false, error: 'Failed to delete file from ImageKit' };
+  } catch (err) {
+    console.warn('ImageKit delete error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Delete multiple images from ImageKit concurrently
+ * @param {Array<string>} urlsOrFileIds - List of URLs or file IDs to delete
+ * @returns {Promise<Array<{success: boolean}>>}
+ */
+export async function deleteMultipleImagesFromImageKit(urlsOrFileIds) {
+  if (!Array.isArray(urlsOrFileIds) || urlsOrFileIds.length === 0) return [];
+  const promises = urlsOrFileIds
+    .filter(Boolean)
+    .map((item) => deleteImageFromImageKit(item));
+  return Promise.allSettled(promises);
+}
+

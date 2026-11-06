@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { MultiImageUploader } from '../common/MultiImageUploader';
 import { useBannerMedia } from '../../../../services/bannerFirebaseService';
+import { deleteImageFromImageKit } from '../../../../services/imagekit';
 
 /**
  * BannerAdminSection
@@ -32,6 +33,10 @@ export function BannerAdminSection({ onNotify }) {
     }
 
     try {
+      // If hero banner replaced, delete old banner from ImageKit
+      if (heroBannerUrl && heroBannerUrl !== newUrl) {
+        deleteImageFromImageKit(heroBannerUrl);
+      }
       await saveHeroBanner(newUrl);
       setIsChangingHero(false);
       onNotify?.('Hero banner updated successfully!', 'success');
@@ -43,6 +48,9 @@ export function BannerAdminSection({ onNotify }) {
   const handleDeleteHero = async () => {
     if (window.confirm('Are you sure you want to remove the hero banner?')) {
       try {
+        if (heroBannerUrl) {
+          deleteImageFromImageKit(heroBannerUrl);
+        }
         await saveHeroBanner('');
         onNotify?.('Hero banner removed.', 'info');
       } catch (err) {
@@ -59,6 +67,7 @@ export function BannerAdminSection({ onNotify }) {
       const newPhotos = items.map((item, idx) => ({
         id: `founder-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
         url: item.imageUrl || item.url,
+        fileId: item.fileId || '',
         alt: item.name || 'Founder and Award Photo',
       }));
 
@@ -72,8 +81,12 @@ export function BannerAdminSection({ onNotify }) {
   };
 
   const handleDeleteAboutPhoto = async (index) => {
+    const photo = aboutPhotos[index];
     if (window.confirm('Delete this photo from the carousel?')) {
       try {
+        if (photo?.url) {
+          deleteImageFromImageKit(photo.fileId || photo.url);
+        }
         const updated = aboutPhotos.filter((_, idx) => idx !== index);
         await saveAboutPhotos(updated);
         onNotify?.('Photo removed.', 'info');

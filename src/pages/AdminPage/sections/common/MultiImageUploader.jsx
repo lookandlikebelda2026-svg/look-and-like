@@ -186,6 +186,7 @@ export function MultiImageUploader({
 
         results.push({
           url: uploadResult.url,
+          fileId: uploadResult.fileId,
           name: item.name,
           alt: item.name,
         });

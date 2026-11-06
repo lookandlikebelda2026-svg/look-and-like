@@ -66,14 +66,14 @@ export function PartnersSection({
         ...editingPartner.partner,
         logoUrl: newUrl,
         fileId: single.fileId || editingPartner.partner?.fileId || '',
-        name: single.name || editingPartner.partner.name || 'Brand Partner',
+        name: `Partner ${editingPartner.index + 1}`,
       };
       savePartners(updatedList);
       onNotify?.('Brand partner updated!', 'success');
     } else {
       const newItems = items.map((item, idx) => ({
         id: `partner-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
-        name: item.name || 'Brand Partner',
+        name: `Partner ${partners.length + idx + 1}`,
         logoUrl: item.logoUrl || item.url,
         fileId: item.fileId || '',
         specialty: 'Hair & Beauty Care',
@@ -92,14 +92,14 @@ export function PartnersSection({
 
   const handleDelete = (index) => {
     const item = partners[index];
-    const name = item?.name || 'this partner';
-    if (window.confirm(`Remove ${name}?`)) {
+    const label = `Partner #${index + 1}`;
+    if (window.confirm(`Remove ${label}?`)) {
       if (item?.logoUrl) {
         deleteImageFromImageKit(item.fileId || item.logoUrl);
       }
       const updatedList = partners.filter((_, i) => i !== index);
       savePartners(updatedList);
-      onNotify?.(`Removed "${name}".`, 'info');
+      onNotify?.(`Removed ${label}.`, 'info');
     }
   };
 

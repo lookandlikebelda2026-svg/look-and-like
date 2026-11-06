@@ -12,7 +12,6 @@ export function PartnerCard({
   onMove,
   onDelete,
 }) {
-  const brandName = partner.name || 'Brand Partner';
   const logoUrl = getOptimizedImageUrl(partner.logoUrl, { width: 160, height: 80, quality: 65, format: 'webp' }) || partner.logoUrl;
 
   return (
@@ -22,7 +21,7 @@ export function PartnerCard({
         {partner.logoUrl ? (
           <img
             src={logoUrl}
-            alt={brandName}
+            alt="Brand Partner Logo"
             className="max-h-7 sm:max-h-9 max-w-[80px] sm:max-w-[100px] object-contain filter contrast-110 transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
@@ -36,7 +35,7 @@ export function PartnerCard({
         {/* Fallback */}
         <div className={`${partner.logoUrl ? 'hidden' : 'flex'} flex-col items-center justify-center text-stone-400 gap-1`}>
           <Briefcase className="w-6 h-6 opacity-40" />
-          <span className="text-[9px] font-semibold uppercase tracking-wider">{brandName}</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wider">Partner #{index + 1}</span>
         </div>
 
         {/* Order Badge */}
@@ -69,9 +68,9 @@ export function PartnerCard({
 
       {/* Details & Delete Action */}
       <div className="p-2 sm:p-2.5 flex items-center justify-between gap-1.5 bg-white">
-        <h4 className="text-xs sm:text-sm font-bold text-deep-espresso uppercase tracking-wider truncate leading-tight">
-          {brandName}
-        </h4>
+        <span className="text-[11px] sm:text-xs font-semibold text-deep-espresso">
+          Partner #{index + 1}
+        </span>
         <button
           type="button"
           onClick={() => onDelete(index)}

@@ -65,7 +65,7 @@ export function PartnersSection() {
                   <div className="w-full h-full flex items-center justify-center py-1 px-1.5 sm:py-1.5 sm:px-2 bg-[#FFF3F6] rounded-md sm:rounded-lg group-hover:bg-white transition-colors duration-300">
                     <img
                       src={optimizedUrl}
-                      alt={`${partner.name} logo`}
+                      alt="Brand Partner logo"
                       className="max-h-4 xs:max-h-5 sm:max-h-6 md:max-h-7 max-w-[60px] xs:max-w-[70px] sm:max-w-[85px] md:max-w-[100px] object-contain transition-transform duration-300 group-hover:scale-105 filter contrast-125"
                       loading="lazy"
                       onError={(e) => {
@@ -76,7 +76,7 @@ export function PartnersSection() {
                       }}
                     />
                     <span className="hidden text-[10px] sm:text-xs font-bold uppercase tracking-wider text-deep-espresso">
-                      {partner.name}
+                      Partner
                     </span>
                   </div>
                 </div>

@@ -34,10 +34,10 @@ export function PartnerForm({
         itemSingular="Partner"
         itemPlural="Partners"
         multiple={!isEditing}
-        showNameTag={true}
+        showNameTag={false}
         initialItem={
           isEditing && formData?.logoUrl
-            ? { url: formData.logoUrl, name: formData.name || 'Brand Partner' }
+            ? { url: formData.logoUrl, name: 'Brand Partner' }
             : null
         }
         onSubmit={onSubmit}

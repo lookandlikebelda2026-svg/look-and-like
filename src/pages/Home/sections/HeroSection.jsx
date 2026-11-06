@@ -33,10 +33,10 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
 
   return (
     <section id="hero" className="w-full overflow-hidden bg-white">
-      {/* MOBILE / TABLET VIEW (< lg): Heading & Compact Action Buttons Overlaid on Left of Photo */}
+      {/* MOBILE / TABLET VIEW (< lg): Heading, Action Buttons, and Stats ALL Overlaid Inside Photo */}
       <div className="lg:hidden flex flex-col bg-[#FFF3F6]">
-        {/* Hero image with "A More Beautiful You" and Action Buttons directly overlaid */}
-        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] min-h-[220px] xs:min-h-[240px] overflow-hidden bg-[#FFF3F6]">
+        {/* Hero image with "A More Beautiful You", Action Buttons, and Stats Card directly overlaid */}
+        <div className="relative w-full aspect-[16/11] xs:aspect-[16/10] sm:aspect-[16/9] min-h-[270px] xs:min-h-[290px] overflow-hidden bg-[#FFF3F6]">
           {loading ? (
             <div className="w-full h-full animate-pulse bg-gradient-to-r from-[#FFF3F6] via-[#FCECEF] to-[#FFF3F6]" />
           ) : heroBannerUrl ? (
@@ -49,12 +49,8 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
             />
           ) : null}
 
-          {/* Soft gradient wash on left and bottom of image for crystal-clear heading contrast */}
-          {/* <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FFF3F6] via-[#FFF3F6]/85 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-4/5 bg-gradient-to-r from-[#FFF3F6]/90 via-[#FFF3F6]/45 to-transparent" /> */}
-
-          {/* "A More Beautiful You" + Action Buttons overlaid on the left of the photo */}
-          <div className="absolute inset-0 flex flex-col justify-end items-start text-left px-4 xs:px-5 pb-3 xs:pb-4 z-10">
+          {/* "A More Beautiful You" + Action Buttons + Stats Card directly overlaid inside the photo */}
+          <div className="absolute inset-0 flex flex-col justify-end items-start text-left px-3.5 xs:px-4 sm:px-5 pb-3 xs:pb-3.5 z-10 gap-2 xs:gap-2.5">
             <h1 className="flex flex-col items-start leading-[1.05] tracking-tight max-w-[75%]">
               <span className="font-serif text-[20px] xs:text-[23px] sm:text-2xl font-bold text-black drop-shadow-xs">
                 A More
@@ -65,7 +61,7 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
             </h1>
 
             {/* CTA Buttons directly below "Beautiful You" text */}
-            <div className="mt-2 xs:mt-2.5 flex flex-row items-center gap-2">
+            <div className="flex flex-row items-center gap-1.5 xs:gap-2">
               <button
                 type="button"
                 onClick={() => onOpenBooking?.()}
@@ -93,34 +89,29 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
                 <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3 text-[#D6204E]/70 group-hover:text-[#D6204E] transition-transform duration-300 group-hover:translate-x-0.5" />
               </a>
             </div>
-          </div>
-        </div>
 
-        {/* Statistics Dashboard Card below the photo */}
-        <div className="flex flex-col items-start px-4 xs:px-5 pt-2.5 pb-4 bg-[#FFF3F6]">
-          <div className="w-full max-w-xs xs:max-w-sm rounded-2xl bg-white/95 backdrop-blur-xs shadow-xs py-2 px-3">
-            <div className="flex items-center justify-between">
-              {stats.map((stat, idx) => {
-                const IconComponent = stat.icon;
-                return (
-                  <React.Fragment key={idx}>
-
-                    <div className="flex flex-1 items-center justify-center gap-1.5 xs:gap-2 px-0.5">
-                      <div className="flex h-7 w-7 xs:h-8 xs:w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF3F6] to-[#FFE8EF] shrink-0">
+            {/* Statistics Dashboard Card kept inside the image */}
+            <div className="w-full max-w-xs xs:max-w-sm rounded-xl xs:rounded-2xl bg-white/90 backdrop-blur-md shadow-xs py-1.5 xs:py-2 px-2.5 xs:px-3 border border-white/60">
+              <div className="flex items-center justify-between">
+                {stats.map((stat, idx) => {
+                  const IconComponent = stat.icon;
+                  return (
+                    <div key={idx} className="flex flex-1 items-center justify-center gap-1 xs:gap-1.5 px-0.5">
+                      <div className="flex h-6 w-6 xs:h-7 xs:w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF3F6] to-[#FFE8EF] shrink-0">
                         <IconComponent className={stat.iconClassName} />
                       </div>
                       <div className="min-w-0 text-left flex flex-col justify-center">
-                        <span className="block text-xs xs:text-sm font-bold leading-tight text-[#D6204E] tracking-tight">
+                        <span className="block text-[11px] xs:text-xs sm:text-sm font-bold leading-tight text-[#D6204E] tracking-tight">
                           {stat.value}
                         </span>
-                        <span className="block text-[7.5px] xs:text-[8.5px] font-semibold uppercase tracking-wider text-black whitespace-nowrap leading-none mt-0">
+                        <span className="block text-[7px] xs:text-[8px] font-semibold uppercase tracking-wider text-black whitespace-nowrap leading-none mt-0">
                           {stat.label}
                         </span>
                       </div>
                     </div>
-                  </React.Fragment>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -192,22 +183,19 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
               {stats.map((stat, idx) => {
                 const IconComponent = stat.icon;
                 return (
-                  <React.Fragment key={idx}>
-
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF3F6] to-[#FFE8EF] shrink-0">
-                        <IconComponent className={stat.iconClassName} />
-                      </div>
-                      <div className="min-w-0 text-left flex flex-col justify-center">
-                        <span className="block text-xl font-bold leading-tight text-[#D6204E] tracking-tight">
-                          {stat.value}
-                        </span>
-                        <span className="block text-[10px] font-semibold uppercase tracking-wider text-black whitespace-nowrap leading-none mt-0.5">
-                          {stat.label}
-                        </span>
-                      </div>
+                  <div key={idx} className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#FFF3F6] to-[#FFE8EF] shrink-0">
+                      <IconComponent className={stat.iconClassName} />
                     </div>
-                  </React.Fragment>
+                    <div className="min-w-0 text-left flex flex-col justify-center">
+                      <span className="block text-xl font-bold leading-tight text-[#D6204E] tracking-tight">
+                        {stat.value}
+                      </span>
+                      <span className="block text-[10px] font-semibold uppercase tracking-wider text-black whitespace-nowrap leading-none mt-0.5">
+                        {stat.label}
+                      </span>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -228,18 +216,6 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
         <span className="pointer-events-none absolute bottom-4 right-5 hidden select-none text-sm text-[#D6204E]/80 sm:block">
           ✦
         </span>
-      </div>
-
-      {/* Seamless Continuous Ticker Ribbon */}
-      <div className="overflow-hidden border-y border-border-warm bg-white py-2.5 sm:py-3.5 shadow-2xs">
-        <div className="animate-ticker inline-flex w-max items-center gap-4 xs:gap-5 sm:gap-8 whitespace-nowrap text-[9.5px] xs:text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] text-black">
-          {[...tickerItems, ...tickerItems].map((item, idx) => (
-            <React.Fragment key={idx}>
-              <span className="hover:text-[#D6204E] transition-colors">{item}</span>
-              <span className="text-[#D6204E] text-xs">✦</span>
-            </React.Fragment>
-          ))}
-        </div>
       </div>
     </section>
   );

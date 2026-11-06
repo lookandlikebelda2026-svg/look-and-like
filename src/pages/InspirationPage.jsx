@@ -1,18 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ChevronLeft, ChevronRight, ArrowRight, Calendar } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ArrowRight, Calendar, ArrowUp } from 'lucide-react';
 import { useContentStorage } from '../services/contentStorage';
 import { InspirationMasonrySkeleton } from '../components/common/Skeleton';
+
+const INITIAL_BATCH_SIZE = 12;
+const LOAD_MORE_BATCH_SIZE = 12;
 
 export function InspirationPage({ onOpenBooking, onNotify }) {
   const navigate = useNavigate();
   const { inspiredImages = [], loadingLookbook } = useContentStorage();
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
+  // Infinite scroll pagination state
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTargetRef = useRef(null);
+
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  // Clamp visibleCount if items list size shrinks
+  useEffect(() => {
+    if (inspiredImages.length > 0 && visibleCount > inspiredImages.length) {
+      setVisibleCount(Math.min(inspiredImages.length, Math.max(INITIAL_BATCH_SIZE, inspiredImages.length)));
+    }
+  }, [inspiredImages.length, visibleCount]);
+
+  // Lock body scroll when Lightbox is active
+  useEffect(() => {
+    if (activeLightboxIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeLightboxIndex]);
+
+  // Load more handler
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || visibleCount >= inspiredImages.length) return;
+    setIsLoadingMore(true);
+
+    // Brief delay for silky-smooth visual feedback
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + LOAD_MORE_BATCH_SIZE, inspiredImages.length));
+      setIsLoadingMore(false);
+    }, 280);
+  }, [isLoadingMore, visibleCount, inspiredImages.length]);
+
+  // IntersectionObserver for Infinite Scrolling
+  useEffect(() => {
+    const target = observerTargetRef.current;
+    if (!target || visibleCount >= inspiredImages.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '300px', // Preload before reaching the exact bottom
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(target);
+
+    return () => {
+      if (target) observer.unobserve(target);
+      observer.disconnect();
+    };
+  }, [loadMore, visibleCount, inspiredImages.length]);
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -21,9 +86,14 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
       if (e.key === 'Escape') {
         setActiveLightboxIndex(null);
       } else if (e.key === 'ArrowRight') {
-        setActiveLightboxIndex((prev) => 
-          prev === inspiredImages.length - 1 ? 0 : prev + 1
-        );
+        setActiveLightboxIndex((prev) => {
+          const next = prev === inspiredImages.length - 1 ? 0 : prev + 1;
+          // Auto-expand visibleCount if user browses forward past the currently rendered images
+          if (next >= visibleCount) {
+            setVisibleCount((curr) => Math.min(inspiredImages.length, Math.max(curr, next + 1)));
+          }
+          return next;
+        });
       } else if (e.key === 'ArrowLeft') {
         setActiveLightboxIndex((prev) => 
           prev === 0 ? inspiredImages.length - 1 : prev - 1
@@ -33,24 +103,33 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeLightboxIndex, inspiredImages.length]);
+  }, [activeLightboxIndex, inspiredImages, visibleCount]);
 
+  const visibleImages = (inspiredImages || []).slice(0, visibleCount);
   const currentLightboxItem = activeLightboxIndex !== null && inspiredImages ? inspiredImages[activeLightboxIndex] : null;
+  const hasMore = visibleCount < (inspiredImages?.length || 0);
 
   return (
     <div className="w-full bg-white py-4 sm:py-8 min-h-screen">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-8">
         {/* Gallery Header & Navigation Bar */}
         <div className="mb-6 sm:mb-10 text-center max-w-2xl mx-auto pt-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
+          {/* <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
             Editorial Lookbook &amp; Inspiration
-          </span>
+          </span> */}
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-deep-espresso tracking-tight">
             Curated Atelier Looks
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-[#7A6B70] max-w-lg mx-auto leading-relaxed">
             Browse our hand-selected archive of hairstyles, glowing facials, couture nail art and bridal looks crafted by our master stylists.
           </p>
+
+          {/* Quick Counter Badge */}
+          {inspiredImages && inspiredImages.length > 0 && (
+            <p className="mt-2 text-[10px] sm:text-[11px] font-medium uppercase tracking-widest text-[#A59299]">
+              Showing {visibleImages.length} of {inspiredImages.length} looks
+            </p>
+          )}
 
           <div className="mt-3.5 sm:mt-5 flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-2.5 max-w-full px-1">
             <button
@@ -99,25 +178,78 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
             </button>
           </div>
         ) : (
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5">
-            {inspiredImages.map((image, idx) => (
+          <>
+            {/* Infinite Scroll Responsive Masonry Grid */}
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5">
+              {visibleImages.map((image, idx) => (
+                <div
+                  key={image.id || idx}
+                  onClick={() => setActiveLightboxIndex(idx)}
+                  className="break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-900 border border-[#F0CDD7]/40"
+                  title="Click to preview full screen"
+                >
+                  <img
+                    src={image.imageUrl}
+                    alt={image.alt || `Curated Look ${idx + 1}`}
+                    loading="lazy"
+                    className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                  {/* Subtle luxury hover overlay with frame indicator */}
+                  <div className="absolute inset-2.5 sm:inset-3.5 border border-white/70 rounded-lg sm:rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-[0_0_12px_rgba(0,0,0,0.3)]" />
+                </div>
+              ))}
+            </div>
+
+            {/* Infinite Scroll Trigger Sentinel & Loading Feedback */}
+            {hasMore && (
               <div
-                key={image.id || idx}
-                onClick={() => setActiveLightboxIndex(idx)}
-                className="break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-50"
+                ref={observerTargetRef}
+                className="w-full py-10 sm:py-14 flex flex-col items-center justify-center"
               >
-                <img
-                  src={image.imageUrl}
-                  alt=""
-                  loading="lazy"
-                  className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
+                {isLoadingMore ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-7 h-7 rounded-full border-2 border-[#D6204E]/20 border-t-[#D6204E] animate-spin" />
+                    <p className="text-[11px] sm:text-xs font-serif tracking-widest uppercase text-[#7A6B70]">
+                      Curating More Looks...
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full border border-[#F0CDD7] bg-white hover:bg-[#FFF3F6] text-xs sm:text-sm font-medium text-deep-espresso transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <span>Load More Looks</span>
+                    <span className="text-[10px] sm:text-xs text-[#A59299]">
+                      ({visibleImages.length} of {inspiredImages.length})
+                    </span>
+                  </button>
+                )}
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* End of Gallery Atelier Message */}
+            {!hasMore && inspiredImages.length > INITIAL_BATCH_SIZE && (
+              <div className="mt-12 mb-8 text-center py-8 border-t border-[#F0CDD7]/60">
+                <p className="text-xs sm:text-sm font-serif tracking-widest uppercase text-[#7A6B70] flex items-center justify-center gap-2">
+                  <span className="text-[#D6204E]">✦</span>
+                  <span>You have viewed all {inspiredImages.length} curated looks</span>
+                  <span className="text-[#D6204E]">✦</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="mt-3.5 inline-flex items-center gap-1.5 text-xs text-[#D6204E] hover:text-[#B81942] font-semibold transition-colors cursor-pointer group"
+                >
+                  <span>Back to top</span>
+                  <ArrowUp className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-y-0.5" />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -146,7 +278,13 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setActiveLightboxIndex((prev) => (prev === inspiredImages.length - 1 ? 0 : prev + 1));
+              setActiveLightboxIndex((prev) => {
+                const next = prev === inspiredImages.length - 1 ? 0 : prev + 1;
+                if (next >= visibleCount) {
+                  setVisibleCount((curr) => Math.min(inspiredImages.length, Math.max(curr, next + 1)));
+                }
+                return next;
+              });
             }}
             className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 p-2 sm:p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors cursor-pointer z-20"
             aria-label="Next"
@@ -171,9 +309,14 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
           >
             <img
               src={currentLightboxItem.imageUrl}
-              alt=""
+              alt={currentLightboxItem.alt || 'Lookbook Look'}
               className="max-h-[85vh] w-auto max-w-full object-contain rounded-lg shadow-2xl select-none"
             />
+            {currentLightboxItem.alt && (
+              <p className="mt-2.5 text-center text-xs sm:text-sm text-white/80 max-w-md px-4">
+                {currentLightboxItem.alt}
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -55,21 +55,16 @@ export function HeroSkeleton() {
     <div className="w-full overflow-hidden bg-white" aria-hidden="true">
       {/* MOBILE (< lg) */}
       <div className="lg:hidden flex flex-col bg-[#FFF3F6]">
-        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] min-h-[220px] xs:min-h-[240px] overflow-hidden bg-gradient-to-r from-[#FFF3F6] via-[#FCECEF] to-[#FFF3F6] animate-pulse">
-          <div className="absolute inset-0 flex flex-col justify-end items-start p-4 xs:p-5 gap-2.5">
+        <div className="relative w-full aspect-[16/11] xs:aspect-[16/10] sm:aspect-[16/9] min-h-[270px] xs:min-h-[290px] overflow-hidden bg-gradient-to-r from-[#FFF3F6] via-[#FCECEF] to-[#FFF3F6] animate-pulse">
+          <div className="absolute inset-0 flex flex-col justify-end items-start px-3.5 xs:px-4 sm:px-5 pb-3 xs:pb-3.5 gap-2 xs:gap-2.5">
             <div className="h-5 w-24 bg-[#F0CDD7]/70 rounded-md" />
             <div className="h-8 w-44 bg-[#F0CDD7]/80 rounded-lg" />
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-2">
               <div className="h-7 w-28 bg-[#D6204E]/20 rounded-full border border-[#D6204E]/30" />
               <div className="h-7 w-20 bg-white/70 rounded-full border border-[#F0CDD7]" />
             </div>
+            <div className="h-9 w-full max-w-xs xs:max-w-sm bg-white/90 rounded-xl xs:rounded-2xl border border-white/60" />
           </div>
-        </div>
-        {/* Mobile Ticker Bar */}
-        <div className="h-9 w-full bg-white/80 border-y border-[#F0CDD7]/50 flex items-center justify-around px-4">
-          <div className="h-3 w-20 bg-[#F0CDD7]/50 rounded-sm" />
-          <div className="h-3 w-20 bg-[#F0CDD7]/50 rounded-sm" />
-          <div className="h-3 w-20 bg-[#F0CDD7]/50 rounded-sm" />
         </div>
       </div>
 

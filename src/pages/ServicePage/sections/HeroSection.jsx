@@ -10,9 +10,9 @@ export function HeroSection({ onOpenBooking }) {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="mb-6 sm:mb-10 text-center max-w-2xl mx-auto pt-2">
           {/* Eyebrow Capsule Badge */}
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
+          {/* <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF3F6] border border-[#F0CDD7] text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-black mb-3">
             Complete Parlour Atelier Menu
-          </span>
+          </span> */}
 
           {/* Centered Main Headline */}
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-deep-espresso tracking-tight">

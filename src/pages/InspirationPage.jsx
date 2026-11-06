@@ -147,6 +147,16 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
   const currentLightboxItem = activeLightboxIndex !== null && inspiredImages ? inspiredImages[activeLightboxIndex] : null;
   const hasMore = visibleCount < (inspiredImages?.length || 0);
 
+  // Group visible images into batches of LOAD_MORE_BATCH_SIZE (12)
+  // so already-rendered columns never re-flow or re-order when new pages load
+  const imageBatches = [];
+  for (let i = 0; i < visibleImages.length; i += LOAD_MORE_BATCH_SIZE) {
+    imageBatches.push({
+      startIndex: i,
+      images: visibleImages.slice(i, i + LOAD_MORE_BATCH_SIZE),
+    });
+  }
+
   return (
     <div className="w-full bg-white py-4 sm:py-8 min-h-screen">
       <div className="max-w-[1440px] mx-auto px-3 sm:px-6 md:px-8">
@@ -217,26 +227,36 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
           </div>
         ) : (
           <>
-            {/* Infinite Scroll Responsive Masonry Grid */}
-            <div className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5">
-              {visibleImages.map((image, idx) => (
+            {/* Infinite Scroll Responsive Masonry Grid (Batched so previous images never shift positions) */}
+            <div className="flex flex-col gap-2.5 sm:gap-4 md:gap-5 w-full">
+              {imageBatches.map((batch) => (
                 <div
-                  key={image.id || idx}
-                  onClick={() => setActiveLightboxIndex(idx)}
-                  className="break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-900 border border-[#F0CDD7]/40"
-                  title="Click to preview full screen"
+                  key={`batch-${batch.startIndex}`}
+                  className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5"
                 >
-                  <img
-                    src={image.imageUrl}
-                    alt={image.alt || `Curated Look ${idx + 1}`}
-                    loading="lazy"
-                    className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                  {/* Subtle luxury hover overlay with frame indicator */}
-                  <div className="absolute inset-2.5 sm:inset-3.5 border border-white/70 rounded-lg sm:rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-[0_0_12px_rgba(0,0,0,0.3)]" />
+                  {batch.images.map((image, idx) => {
+                    const originalIndex = batch.startIndex + idx;
+                    return (
+                      <div
+                        key={image.id || originalIndex}
+                        onClick={() => setActiveLightboxIndex(originalIndex)}
+                        className="break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-900 border border-[#F0CDD7]/40"
+                        title="Click to preview full screen"
+                      >
+                        <img
+                          src={image.imageUrl}
+                          alt="Lookbook Look"
+                          loading="lazy"
+                          className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-103 select-none"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        {/* Subtle luxury hover overlay with frame indicator */}
+                        <div className="absolute inset-2.5 sm:inset-3.5 border border-white/70 rounded-lg sm:rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-[0_0_12px_rgba(0,0,0,0.3)]" />
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>

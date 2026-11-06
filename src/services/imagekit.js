@@ -131,20 +131,22 @@ export function getOptimizedImageUrl(pathOrUrl, options = {}) {
   if (format && format !== 'original') tr.push(`f-${format}`);
   if (blur) tr.push(`bl-${blur}`);
 
-  const transformString = tr.length > 0 ? `tr:${tr.join(',')}` : '';
+  if (tr.length === 0) return pathOrUrl;
+
+  const trParam = tr.join(',');
 
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
-    if (pathOrUrl.includes('ik.imagekit.io') && transformString) {
+    if (pathOrUrl.includes('ik.imagekit.io')) {
+      if (pathOrUrl.includes('tr=') || pathOrUrl.includes('tr:')) {
+        return pathOrUrl;
+      }
       const separator = pathOrUrl.includes('?') ? '&' : '?';
-      return `${pathOrUrl}${separator}${transformString}`;
+      return `${pathOrUrl}${separator}tr=${trParam}`;
     }
     return pathOrUrl;
   }
 
   const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
-  if (transformString) {
-    return `${IMAGEKIT_CONFIG.urlEndpoint}/${transformString}${cleanPath}`;
-  }
-  return `${IMAGEKIT_CONFIG.urlEndpoint}${cleanPath}`;
+  return `${IMAGEKIT_CONFIG.urlEndpoint}/tr:${trParam}${cleanPath}`;
 }
 

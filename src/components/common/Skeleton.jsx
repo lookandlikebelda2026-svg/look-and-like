@@ -95,23 +95,23 @@ export function HeroSkeleton() {
  */
 export function PartnersSkeleton() {
   return (
-    <section className="w-full bg-white py-6 sm:py-10 md:py-12 border-border-warm/30 overflow-hidden" aria-hidden="true">
+    <section className="w-full bg-white py-3.5 sm:py-6 md:py-8 border-border-warm/30 overflow-hidden" aria-hidden="true">
       <div className="max-w-[1420px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="text-center mb-5 sm:mb-7">
-          <div className="h-3 w-48 bg-[#F0CDD7]/60 rounded-md mx-auto animate-pulse" />
+        <div className="text-center mb-3 sm:mb-5">
+          <div className="h-2.5 w-40 bg-[#F0CDD7]/60 rounded-md mx-auto animate-pulse" />
         </div>
-        <div className="relative w-full overflow-hidden py-2">
+        <div className="relative w-full overflow-hidden py-1 sm:py-1.5">
           {/* Side gradient masks */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 xs:w-16 sm:w-28 md:w-36 lg:w-48 bg-gradient-to-r from-white via-white/85 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 xs:w-16 sm:w-28 md:w-36 lg:w-48 bg-gradient-to-l from-white via-white/85 to-transparent z-10" />
           
-          <div className="flex gap-3 sm:gap-5 lg:gap-6 overflow-hidden">
-            {[...Array(8)].map((_, i) => (
+          <div className="flex gap-2.5 sm:gap-3.5 lg:gap-4.5 overflow-hidden">
+            {[...Array(10)].map((_, i) => (
               <div
                 key={i}
-                className="shrink-0 w-28 h-14 xs:w-32 xs:h-16 sm:w-40 sm:h-20 bg-[#FFF3F6] rounded-xl sm:rounded-2xl border border-[#F0CDD7]/90 animate-pulse flex items-center justify-center p-3"
+                className="shrink-0 w-20 h-10 xs:w-24 xs:h-11 sm:w-28 sm:h-12 md:w-32 md:h-13 bg-[#FFF3F6] rounded-lg sm:rounded-xl border border-[#F0CDD7]/80 animate-pulse flex items-center justify-center p-2"
               >
-                <div className="w-16 sm:w-20 h-4 sm:h-5 rounded-md bg-[#F0CDD7]/50" />
+                <div className="w-12 sm:w-16 h-3 sm:h-4 rounded-md bg-[#F0CDD7]/50" />
               </div>
             ))}
           </div>

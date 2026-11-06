@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUp, ArrowDown, Edit3, Trash2, ExternalLink, Briefcase } from 'lucide-react';
+import { getOptimizedImageUrl } from '../../../../services/imagekit';
 
 /**
  * Individual Brand Partner Card in the Management Panel
@@ -13,16 +14,17 @@ export function PartnerCard({
   onDelete,
 }) {
   const brandName = partner.name || 'Brand Partner';
+  const logoUrl = getOptimizedImageUrl(partner.logoUrl, { width: 160, height: 80, quality: 65, format: 'webp' }) || partner.logoUrl;
 
   return (
     <div className="relative bg-white rounded-xl sm:rounded-2xl border border-border-warm/70 shadow-2xs hover:shadow-xs overflow-hidden flex flex-col group transition-all">
       {/* Logo Showcase */}
-      <div className="relative h-28 sm:h-36 w-full overflow-hidden bg-gradient-to-b from-[#FAF8F5] via-[#FFFDFE] to-white border-b border-[#F0CDD7]/60 flex items-center justify-center p-3 sm:p-4">
+      <div className="relative h-20 sm:h-24 w-full overflow-hidden bg-gradient-to-b from-[#FAF8F5] via-[#FFFDFE] to-white border-b border-[#F0CDD7]/60 flex items-center justify-center p-2 sm:p-3">
         {partner.logoUrl ? (
           <img
-            src={partner.logoUrl}
+            src={logoUrl}
             alt={brandName}
-            className="max-h-12 sm:max-h-16 max-w-[120px] sm:max-w-[150px] object-contain filter contrast-110 transition-transform duration-300 group-hover:scale-105"
+            className="max-h-7 sm:max-h-9 max-w-[80px] sm:max-w-[100px] object-contain filter contrast-110 transition-transform duration-300 group-hover:scale-105"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               if (e.currentTarget.nextElementSibling) {

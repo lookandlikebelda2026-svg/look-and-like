@@ -18,11 +18,11 @@ import { compressImage, formatBytes, getImageDimensions } from '../../../../util
 import { uploadImageToImageKit } from '../../../../services/imagekit';
 
 const DIMENSION_PRESETS = [
+  { label: '240px Ultra-Low Size (Brand Partner Logo ~5KB)', width: 240, height: 120 },
+  { label: '400px Very Low Size (Thumbnail & Icons ~15KB)', width: 400, height: 400 },
+  { label: '640px Low Size (Mobile Web ~30KB)', width: 640, height: 640 },
+  { label: '1080px Optimized HD Photo', width: 1080, height: 1080 },
   { label: 'Original Dimensions (No Resize)', width: 0, height: 0 },
-  { label: '1920px Full-HD (Lookbook Hero)', width: 1920, height: 1920 },
-  { label: '1200px Editorial (Gallery Card)', width: 1200, height: 1200 },
-  { label: '800px Mobile Responsive', width: 800, height: 800 },
-  { label: '400px Brand Logo / Thumbnail', width: 400, height: 400 },
 ];
 
 /**
@@ -34,9 +34,9 @@ export function ImageCompressorSection({ onNotify }) {
   const [sourcePreview, setSourcePreview] = useState(null);
   const [sourceDimensions, setSourceDimensions] = useState(null);
 
-  // Settings
-  const [maxWidth, setMaxWidth] = useState(1920);
-  const [quality, setQuality] = useState(82);
+  // Settings: Default to ultra-low size high-efficiency compression
+  const [maxWidth, setMaxWidth] = useState(240);
+  const [quality, setQuality] = useState(65);
   const [format, setFormat] = useState('image/webp'); // 'image/webp' | 'image/jpeg' | 'image/png'
 
   // Compression Output

@@ -55,32 +55,37 @@ function MobileLookbookCard({ image, index, onClick, heightClass = 'h-[200px]' }
  */
 function DesktopBlock({ blockIndex, blockImages, baseIndex, onCardClick }) {
   const isAlt = blockIndex % 2 === 1;
-  const hClass = 'h-[480px] lg:h-[540px] xl:h-[580px]';
+
+  // Explicit heights on every card � no h-full/flex-1 needed.
+  // Tall col: 520px (md) / 560px (lg) / 600px (xl)
+  // Stacked cards: (520 - gap14) / 2 = 253px (md) | (560 - gap18) / 2 = 271px (lg) | (600 - gap18) / 2 = 291px (xl)
+  const tallH   = 'h-[520px] lg:h-[560px] xl:h-[600px]';
+  const stackH  = 'h-[253px] lg:h-[271px] xl:h-[291px]';
 
   if (!isAlt) {
     return (
-      <div className={`grid grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none items-stretch ${hClass}`}>
+      <div className="grid grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none">
         {/* Col 1: Tall */}
         <LookbookCard
           image={blockImages[0]}
           index={baseIndex + 0}
           onClick={onCardClick}
-          className="h-full"
+          className={tallH}
         />
 
         {/* Col 2: Stacked Pair */}
-        <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+        <div className="flex flex-col gap-3.5 lg:gap-4.5">
           <LookbookCard
             image={blockImages[1]}
             index={baseIndex + 1}
             onClick={onCardClick}
-            className="flex-1 min-h-0"
+            className={stackH}
           />
           <LookbookCard
             image={blockImages[2]}
             index={baseIndex + 2}
             onClick={onCardClick}
-            className="flex-1 min-h-0"
+            className={stackH}
           />
         </div>
 
@@ -89,22 +94,22 @@ function DesktopBlock({ blockIndex, blockImages, baseIndex, onCardClick }) {
           image={blockImages[3]}
           index={baseIndex + 3}
           onClick={onCardClick}
-          className="h-full"
+          className={tallH}
         />
 
         {/* Col 4: Stacked Pair */}
-        <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+        <div className="flex flex-col gap-3.5 lg:gap-4.5">
           <LookbookCard
             image={blockImages[4]}
             index={baseIndex + 4}
             onClick={onCardClick}
-            className="flex-1 min-h-0"
+            className={stackH}
           />
           <LookbookCard
             image={blockImages[5]}
             index={baseIndex + 5}
             onClick={onCardClick}
-            className="flex-1 min-h-0"
+            className={stackH}
           />
         </div>
       </div>
@@ -113,20 +118,20 @@ function DesktopBlock({ blockIndex, blockImages, baseIndex, onCardClick }) {
 
   // Inverted Pattern: Stacked, Tall, Stacked, Tall
   return (
-    <div className={`grid grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none items-stretch ${hClass}`}>
+    <div className="grid grid-cols-4 gap-3.5 lg:gap-4.5 w-full select-none">
       {/* Col 1: Stacked Pair */}
-      <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+      <div className="flex flex-col gap-3.5 lg:gap-4.5">
         <LookbookCard
           image={blockImages[0]}
           index={baseIndex + 0}
           onClick={onCardClick}
-          className="flex-1 min-h-0"
+          className={stackH}
         />
         <LookbookCard
           image={blockImages[1]}
           index={baseIndex + 1}
           onClick={onCardClick}
-          className="flex-1 min-h-0"
+          className={stackH}
         />
       </div>
 
@@ -135,22 +140,22 @@ function DesktopBlock({ blockIndex, blockImages, baseIndex, onCardClick }) {
         image={blockImages[2]}
         index={baseIndex + 2}
         onClick={onCardClick}
-        className="h-full"
+        className={tallH}
       />
 
       {/* Col 3: Stacked Pair */}
-      <div className="flex flex-col gap-3.5 lg:gap-4.5 h-full">
+      <div className="flex flex-col gap-3.5 lg:gap-4.5">
         <LookbookCard
           image={blockImages[3]}
           index={baseIndex + 3}
           onClick={onCardClick}
-          className="flex-1 min-h-0"
+          className={stackH}
         />
         <LookbookCard
           image={blockImages[4]}
           index={baseIndex + 4}
           onClick={onCardClick}
-          className="flex-1 min-h-0"
+          className={stackH}
         />
       </div>
 
@@ -159,7 +164,7 @@ function DesktopBlock({ blockIndex, blockImages, baseIndex, onCardClick }) {
         image={blockImages[5]}
         index={baseIndex + 5}
         onClick={onCardClick}
-        className="h-full"
+        className={tallH}
       />
     </div>
   );
@@ -330,7 +335,7 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
   }
 
   return (
-    <section className="w-full bg-white py-8 sm:py-12 lg:py-16 scroll-mt-20 overflow-hidden" id="inspiration">
+    <section className="w-full bg-white py-8 sm:py-12 lg:py-16 scroll-mt-20" id="inspiration">
       <span id="get-inspired" className="sr-only" aria-hidden="true" />
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Section Heading: Centered Eyebrow + Title */}

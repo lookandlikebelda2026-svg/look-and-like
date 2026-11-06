@@ -90,19 +90,29 @@ export function subscribeToBannerMedia(onUpdate, onError) {
   }
 }
 
+// In-memory cache across hook instances
+const bannerCache = {
+  heroBannerUrl: '',
+  aboutPhotos: [],
+  synced: false,
+};
+
 /**
  * Custom React Hook that loads and syncs hero and about images directly from Firebase
  */
 export function useBannerMedia() {
   const [media, setMedia] = useState({
-    heroBannerUrl: '',
-    aboutPhotos: [],
+    heroBannerUrl: bannerCache.heroBannerUrl,
+    aboutPhotos: bannerCache.aboutPhotos,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!bannerCache.synced);
 
   useEffect(() => {
     // Listen directly to Firebase Firestore in real-time
     const unsubscribe = subscribeToBannerMedia((updated) => {
+      bannerCache.heroBannerUrl = updated.heroBannerUrl;
+      bannerCache.aboutPhotos = updated.aboutPhotos;
+      bannerCache.synced = true;
       setMedia(updated);
       setLoading(false);
     });

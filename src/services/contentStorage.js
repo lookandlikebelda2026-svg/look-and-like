@@ -32,6 +32,10 @@ const inMemoryCache = {
   lookbook: [],
   partners: [],
   videos: [],
+  servicesSynced: false,
+  lookbookSynced: false,
+  partnersSynced: false,
+  videosSynced: false,
   migrated: false,
 };
 
@@ -341,6 +345,11 @@ export function useContentStorage() {
   const [videos, setVideos] = useState(inMemoryCache.videos);
   const [servicesData, setServicesData] = useState(inMemoryCache.services);
 
+  const [loadingServices, setLoadingServices] = useState(!inMemoryCache.servicesSynced);
+  const [loadingLookbook, setLoadingLookbook] = useState(!inMemoryCache.lookbookSynced);
+  const [loadingPartners, setLoadingPartners] = useState(!inMemoryCache.partnersSynced);
+  const [loadingVideos, setLoadingVideos] = useState(!inMemoryCache.videosSynced);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -349,7 +358,9 @@ export function useContentStorage() {
       if (!isMounted) return;
       const clean = (services || []).filter((s) => !isDummyService(s));
       inMemoryCache.services = clean;
+      inMemoryCache.servicesSynced = true;
       setServicesData(clean);
+      setLoadingServices(false);
     });
 
     // 2. Real-time subscription to Lookbook from Firestore
@@ -357,7 +368,9 @@ export function useContentStorage() {
       if (!isMounted) return;
       const clean = (items || []).filter((l) => !isDummyLookbook(l));
       inMemoryCache.lookbook = clean;
+      inMemoryCache.lookbookSynced = true;
       setInspiredImages(clean);
+      setLoadingLookbook(false);
     });
 
     // 3. Real-time subscription to Brand Partners from Firestore
@@ -365,7 +378,9 @@ export function useContentStorage() {
       if (!isMounted) return;
       const clean = (items || []).filter((p) => !isDummyPartner(p));
       inMemoryCache.partners = clean;
+      inMemoryCache.partnersSynced = true;
       setPartners(clean);
+      setLoadingPartners(false);
     });
 
     // 4. Real-time subscription to YouTube Videos from Firestore
@@ -373,7 +388,9 @@ export function useContentStorage() {
       if (!isMounted) return;
       const clean = (items || []).filter((v) => !isDummyVideo(v));
       inMemoryCache.videos = clean;
+      inMemoryCache.videosSynced = true;
       setVideos(clean);
+      setLoadingVideos(false);
     });
 
     // 5. One-time check for legacy local data to migrate to Firestore
@@ -404,7 +421,14 @@ export function useContentStorage() {
     };
   }, []);
 
+  const loading = loadingServices || loadingLookbook || loadingPartners || loadingVideos;
+
   return {
+    loading,
+    loadingServices,
+    loadingLookbook,
+    loadingPartners,
+    loadingVideos,
     inspiredImages,
     partners,
     videos,

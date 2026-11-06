@@ -3,9 +3,10 @@ import { Sparkles, GraduationCap, Award, Heart, ChevronLeft, ChevronRight } from
 import { InstagramIcon, FacebookIcon } from '../../../components/icons';
 import { SOCIAL_LINKS } from '../../../constants/navigation';
 import { useBannerMedia } from '../../../services/bannerFirebaseService';
+import { AboutCarouselSkeleton } from '../../../components/common/Skeleton';
 
 export function AboutSection() {
-  const { aboutPhotos } = useBannerMedia();
+  const { aboutPhotos, loading } = useBannerMedia();
   const photos = Array.isArray(aboutPhotos) ? aboutPhotos : [];
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,9 +64,11 @@ export function AboutSection() {
         </div>
 
         {/* Framing Grid */}
-        <div className={`grid grid-cols-1 ${photos.length > 0 ? 'lg:grid-cols-12' : 'max-w-3xl mx-auto'} gap-8 sm:gap-12 items-center`}>
-          {/* Photo Slider / Carousel Column (rendered only if photos exist in Firebase) */}
-          {photos.length > 0 && (
+        <div className={`grid grid-cols-1 ${loading || photos.length > 0 ? 'lg:grid-cols-12' : 'max-w-3xl mx-auto'} gap-8 sm:gap-12 items-center`}>
+          {/* Photo Slider / Carousel Column (or Skeleton while loading) */}
+          {loading ? (
+            <AboutCarouselSkeleton />
+          ) : photos.length > 0 ? (
             <div className="lg:col-span-6 flex flex-col items-center">
               {/* Main Interactive Carousel Card */}
               <div
@@ -163,10 +166,10 @@ export function AboutSection() {
                 </div>
               )}
             </div>
-          )}
+          ) : null}
 
           {/* Narrative / Points Content */}
-          <div className={`${photos.length > 0 ? 'lg:col-span-6 lg:pl-6' : 'w-full'} flex flex-col items-start`}>
+          <div className={`${loading || photos.length > 0 ? 'lg:col-span-6 lg:pl-6' : 'w-full'} flex flex-col items-start`}>
             <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
               FOUNDER &amp; MASTER BEAUTICIAN
             </span>

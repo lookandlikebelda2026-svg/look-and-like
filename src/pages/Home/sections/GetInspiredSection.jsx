@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GET_INSPIRED_IMAGES, INSTAGRAM_URL } from '../../../constants/inspiration';
 import { useContentStorage } from '../../../services/contentStorage';
+import { LookbookSkeleton } from '../../../components/common/Skeleton';
 import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRAM_URL, onNavigate }) {
   const navigate = useNavigate();
-  const { inspiredImages: storedImages } = useContentStorage();
+  const { inspiredImages: storedImages, loadingLookbook } = useContentStorage();
   const images = propImages || storedImages || GET_INSPIRED_IMAGES;
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
@@ -38,6 +39,10 @@ export function GetInspiredSection({ images: propImages, instagramUrl = INSTAGRA
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeLightboxIndex, images]);
+
+  if (loadingLookbook && !propImages) {
+    return <LookbookSkeleton />;
+  }
 
   if (!images || images.length === 0) return null;
 

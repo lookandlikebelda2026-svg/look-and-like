@@ -8,6 +8,7 @@ import { PartnerCard } from './PartnerCard';
  */
 export function PartnersSection({
   partners = [],
+  loading = false,
   savePartners,
   resetPartners,
   onNotify,
@@ -150,7 +151,13 @@ export function PartnersSection({
       )}
 
       {/* Partners Grid or Empty State (Do not render empty state card when form is open) */}
-      {partners.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-28 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
+          ))}
+        </div>
+      ) : partners.length === 0 ? (
         !isFormOpen && (
           <div className="text-center py-12 sm:py-16 px-4 bg-white rounded-2xl sm:rounded-3xl border border-dashed border-stone-200 shadow-2xs">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">

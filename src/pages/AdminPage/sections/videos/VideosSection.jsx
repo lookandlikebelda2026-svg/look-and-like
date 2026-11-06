@@ -20,6 +20,7 @@ const EMPTY_VIDEO = {
  */
 export function VideosSection({
   videos = [],
+  loading = false,
   saveVideos,
   resetVideos,
   onNotify,
@@ -179,7 +180,13 @@ export function VideosSection({
       )}
 
       {/* Videos Grid / Empty State (Do not render empty state card when form is open) */}
-      {filteredVideos.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="aspect-video rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
+          ))}
+        </div>
+      ) : filteredVideos.length === 0 ? (
         !showForm && (
           <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-stone-300 p-4">
             <Video className="w-8 h-8 mx-auto text-stone-300 mb-2" />

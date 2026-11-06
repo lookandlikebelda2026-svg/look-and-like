@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useContentStorage } from '../../../../services/contentStorage';
+import { PartnersSkeleton } from '../../../../components/common/Skeleton';
 
 export function PartnersSection() {
   const [isPaused, setIsPaused] = useState(false);
-  const { partners = [] } = useContentStorage();
+  const { partners = [], loadingPartners } = useContentStorage();
+
+  if (loadingPartners) {
+    return <PartnersSkeleton />;
+  }
 
   if (!partners || partners.length === 0) return null;
 

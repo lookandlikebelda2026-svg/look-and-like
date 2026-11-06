@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Star, MessageSquarePlus, Sparkles, Check, Heart, ArrowRight } from 'lucide-react';
 import { useReviews } from '../../../services/reviewFirebaseService';
 import { Modal } from '../../../components/common/Modal';
+import { ReviewsSkeleton } from '../../../components/common/Skeleton';
 
 /**
  * Helper to format date strings cleanly
@@ -46,7 +47,7 @@ function StarRatingDisplay({ rating = 5, size = 'w-4 h-4' }) {
  * with a "Show All" button to view and browse all reviews manually in a clean modal dialog.
  */
 export function ReviewsSection({ onNotify }) {
-  const { verifiedReviews, addReview } = useReviews();
+  const { verifiedReviews, loading, addReview } = useReviews();
 
   const [isPaused, setIsPaused] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,6 +146,10 @@ export function ReviewsSection({ onNotify }) {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return <ReviewsSkeleton />;
+  }
 
   return (
     <section

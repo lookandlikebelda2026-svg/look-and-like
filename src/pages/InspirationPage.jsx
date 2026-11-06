@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, ChevronRight, ArrowRight, Calendar } from 'lucide-react';
 import { useContentStorage } from '../services/contentStorage';
+import { InspirationMasonrySkeleton } from '../components/common/Skeleton';
 
 export function InspirationPage({ onOpenBooking, onNotify }) {
   const navigate = useNavigate();
-  const { inspiredImages = [] } = useContentStorage();
+  const { inspiredImages = [], loadingLookbook } = useContentStorage();
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
   // Scroll to top on mount
@@ -76,8 +77,10 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
           </div>
         </div>
 
-        {/* Pure Images Masonry Gallery or Empty State */}
-        {(!inspiredImages || inspiredImages.length === 0) ? (
+        {/* Pure Images Masonry Gallery or Skeleton / Empty State */}
+        {loadingLookbook ? (
+          <InspirationMasonrySkeleton />
+        ) : (!inspiredImages || inspiredImages.length === 0) ? (
           <div className="max-w-md mx-auto text-center py-12 px-6 rounded-3xl bg-[#FAF8F5] border border-[#F0CDD7] my-8">
             <span className="text-[#D6204E] text-2xl font-serif">✦</span>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-deep-espresso mt-2 mb-2">

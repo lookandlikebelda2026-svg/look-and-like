@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, CheckCircle2, Clock, Trash2, ShieldCheck, EyeOff } from 'lucide-react';
+import { AdminCardSkeleton } from '../../../../components/common/Skeleton';
 
 function formatAdminDate(dateString) {
   if (!dateString) return '';
@@ -23,6 +24,7 @@ function formatAdminDate(dateString) {
 export function ReviewsSection({
   reviews = [],
   pendingCount = 0,
+  loading = false,
   verifyReview,
   deleteReview,
   onNotify,
@@ -130,7 +132,9 @@ export function ReviewsSection({
       </div>
 
       {/* Reviews Cards */}
-      {filteredReviews.length > 0 ? (
+      {loading ? (
+        <AdminCardSkeleton count={4} type="review" />
+      ) : filteredReviews.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
           {filteredReviews.map((review) => {
             const initials = (review.name || 'G')

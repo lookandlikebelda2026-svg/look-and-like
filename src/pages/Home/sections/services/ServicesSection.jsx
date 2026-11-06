@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useContentStorage } from '../../../../services/contentStorage';
+import { ServicesSkeleton } from '../../../../components/common/Skeleton';
 import skinCareImg from '../../../../asset/services/service-skin.png';
 import hairCareImg from '../../../../asset/services/service-hair.png';
 import nailCareImg from '../../../../asset/services/service-nails.png';
@@ -37,7 +38,11 @@ function getDefaultImage(nameOrKey) {
 
 export function ServicesSection({ onSelectService, onNavigate }) {
   const navigate = useNavigate();
-  const { servicesData = [] } = useContentStorage();
+  const { servicesData = [], loadingServices } = useContentStorage();
+
+  if (loadingServices) {
+    return <ServicesSkeleton />;
+  }
 
   // If no services have been added via the Admin Panel, do not render dummy services
   if (!servicesData || servicesData.length === 0) {

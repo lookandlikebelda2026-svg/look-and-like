@@ -16,7 +16,7 @@ import { useBannerMedia } from '../../../../services/bannerFirebaseService';
  * 2. About Section Carousel Photos
  */
 export function BannerAdminSection({ onNotify }) {
-  const { heroBannerUrl, aboutPhotos, saveHeroBanner, saveAboutPhotos } = useBannerMedia();
+  const { heroBannerUrl, aboutPhotos, loading, saveHeroBanner, saveAboutPhotos } = useBannerMedia();
 
   const [isChangingHero, setIsChangingHero] = useState(false);
   const [isAddingAboutPhoto, setIsAddingAboutPhoto] = useState(false);
@@ -133,6 +133,8 @@ export function BannerAdminSection({ onNotify }) {
               onNotify={onNotify}
             />
           </div>
+        ) : loading ? (
+          <div className="w-full max-w-2xl h-44 sm:h-60 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
         ) : heroBannerUrl ? (
           <div className="relative rounded-2xl overflow-hidden border border-[#F0CDD7] max-w-2xl bg-stone-100 shadow-2xs group">
             <img
@@ -225,7 +227,13 @@ export function BannerAdminSection({ onNotify }) {
           </div>
         )}
 
-        {aboutPhotos.length === 0 && !isAddingAboutPhoto && (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-[4/3] rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
+            ))}
+          </div>
+        ) : aboutPhotos.length === 0 && !isAddingAboutPhoto ? (
           <div className="flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed border-[#F0CDD7] bg-[#FFF3F6]/50 text-center">
             <div className="w-12 h-12 rounded-full bg-white shadow-2xs flex items-center justify-center text-[#D6204E] mb-3">
               <Plus className="w-6 h-6" />
@@ -243,7 +251,7 @@ export function BannerAdminSection({ onNotify }) {
               <span>Upload Photos</span>
             </button>
           </div>
-        )}
+        ) : null}
 
         {/* Photos Grid */}
         {aboutPhotos.length > 0 && (

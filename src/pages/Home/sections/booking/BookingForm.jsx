@@ -350,7 +350,7 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
   const [generatedWhatsAppUrl, setGeneratedWhatsAppUrl] = useState('');
 
   // Live services data from contentStorage normalized to 3-level hierarchy
-  const { servicesData } = useContentStorage();
+  const { servicesData, loadingServices } = useContentStorage();
 
   const normalizedServices = useMemo(() => {
     const source = Array.isArray(servicesData) ? servicesData : [];
@@ -715,25 +715,33 @@ export function BookingForm({ preselectedCategory, onNotify, onClose }) {
                 <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-stone-500 block mb-1.5">
                   Category
                 </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {normalizedServices.map((svc) => {
-                    const isCatSelected = selectedServiceId === svc.id;
-                    return (
-                      <button
-                        key={svc.id}
-                        type="button"
-                        onClick={() => handleCategorySelect(svc.id)}
-                        className={`py-1.5 px-3 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
-                          isCatSelected
-                            ? 'bg-[#D6204E] text-white border-[#D6204E] shadow-xs'
-                            : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
-                        }`}
-                      >
-                        <span className="truncate block">{svc.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                {loadingServices ? (
+                  <div className="flex gap-1.5 overflow-x-auto py-1">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="h-7 w-20 rounded-xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse shrink-0" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    {normalizedServices.map((svc) => {
+                      const isCatSelected = selectedServiceId === svc.id;
+                      return (
+                        <button
+                          key={svc.id}
+                          type="button"
+                          onClick={() => handleCategorySelect(svc.id)}
+                          className={`py-1.5 px-3 rounded-xl text-[11px] sm:text-xs font-bold text-center transition-all cursor-pointer border ${
+                            isCatSelected
+                              ? 'bg-[#D6204E] text-white border-[#D6204E] shadow-xs'
+                              : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+                          }`}
+                        >
+                          <span className="truncate block">{svc.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Plan Dropdown */}

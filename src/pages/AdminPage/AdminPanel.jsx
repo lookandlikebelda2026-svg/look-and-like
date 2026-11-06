@@ -30,6 +30,10 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
   // Content storage for Services, Lookbook, Partners & YouTube Videos
   const {
     servicesData,
+    loadingServices,
+    loadingLookbook,
+    loadingPartners,
+    loadingVideos,
     saveServicesData,
     resetServicesData,
     inspiredImages,
@@ -47,6 +51,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const {
     reviews,
     pendingCount,
+    loading: loadingReviews,
     verifyReview,
     deleteReview,
     addReview,
@@ -75,6 +80,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       {activeTab === 'services' && (
         <ServicesSection
           servicesData={servicesData}
+          loading={loadingServices}
           saveServicesData={saveServicesData}
           resetServicesData={resetServicesData}
           onNotify={onNotify}
@@ -84,6 +90,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       {activeTab === 'lookbook' && (
         <LookbookSection
           inspiredImages={inspiredImages}
+          loading={loadingLookbook}
           saveInspiredImages={saveInspiredImages}
           resetInspiredImages={resetInspiredImages}
           onNotify={onNotify}
@@ -93,6 +100,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       {activeTab === 'partners' && (
         <PartnersSection
           partners={partners}
+          loading={loadingPartners}
           savePartners={savePartners}
           resetPartners={resetPartners}
           onNotify={onNotify}
@@ -102,6 +110,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
       {activeTab === 'videos' && (
         <VideosSection
           videos={videos}
+          loading={loadingVideos}
           saveVideos={saveVideos}
           resetVideos={resetVideos}
           onNotify={onNotify}
@@ -112,6 +121,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
         <AdminReviewsSection
           reviews={reviews}
           pendingCount={pendingCount}
+          loading={loadingReviews}
           verifyReview={verifyReview}
           deleteReview={deleteReview}
           addReview={addReview}

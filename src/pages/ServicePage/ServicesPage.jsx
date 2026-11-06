@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useContentStorage } from '../../services/contentStorage';
+import { ServicesPageSkeleton } from '../../components/common/Skeleton';
 import { HeroSection } from './sections/HeroSection';
 import { CategoryServicesSection } from './sections/CategoryServicesSection';
 import Reservation from './sections/Reservation';
 
 export function ServicesPage({ onNavigate, onNotify, onOpenBooking }) {
-  const { servicesData = [] } = useContentStorage();
+  const { servicesData = [], loadingServices } = useContentStorage();
 
   const [selectedFilter, setSelectedFilter] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -121,8 +122,10 @@ export function ServicesPage({ onNavigate, onNotify, onOpenBooking }) {
       {/* 1. Hero Header Section */}
       <HeroSection onOpenBooking={onOpenBooking} />
 
-      {/* 2. Categorized Services Display Section or Clean Empty State */}
-      {categories.length === 0 ? (
+      {/* 2. Categorized Services Display Section, Skeleton while loading, or Clean Empty State */}
+      {loadingServices ? (
+        <ServicesPageSkeleton />
+      ) : categories.length === 0 ? (
         <div className="max-w-md mx-auto text-center py-16 px-6 rounded-3xl bg-[#FAF8F5] border border-[#F0CDD7] my-10">
           <span className="text-[#D6204E] text-2xl font-serif">✦</span>
           <h3 className="font-serif text-xl sm:text-2xl font-bold text-deep-espresso mt-2 mb-2">

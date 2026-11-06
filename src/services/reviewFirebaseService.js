@@ -209,15 +209,18 @@ export function subscribeToReviews(onUpdate, onError) {
   }
 }
 
+let reviewsSynced = false;
+
 /**
  * Custom React Hook for accessing and managing reviews across both Client and Admin
  */
 export function useReviews() {
   const [reviews, setReviews] = useState(() => getCachedReviews());
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!reviewsSynced);
 
   useEffect(() => {
     const unsubscribe = subscribeToReviews((updatedList) => {
+      reviewsSynced = true;
       setReviews(updatedList);
       setLoading(false);
     });

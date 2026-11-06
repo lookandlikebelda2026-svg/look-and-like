@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Scissors } from 'lucide-react';
 import { ServiceCard } from './ServiceCard';
+import { AdminCardSkeleton } from '../../../../components/common/Skeleton';
 
 /**
  * ServicesSection Component
@@ -9,6 +10,7 @@ import { ServiceCard } from './ServiceCard';
  */
 export function ServicesSection({
   servicesData = [],
+  loading = false,
   saveServicesData,
   resetServicesData,
   onNotify,
@@ -87,7 +89,9 @@ export function ServicesSection({
       </div>
 
       {/* Services List / Cards */}
-      {servicesList.length === 0 ? (
+      {loading ? (
+        <AdminCardSkeleton count={3} />
+      ) : servicesList.length === 0 ? (
         <div className="text-center py-12 sm:py-16 px-4 bg-white rounded-2xl sm:rounded-3xl border border-dashed border-stone-200 shadow-2xs">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] flex items-center justify-center mx-auto mb-3 text-[#D6204E]">
             <Scissors className="w-6 h-6 sm:w-7 sm:h-7" />

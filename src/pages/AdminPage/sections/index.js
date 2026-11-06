@@ -12,3 +12,4 @@ export { ServiceForm } from './services/ServiceForm';
 export { ServiceCard } from './services/ServiceCard';
 export { ServiceFormPage } from './services/ServiceFormPage';
 export { ReviewsSection as AdminReviewsSection, ReviewsSection } from './reviews/ReviewsSection';
+export { BannerAdminSection } from './banners/BannerAdminSection';

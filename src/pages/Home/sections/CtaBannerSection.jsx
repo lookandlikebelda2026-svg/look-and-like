@@ -1,7 +1,8 @@
 import React from 'react';
-import ctaBannerImage from '../../../asset/cta-banner.jpg';
 import { ArrowRight } from 'lucide-react';
 import { LOGO_URL } from '../../../constants/navigation';
+
+const CTA_BANNER_IMAGE_URL = 'https://ik.imagekit.io/gpuanod0d/banners/cta-banner.jpg';
 
 export function CtaBannerSection({ onOpenBooking }) {
   const handleBooking = (e) => {
@@ -21,7 +22,7 @@ export function CtaBannerSection({ onOpenBooking }) {
         <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300 border border-[#F0CDD7]/80 min-h-[155px] xs:min-h-[170px] sm:min-h-[190px] md:min-h-[230px] lg:min-h-[260px] flex items-center bg-[#FFF3F6]">
           {/* Background Image: High-Resolution Atelier Beauty Banner */}
           <img
-            src={ctaBannerImage}
+            src={CTA_BANNER_IMAGE_URL}
             alt="Look & Like Beauty Parlour Experience"
             className="absolute inset-0 w-full h-full object-cover object-[85%_center] xs:object-[80%_center] sm:object-right select-none pointer-events-none"
             loading="lazy"

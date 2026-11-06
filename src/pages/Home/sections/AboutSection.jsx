@@ -2,51 +2,26 @@ import React, { useState } from 'react';
 import { Sparkles, GraduationCap, Award, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { InstagramIcon, FacebookIcon } from '../../../components/icons';
 import { SOCIAL_LINKS } from '../../../constants/navigation';
-import shiuliAwardDev from '../../../asset/founder/shiuli-award-dev.jpg';
-import shiuliPortraitRed from '../../../asset/founder/shiuli-portrait-red.jpg';
-import shiuliAwardKoel from '../../../asset/founder/shiuli-award-koel.jpg';
-import shiuliEventAflairza from '../../../asset/founder/shiuli-event-aflairza.jpg';
-import shiuliAwardGlam2025 from '../../../asset/founder/shiuli-award-glam2025.jpg';
-
-const FOUNDER_PHOTOS = [
-  {
-    id: 1,
-    url: shiuliAwardDev,
-    alt: 'Shiuli Giri Maity receiving award from superstar Dev on stage',
-  },
-  {
-    id: 2,
-    url: shiuliPortraitRed,
-    alt: 'Shiuli Giri Maity portrait in elegant traditional attire',
-  },
-  {
-    id: 3,
-    url: shiuliAwardKoel,
-    alt: 'Shiuli Giri Maity receiving trophy with actress Koel Mallick',
-  },
-  {
-    id: 4,
-    url: shiuliEventAflairza,
-    alt: 'Shiuli Giri Maity at celebrity beauty brand showcase event',
-  },
-  {
-    id: 5,
-    url: shiuliAwardGlam2025,
-    alt: 'Shiuli Giri Maity on stage at The Global Glam Awards 2025',
-  },
-];
+import { useBannerMedia } from '../../../services/bannerFirebaseService';
 
 export function AboutSection() {
+  const { aboutPhotos } = useBannerMedia();
+  const photos = Array.isArray(aboutPhotos) ? aboutPhotos : [];
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchEndX, setTouchEndX] = useState(null);
 
+  const safeIndex = photos.length > 0 ? Math.min(currentIndex, photos.length - 1) : 0;
+
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? FOUNDER_PHOTOS.length - 1 : prev - 1));
+    if (photos.length <= 1) return;
+    setCurrentIndex((prev) => (prev <= 0 ? photos.length - 1 : prev - 1));
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === FOUNDER_PHOTOS.length - 1 ? 0 : prev + 1));
+    if (photos.length <= 1) return;
+    setCurrentIndex((prev) => (prev >= photos.length - 1 ? 0 : prev + 1));
   };
 
   // Touch handlers for mobile finger slide
@@ -88,102 +63,110 @@ export function AboutSection() {
         </div>
 
         {/* Framing Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
-          {/* Photo Slider / Carousel Column */}
-          <div className="lg:col-span-6 flex flex-col items-center">
-            {/* Main Interactive Carousel Card */}
-            <div
-              className="relative w-full h-[380px] xs:h-[430px] sm:h-[480px] lg:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-[#F0CDD7] select-none touch-pan-y"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              {/* Slides Track */}
+        <div className={`grid grid-cols-1 ${photos.length > 0 ? 'lg:grid-cols-12' : 'max-w-3xl mx-auto'} gap-8 sm:gap-12 items-center`}>
+          {/* Photo Slider / Carousel Column (rendered only if photos exist in Firebase) */}
+          {photos.length > 0 && (
+            <div className="lg:col-span-6 flex flex-col items-center">
+              {/* Main Interactive Carousel Card */}
               <div
-                className="w-full h-full flex transition-transform duration-500 ease-out"
-                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                className="relative w-full h-[380px] xs:h-[430px] sm:h-[480px] lg:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-[#F0CDD7] select-none touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
               >
-                {FOUNDER_PHOTOS.map((photo, index) => (
-                  <div
-                    key={photo.id}
-                    className="w-full h-full shrink-0 relative flex items-center justify-center bg-[#1A1215] overflow-hidden"
-                  >
-                    {/* Ambient blurred background layer for aspect ratio perfection */}
-                    <img
-                      src={photo.url}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110"
-                    />
+                {/* Slides Track */}
+                <div
+                  className="w-full h-full flex transition-transform duration-500 ease-out"
+                  style={{ transform: `translateX(-${safeIndex * 100}%)` }}
+                >
+                  {photos.map((photo, index) => (
+                    <div
+                      key={photo.id || index}
+                      className="w-full h-full shrink-0 relative flex items-center justify-center bg-[#1A1215] overflow-hidden"
+                    >
+                      {/* Ambient blurred background layer for aspect ratio perfection */}
+                      <img
+                        src={photo.url}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110"
+                      />
 
-                    {/* Crisp foreground image */}
-                    <img
-                      className="relative z-10 max-h-full max-w-full object-contain mx-auto select-none pointer-events-none drop-shadow-md"
-                      alt={photo.alt}
-                      src={photo.url}
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                    />
-                  </div>
-                ))}
+                      {/* Crisp foreground image */}
+                      <img
+                        className="relative z-10 max-h-full max-w-full object-contain mx-auto select-none pointer-events-none drop-shadow-md"
+                        alt={photo.alt || 'Founder photo'}
+                        src={photo.url}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Slide Counter Chip (Top-Right) */}
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-semibold tracking-wider">
+                  {safeIndex + 1} / {photos.length}
+                </div>
+
+                {/* Laptop / Desktop Navigation Arrows */}
+                {photos.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={prevSlide}
+                      aria-label="Previous photo"
+                      className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
+                    >
+                      <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={nextSlide}
+                      aria-label="Next photo"
+                      className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
+                    >
+                      <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+                    </button>
+                  </>
+                )}
               </div>
 
-              {/* Slide Counter Chip (Top-Right) - Only element kept */}
-              <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-semibold tracking-wider">
-                {currentIndex + 1} / {FOUNDER_PHOTOS.length}
-              </div>
-
-              {/* Laptop / Desktop Navigation Arrows */}
-              <button
-                type="button"
-                onClick={prevSlide}
-                aria-label="Previous photo"
-                className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
-              >
-                <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
-              </button>
-
-              <button
-                type="button"
-                onClick={nextSlide}
-                aria-label="Next photo"
-                className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-white/90 hover:bg-white text-deep-espresso hover:text-[#D6204E] shadow-xl items-center justify-center border border-[#F0CDD7] backdrop-blur-md transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden"
-              >
-                <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
-              </button>
+              {/* Thumbnail Indicators Strip */}
+              {photos.length > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-4 w-full">
+                  {photos.map((photo, idx) => {
+                    const isActive = idx === safeIndex;
+                    return (
+                      <button
+                        key={photo.id || idx}
+                        type="button"
+                        onClick={() => setCurrentIndex(idx)}
+                        aria-label={`Go to slide ${idx + 1}`}
+                        className={`relative rounded-lg overflow-hidden transition-all duration-300 border focus:outline-hidden ${
+                          isActive
+                            ? 'w-12 sm:w-14 h-12 sm:h-14 ring-2 ring-[#D6204E] border-[#D6204E] shadow-md scale-105'
+                            : 'w-9 sm:w-10 h-9 sm:h-10 border-[#F0CDD7] opacity-60 hover:opacity-100 hover:scale-100'
+                        }`}
+                      >
+                        <img
+                          src={photo.url}
+                          alt={photo.alt || `Thumbnail ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {isActive && (
+                          <div className="absolute inset-0 bg-[#D6204E]/15" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-
-            {/* Thumbnail Indicators Strip (Clickable on laptop & phone) */}
-            <div className="flex items-center justify-center gap-2 mt-4 w-full">
-              {FOUNDER_PHOTOS.map((photo, idx) => {
-                const isActive = idx === currentIndex;
-                return (
-                  <button
-                    key={photo.id}
-                    type="button"
-                    onClick={() => setCurrentIndex(idx)}
-                    aria-label={`Go to slide ${idx + 1}`}
-                    className={`relative rounded-lg overflow-hidden transition-all duration-300 border focus:outline-hidden ${
-                      isActive
-                        ? 'w-12 sm:w-14 h-12 sm:h-14 ring-2 ring-[#D6204E] border-[#D6204E] shadow-md scale-105'
-                        : 'w-9 sm:w-10 h-9 sm:h-10 border-[#F0CDD7] opacity-60 hover:opacity-100 hover:scale-100'
-                    }`}
-                  >
-                    <img
-                      src={photo.url}
-                      alt={photo.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {isActive && (
-                      <div className="absolute inset-0 bg-[#D6204E]/15" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          )}
 
           {/* Narrative / Points Content */}
-          <div className="lg:col-span-6 flex flex-col items-start lg:pl-6">
+          <div className={`${photos.length > 0 ? 'lg:col-span-6 lg:pl-6' : 'w-full'} flex flex-col items-start`}>
             <span className="mb-0.5 block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-black leading-tight">
               FOUNDER &amp; MASTER BEAUTICIAN
             </span>

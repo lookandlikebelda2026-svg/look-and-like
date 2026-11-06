@@ -1,8 +1,9 @@
 import React from 'react';
-import heroBgImage from '../../../asset/Hero.png';
 import { ArrowRight, Star, MapPin, Heart } from 'lucide-react';
+import { useBannerMedia } from '../../../services/bannerFirebaseService';
 
 export function HeroSection({ onNavigate, onOpenBooking }) {
+  const { heroBannerUrl } = useBannerMedia();
   const tickerItems = [
     "Haircuts", "Balayage & Gloss", "Japanese Head Spa",
     "Hydra Glow Facials", "Russian BIAB Nails", "Editorial Bridal Glam",
@@ -36,13 +37,15 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
       <div className="lg:hidden flex flex-col bg-[#FFF3F6]">
         {/* Hero image with "A More Beautiful You" and Action Buttons directly overlaid */}
         <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] min-h-[220px] xs:min-h-[240px] overflow-hidden bg-[#FFF3F6]">
-          <img
-            src={heroBgImage}
-            alt="Look & Like Luxury Beauty Parlour Experience"
-            loading="eager"
-            fetchPriority="high"
-            className="h-full w-full object-cover object-[78%_center] xs:object-center select-none"
-          />
+          {heroBannerUrl && (
+            <img
+              src={heroBannerUrl}
+              alt="Look & Like Luxury Beauty Parlour Experience"
+              loading="eager"
+              fetchPriority="high"
+              className="h-full w-full object-cover object-[78%_center] xs:object-center select-none"
+            />
+          )}
 
           {/* Soft gradient wash on left and bottom of image for crystal-clear heading contrast */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FFF3F6] via-[#FFF3F6]/85 to-transparent" />
@@ -124,13 +127,15 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
       {/* DESKTOP VIEW (lg+): Full-screen luxury background banner */}
       <div className="relative isolate hidden lg:flex min-h-[calc(100vh-64px)] min-h-[calc(100dvh-64px)] items-center justify-center overflow-hidden bg-[#FFF3F6]">
         {/* Background Image */}
-        <img
-          src={heroBgImage}
-          alt="Look & Like Luxury Beauty Parlour Experience"
-          loading="eager"
-          fetchPriority="high"
-          className="absolute inset-0 -z-20 h-full w-full select-none object-cover sm:object-center"
-        />
+        {heroBannerUrl && (
+          <img
+            src={heroBannerUrl}
+            alt="Look & Like Luxury Beauty Parlour Experience"
+            loading="eager"
+            fetchPriority="high"
+            className="absolute inset-0 -z-20 h-full w-full select-none object-cover sm:object-center"
+          />
+        )}
 
         {/* Responsive Overlay */}
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-white/90 via-white/50 to-transparent" />

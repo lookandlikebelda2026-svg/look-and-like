@@ -9,11 +9,12 @@ import {
   PartnersSection,
   VideosSection,
   AdminReviewsSection,
+  BannerAdminSection,
 } from './sections';
 
 /**
  * AdminPanel
- * Master admin studio for managing Parlour Services, Lookbook Editorial Photos, Brand Partners, YouTube Films, and Client Reviews.
+ * Master admin studio for managing Parlour Services, Lookbook Editorial Photos, Brand Partners, YouTube Films, Client Reviews, and Hero/About Banners.
  */
 export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const location = useLocation();
@@ -21,7 +22,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const [activeTab, setActiveTab] = useState(searchTab || 'services');
 
   useEffect(() => {
-    if (searchTab && ['services', 'lookbook', 'partners', 'videos', 'reviews'].includes(searchTab)) {
+    if (searchTab && ['services', 'lookbook', 'partners', 'videos', 'reviews', 'banners'].includes(searchTab)) {
       setActiveTab(searchTab);
     }
   }, [searchTab]);
@@ -116,6 +117,10 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
           addReview={addReview}
           onNotify={onNotify}
         />
+      )}
+
+      {activeTab === 'banners' && (
+        <BannerAdminSection onNotify={onNotify} />
       )}
     </Layout>
   );

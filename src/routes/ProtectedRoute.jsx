@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getLocalAdminSession, subscribeToAuth } from '../services/authService';
 import { LoginModal } from '../components/common/LoginModal';
 
@@ -10,12 +10,8 @@ import { LoginModal } from '../components/common/LoginModal';
  */
 export function ProtectedRoute({ children, onNotify }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const [adminUser, setAdminUser] = useState(() => getLocalAdminSession());
   const [isModalOpen, setIsModalOpen] = useState(!adminUser);
-
-  const searchParams = new URLSearchParams(location.search);
-  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
 
   useEffect(() => {
     // Keep in sync with Firebase Auth state
@@ -34,7 +30,6 @@ export function ProtectedRoute({ children, onNotify }) {
       <div className="min-h-screen bg-[#FAF8F5]">
         <LoginModal
           isOpen={isModalOpen}
-          initialMode={initialMode}
           onClose={() => {
             setIsModalOpen(false);
             navigate('/');

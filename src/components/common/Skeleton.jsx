@@ -139,23 +139,40 @@ export function LookbookSkeleton() {
           <div className="h-8 w-48 bg-[#F0CDD7]/80 rounded-lg mx-auto animate-pulse" />
         </div>
 
-        {/* Desktop 4-col Grid */}
-        <div className="hidden md:grid md:grid-cols-4 gap-4 h-[440px]">
-          <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
-          <div className="flex flex-col gap-4 h-full">
-            <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
-            <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+        {/* Desktop 4-col Grid (2 Blocks = 12 Looks) */}
+        <div className="hidden md:flex flex-col gap-4">
+          {/* Row 1: Tall, Stacked, Tall, Stacked */}
+          <div className="grid grid-cols-4 gap-4 h-[440px]">
+            <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            <div className="flex flex-col gap-4 h-full">
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            </div>
+            <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            <div className="flex flex-col gap-4 h-full">
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            </div>
           </div>
-          <div className="flex flex-col gap-4 h-full">
-            <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
-            <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+
+          {/* Row 2: Stacked, Tall, Stacked, Tall */}
+          <div className="grid grid-cols-4 gap-4 h-[440px]">
+            <div className="flex flex-col gap-4 h-full">
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            </div>
+            <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            <div className="flex flex-col gap-4 h-full">
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+              <div className="h-1/2 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
+            </div>
+            <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
           </div>
-          <div className="h-full rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse" />
         </div>
 
-        {/* Mobile 2x2 Grid */}
+        {/* Mobile Grid */}
         <div className="grid grid-cols-2 gap-3 md:hidden">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <div
               key={i}
               className="aspect-[4/5] rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7]/80 animate-pulse"
@@ -290,11 +307,11 @@ export function AboutCarouselSkeleton() {
 export function InspirationMasonrySkeleton() {
   const aspectRatios = ['aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[3/4]', 'aspect-[4/5]', 'aspect-[1/1]', 'aspect-[3/4]', 'aspect-[4/5]'];
   return (
-    <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5" aria-hidden="true">
+    <div className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5" aria-hidden="true">
       {aspectRatios.map((ratio, i) => (
         <div
           key={i}
-          className={`break-inside-avoid relative rounded-2xl sm:rounded-3xl overflow-hidden bg-[#FFF3F6] border border-[#F0CDD7]/70 animate-pulse ${ratio}`}
+          className={`break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden bg-[#FFF3F6] border border-[#F0CDD7]/70 animate-pulse ${ratio}`}
         />
       ))}
     </div>

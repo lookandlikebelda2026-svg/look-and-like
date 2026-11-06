@@ -99,12 +99,12 @@ export function InspirationPage({ onOpenBooking, onNotify }) {
             </button>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 sm:gap-4 md:gap-5 space-y-3 sm:space-y-4 md:space-y-5">
+          <div className="columns-2 md:columns-3 lg:columns-4 gap-2.5 sm:gap-4 md:gap-5 space-y-2.5 sm:space-y-4 md:space-y-5">
             {inspiredImages.map((image, idx) => (
               <div
                 key={image.id || idx}
                 onClick={() => setActiveLightboxIndex(idx)}
-                className="break-inside-avoid relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-50"
+                className="break-inside-avoid relative rounded-xl xs:rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-500 cursor-pointer group bg-stone-50"
               >
                 <img
                   src={image.imageUrl}

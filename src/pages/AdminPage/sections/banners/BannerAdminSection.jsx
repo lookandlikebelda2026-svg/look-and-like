@@ -98,7 +98,7 @@ export function BannerAdminSection({ onNotify }) {
     <div className="w-full space-y-8">
       {/* 1. HOMEPAGE HERO BANNER */}
       <div>
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F0CDD7]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-3 mb-4 border-b border-[#F0CDD7]">
           <div>
             <h4 className="font-serif text-base sm:text-lg font-bold text-deep-espresso">
               Homepage Hero Banner
@@ -112,7 +112,7 @@ export function BannerAdminSection({ onNotify }) {
             <button
               type="button"
               onClick={() => setIsChangingHero(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-[#D6204E] hover:bg-[#8F1232] rounded-xl shadow-xs transition-colors cursor-pointer active:scale-95"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-[#D6204E] hover:bg-[#8F1232] rounded-xl shadow-xs transition-colors cursor-pointer active:scale-95 whitespace-nowrap self-start sm:self-auto shrink-0"
             >
               <UploadCloud className="w-4 h-4" />
               <span>Change Banner</span>
@@ -134,30 +134,29 @@ export function BannerAdminSection({ onNotify }) {
             />
           </div>
         ) : loading ? (
-          <div className="w-full max-w-2xl h-44 sm:h-60 rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
+          <div className="w-full max-w-2xl aspect-[16/9] rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
         ) : heroBannerUrl ? (
-          <div className="relative rounded-2xl overflow-hidden border border-[#F0CDD7] max-w-2xl bg-stone-100 shadow-2xs group">
-            <img
-              src={heroBannerUrl}
-              alt="Hero Banner"
-              className="w-full h-44 sm:h-60 object-cover object-center"
-            />
-            <div className="absolute top-3 right-3 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsChangingHero(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-black/75 hover:bg-black rounded-lg backdrop-blur-md shadow-xs transition-colors cursor-pointer"
-              >
-                <UploadCloud className="w-3.5 h-3.5" />
-                <span>Replace</span>
-              </button>
+          <div className="relative rounded-2xl overflow-hidden border border-[#F0CDD7] max-w-2xl bg-white shadow-2xs">
+            <div className="relative aspect-[16/9] w-full bg-stone-900 overflow-hidden">
+              <img
+                src={heroBannerUrl}
+                alt="Hero Banner"
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+            <div className="p-2.5 sm:p-3 bg-white border-t border-[#F0CDD7] flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="text-xs font-semibold text-stone-700 truncate">16:9 Widescreen Banner</span>
+              </div>
               <button
                 type="button"
                 onClick={handleDeleteHero}
-                className="p-1.5 text-white bg-black/75 hover:bg-rose-600 rounded-lg backdrop-blur-md shadow-xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                 title="Remove Banner"
               >
                 <Trash2 className="w-3.5 h-3.5" />
+                <span>Remove</span>
               </button>
             </div>
           </div>
@@ -184,8 +183,8 @@ export function BannerAdminSection({ onNotify }) {
 
       {/* 2. ABOUT US CAROUSEL PHOTOS */}
       <div>
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#F0CDD7]">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-3 mb-4 border-b border-[#F0CDD7]">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h4 className="font-serif text-base sm:text-lg font-bold text-deep-espresso">
                 About Section Photos
@@ -199,11 +198,11 @@ export function BannerAdminSection({ onNotify }) {
             </p>
           </div>
 
-          {!isAddingAboutPhoto && aboutPhotos.length > 0 && (
+          {!isAddingAboutPhoto && (
             <button
               type="button"
               onClick={() => setIsAddingAboutPhoto(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-[#D6204E] hover:bg-[#8F1232] rounded-xl shadow-xs transition-colors cursor-pointer active:scale-95"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white bg-[#D6204E] hover:bg-[#8F1232] rounded-xl shadow-xs transition-colors cursor-pointer active:scale-95 whitespace-nowrap self-start sm:self-auto shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Add Photos</span>
@@ -230,7 +229,7 @@ export function BannerAdminSection({ onNotify }) {
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="aspect-[4/3] rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
+              <div key={i} className="aspect-[3/4] rounded-2xl bg-[#FFF3F6] border border-[#F0CDD7] animate-pulse" />
             ))}
           </div>
         ) : aboutPhotos.length === 0 && !isAddingAboutPhoto ? (
@@ -261,7 +260,7 @@ export function BannerAdminSection({ onNotify }) {
                 key={photo.id || index}
                 className="bg-white rounded-2xl border border-[#F0CDD7] overflow-hidden shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between"
               >
-                <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
+                <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden">
                   <img
                     src={photo.url}
                     alt=""

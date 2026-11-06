@@ -2,21 +2,19 @@ import React, { useEffect } from 'react';
 import {
   Lock,
   Mail,
-  User,
   Eye,
   EyeOff,
   Loader2,
   AlertCircle,
   X,
   ArrowRight,
-  UserPlus,
-  LogIn
+  ShieldCheck,
 } from 'lucide-react';
 import { LOGO_URL } from '../../constants/navigation';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
 
 /**
- * Unified Admin Authentication Modal
+ * Admin Authentication Modal (Sign In Only)
  * Pure UI layer. Verification, validation, and auth handling are delegated to `useAdminAuth`.
  */
 export function LoginModal({
@@ -24,30 +22,21 @@ export function LoginModal({
   onClose,
   onSuccess,
   onNotify,
-  initialMode = 'login',
 }) {
   const {
-    mode,
-    displayName,
     email,
     password,
-    confirmPassword,
     remember,
     showPassword,
-    showConfirmPassword,
     isLoading,
     error,
-    setDisplayName,
     setEmail,
     setPassword,
-    setConfirmPassword,
     setRemember,
     setShowPassword,
-    setShowConfirmPassword,
-    handleSwitchMode,
     handleSubmit,
   } = useAdminAuth({
-    initialMode,
+    initialMode: 'login',
     onSuccess,
     onNotify,
     onClose,
@@ -88,7 +77,7 @@ export function LoginModal({
           </button>
 
           {/* Header branding */}
-          <div className="mb-5">
+          <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 flex items-center justify-center shrink-0">
                 <img src={LOGO_URL} alt="Look & Like" className="w-full h-full object-contain" />
@@ -99,41 +88,11 @@ export function LoginModal({
             </div>
 
             <h2 className="font-serif text-2xl sm:text-3xl font-bold text-deep-espresso tracking-tight">
-              {mode === 'login' ? 'Staff Sign In' : 'Register Admin'}
+              Staff Sign In
             </h2>
             <p className="text-xs text-[#7A6B70] mt-1">
-              {mode === 'login'
-                ? 'Authenticate via Firebase to access the parlour management suite.'
-                : 'Create a new staff or manager profile in Firebase Authentication.'}
+              Authenticate via Firebase to access the parlour management suite.
             </p>
-          </div>
-
-          {/* Tab Switcher (Sign In vs Register) */}
-          <div className="flex bg-[#FFF3F6] p-1 rounded-2xl mb-5 border border-[#F0CDD7]/70">
-            <button
-              type="button"
-              onClick={() => handleSwitchMode('login')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                mode === 'login'
-                  ? 'bg-white text-deep-espresso shadow-sm'
-                  : 'text-[#7A6B70] hover:text-deep-espresso'
-              }`}
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>Sign In</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSwitchMode('register')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                mode === 'register'
-                  ? 'bg-white text-deep-espresso shadow-sm'
-                  : 'text-[#7A6B70] hover:text-deep-espresso'
-              }`}
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>Register</span>
-            </button>
           </div>
 
           {/* Error Banner */}
@@ -146,27 +105,6 @@ export function LoginModal({
 
           {/* Authentication Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name field only in Register mode */}
-            {mode === 'register' && (
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-deep-espresso mb-1.5">
-                  Full Name / Title
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A66B78]" />
-                  <input
-                    type="text"
-                    required
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="e.g. Master Stylist Elena"
-                    disabled={isLoading}
-                    className="w-full pl-10 pr-4 py-3 text-xs sm:text-sm rounded-2xl border border-[#F0CDD7] focus:outline-none focus:border-[#D6204E] focus:ring-2 focus:ring-[#D6204E]/20 bg-[#FFFDFE] transition-all disabled:opacity-50"
-                  />
-                </div>
-              </div>
-            )}
-
             {/* Email */}
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-deep-espresso mb-1.5">
@@ -198,7 +136,7 @@ export function LoginModal({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === 'register' ? 'Minimum 6 characters' : '••••••••'}
+                  placeholder="••••••••"
                   disabled={isLoading}
                   className="w-full pl-10 pr-10 py-3 text-xs sm:text-sm rounded-2xl border border-[#F0CDD7] focus:outline-none focus:border-[#D6204E] focus:ring-2 focus:ring-[#D6204E]/20 bg-[#FFFDFE] transition-all disabled:opacity-50"
                 />
@@ -213,49 +151,18 @@ export function LoginModal({
               </div>
             </div>
 
-            {/* Confirm Password field only in Register mode */}
-            {mode === 'register' && (
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-deep-espresso mb-1.5">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A66B78]" />
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Repeat password"
-                    disabled={isLoading}
-                    className="w-full pl-10 pr-10 py-3 text-xs sm:text-sm rounded-2xl border border-[#F0CDD7] focus:outline-none focus:border-[#D6204E] focus:ring-2 focus:ring-[#D6204E]/20 bg-[#FFFDFE] transition-all disabled:opacity-50"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#7A6B70] hover:text-[#D6204E] transition-colors cursor-pointer"
-                    title={showConfirmPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Remember Me (Only in login mode) */}
-            {mode === 'login' && (
-              <div className="flex items-center justify-between text-xs pt-0.5">
-                <label className="flex items-center gap-2 cursor-pointer select-none text-[#7A6B70]">
-                  <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#D6204E] focus:ring-[#D6204E] accent-[#D6204E]"
-                  />
-                  <span>Remember this device</span>
-                </label>
-              </div>
-            )}
+            {/* Remember Me */}
+            <div className="flex items-center justify-between text-xs pt-0.5">
+              <label className="flex items-center gap-2 cursor-pointer select-none text-[#7A6B70]">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="w-4 h-4 rounded text-[#D6204E] focus:ring-[#D6204E] accent-[#D6204E]"
+                />
+                <span>Remember this device</span>
+              </label>
+            </div>
 
             {/* Submit Button */}
             <button
@@ -266,44 +173,21 @@ export function LoginModal({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>
-                    {mode === 'register' ? 'Registering with Firebase...' : 'Verifying via Firebase...'}
-                  </span>
+                  <span>Verifying via Firebase...</span>
                 </>
               ) : (
                 <>
-                  <span>{mode === 'register' ? 'Create Admin Account' : 'Sign In'}</span>
+                  <span>Sign In</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Quick Footer Switch */}
-          <div className="mt-6 pt-4 border-t border-border-warm/60 text-center">
-            {mode === 'login' ? (
-              <p className="text-xs text-[#7A6B70]">
-                Need to add a new admin account?{' '}
-                <button
-                  type="button"
-                  onClick={() => handleSwitchMode('register')}
-                  className="font-bold text-[#D6204E] hover:underline cursor-pointer"
-                >
-                  Register Here
-                </button>
-              </p>
-            ) : (
-              <p className="text-xs text-[#7A6B70]">
-                Already have an admin account?{' '}
-                <button
-                  type="button"
-                  onClick={() => handleSwitchMode('login')}
-                  className="font-bold text-[#D6204E] hover:underline cursor-pointer"
-                >
-                  Sign In
-                </button>
-              </p>
-            )}
+          {/* Secure Admin Notice */}
+          <div className="mt-6 pt-4 border-t border-border-warm/60 flex items-center justify-center gap-1.5 text-center text-xs text-[#7A6B70]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#D6204E]" />
+            <span>Authorized staff only. Registration is restricted.</span>
           </div>
         </div>
       </div>

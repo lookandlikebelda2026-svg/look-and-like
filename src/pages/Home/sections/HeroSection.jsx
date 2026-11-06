@@ -50,8 +50,8 @@ export function HeroSection({ onNavigate, onOpenBooking }) {
           ) : null}
 
           {/* Soft gradient wash on left and bottom of image for crystal-clear heading contrast */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FFF3F6] via-[#FFF3F6]/85 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-4/5 bg-gradient-to-r from-[#FFF3F6]/90 via-[#FFF3F6]/45 to-transparent" />
+          {/* <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#FFF3F6] via-[#FFF3F6]/85 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-4/5 bg-gradient-to-r from-[#FFF3F6]/90 via-[#FFF3F6]/45 to-transparent" /> */}
 
           {/* "A More Beautiful You" + Action Buttons overlaid on the left of the photo */}
           <div className="absolute inset-0 flex flex-col justify-end items-start text-left px-4 xs:px-5 pb-3 xs:pb-4 z-10">

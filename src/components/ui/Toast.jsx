@@ -30,7 +30,7 @@ export function Toast({
   return (
     <div
       className={cn(
-        "fixed bottom-20 sm:bottom-24 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-white/95 border border-border-warm px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-bottom-4 duration-300 sm:max-w-md",
+        "fixed top-4 sm:top-auto sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-white/95 border border-border-warm px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-top-4 sm:slide-in-from-bottom-4 duration-300 sm:max-w-md",
       )}
       role="status"
       aria-live="polite"

@@ -69,14 +69,14 @@ export function AppRoutes({ onOpenBooking, onNotify }) {
         }
       />
 
-      {/* 3. Redirect /admin/signup and /signup directly to /admin modal in register mode */}
+      {/* 3. Redirect legacy signup routes to /admin */}
       <Route
         path="/admin/signup"
-        element={<Navigate to="/admin?mode=register" replace />}
+        element={<Navigate to="/admin" replace />}
       />
       <Route
         path="/signup"
-        element={<Navigate to="/admin?mode=register" replace />}
+        element={<Navigate to="/admin" replace />}
       />
 
       {/* Redirect /login to /admin to trigger login modal */}

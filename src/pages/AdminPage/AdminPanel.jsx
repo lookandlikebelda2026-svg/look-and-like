@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useContentStorage } from '../../services/contentStorage';
+import { useReviews } from '../../services/reviewFirebaseService';
 import { Layout } from './layout';
 import {
   ServicesSection,
   LookbookSection,
   PartnersSection,
   VideosSection,
+  AdminReviewsSection,
 } from './sections';
 
 /**
  * AdminPanel
- * Master admin studio for managing Parlour Services, Lookbook Editorial Photos, Brand Partners, and YouTube Films.
+ * Master admin studio for managing Parlour Services, Lookbook Editorial Photos, Brand Partners, YouTube Films, and Client Reviews.
  */
 export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const location = useLocation();
@@ -19,7 +21,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
   const [activeTab, setActiveTab] = useState(searchTab || 'services');
 
   useEffect(() => {
-    if (searchTab && ['services', 'lookbook', 'partners', 'videos'].includes(searchTab)) {
+    if (searchTab && ['services', 'lookbook', 'partners', 'videos', 'reviews'].includes(searchTab)) {
       setActiveTab(searchTab);
     }
   }, [searchTab]);
@@ -40,6 +42,15 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
     resetVideos,
   } = useContentStorage();
 
+  // Reviews moderation storage
+  const {
+    reviews,
+    pendingCount,
+    verifyReview,
+    deleteReview,
+    addReview,
+  } = useReviews();
+
   // Total services count
   const totalServicesCount = Array.isArray(servicesData)
     ? servicesData.length
@@ -57,6 +68,7 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
         lookbook: inspiredImages.length,
         partners: partners.length,
         videos: videos.length,
+        reviews: pendingCount,
       }}
     >
       {activeTab === 'services' && (
@@ -91,6 +103,17 @@ export function AdminPanel({ adminUser, onLogout, onNotify }) {
           videos={videos}
           saveVideos={saveVideos}
           resetVideos={resetVideos}
+          onNotify={onNotify}
+        />
+      )}
+
+      {activeTab === 'reviews' && (
+        <AdminReviewsSection
+          reviews={reviews}
+          pendingCount={pendingCount}
+          verifyReview={verifyReview}
+          deleteReview={deleteReview}
+          addReview={addReview}
           onNotify={onNotify}
         />
       )}

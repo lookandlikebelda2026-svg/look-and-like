@@ -1,0 +1,121 @@
+{
+  "hero": {
+    "fileId": "6aedbf81ead997d09a100e45",
+    "name": "hero-banner.png",
+    "size": 1947318,
+    "versionInfo": {
+      "id": "6aedbf81ead997d09a100e45",
+      "name": "Version 1"
+    },
+    "filePath": "/banners/hero-banner.png",
+    "url": "https://ik.imagekit.io/gpuanod0d/banners/hero-banner.png",
+    "fileType": "image",
+    "height": 941,
+    "width": 1672,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/banners/hero-banner.png",
+    "AITags": null,
+    "description": null
+  },
+  "cta": {
+    "fileId": "6aedbf83ead997d09a10313a",
+    "name": "cta-banner.jpg",
+    "size": 567509,
+    "versionInfo": {
+      "id": "6aedbf83ead997d09a10313a",
+      "name": "Version 1"
+    },
+    "filePath": "/banners/cta-banner.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/banners/cta-banner.jpg",
+    "fileType": "image",
+    "height": 768,
+    "width": 1376,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/banners/cta-banner.jpg",
+    "AITags": null,
+    "description": null
+  },
+  "founder1": {
+    "fileId": "6aedbf84ead997d09a104996",
+    "name": "shiuli-award-dev.jpg",
+    "size": 258491,
+    "versionInfo": {
+      "id": "6aedbf84ead997d09a104996",
+      "name": "Version 1"
+    },
+    "filePath": "/founder/shiuli-award-dev.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/founder/shiuli-award-dev.jpg",
+    "fileType": "image",
+    "height": 1024,
+    "width": 682,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/founder/shiuli-award-dev.jpg",
+    "AITags": null,
+    "description": null
+  },
+  "founder2": {
+    "fileId": "6aedbf85ead997d09a1068c4",
+    "name": "shiuli-portrait-red.jpg",
+    "size": 157717,
+    "versionInfo": {
+      "id": "6aedbf85ead997d09a1068c4",
+      "name": "Version 1"
+    },
+    "filePath": "/founder/shiuli-portrait-red.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/founder/shiuli-portrait-red.jpg",
+    "fileType": "image",
+    "height": 1024,
+    "width": 575,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/founder/shiuli-portrait-red.jpg",
+    "AITags": null,
+    "description": null
+  },
+  "founder3": {
+    "fileId": "6aedbf86ead997d09a108bfd",
+    "name": "shiuli-award-koel.jpg",
+    "size": 199461,
+    "versionInfo": {
+      "id": "6aedbf86ead997d09a108bfd",
+      "name": "Version 1"
+    },
+    "filePath": "/founder/shiuli-award-koel.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/founder/shiuli-award-koel.jpg",
+    "fileType": "image",
+    "height": 1024,
+    "width": 682,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/founder/shiuli-award-koel.jpg",
+    "AITags": null,
+    "description": null
+  },
+  "founder4": {
+    "fileId": "6aedbf88ead997d09a10aae7",
+    "name": "shiuli-event-aflairza.jpg",
+    "size": 210048,
+    "versionInfo": {
+      "id": "6aedbf88ead997d09a10aae7",
+      "name": "Version 1"
+    },
+    "filePath": "/founder/shiuli-event-aflairza.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/founder/shiuli-event-aflairza.jpg",
+    "fileType": "image",
+    "height": 682,
+    "width": 1024,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/founder/shiuli-event-aflairza.jpg",
+    "AITags": null,
+    "description": null
+  },
+  "founder5": {
+    "fileId": "6aedbf89ead997d09a10c92a",
+    "name": "shiuli-award-glam2025.jpg",
+    "size": 236936,
+    "versionInfo": {
+      "id": "6aedbf89ead997d09a10c92a",
+      "name": "Version 1"
+    },
+    "filePath": "/founder/shiuli-award-glam2025.jpg",
+    "url": "https://ik.imagekit.io/gpuanod0d/founder/shiuli-award-glam2025.jpg",
+    "fileType": "image",
+    "height": 1024,
+    "width": 682,
+    "thumbnailUrl": "https://ik.imagekit.io/gpuanod0d/tr:n-ik_ml_thumbnail/founder/shiuli-award-glam2025.jpg",
+    "AITags": null,
+    "description": null
+  }
+}

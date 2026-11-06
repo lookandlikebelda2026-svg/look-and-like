@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Image as ImageIcon, Briefcase, Scissors } from 'lucide-react';
+import { Image as ImageIcon, Briefcase, Scissors, Star } from 'lucide-react';
 import { YouTubeIcon } from '../../../components/icons';
 import { getLocalAdminSession, logoutAdmin } from '../../../services/authService';
 
@@ -78,6 +78,13 @@ export function Layout({
       icon: YouTubeIcon,
       count: counts.videos,
     },
+    {
+      id: 'reviews',
+      label: 'Client Reviews',
+      shortLabel: 'Reviews',
+      icon: Star,
+      count: counts.reviews,
+    },
   ];
 
   // Dynamic Header Title Calculation
@@ -91,6 +98,8 @@ export function Layout({
         return 'Brand Partners';
       case 'videos':
         return 'YouTube Films';
+      case 'reviews':
+        return 'Client Reviews';
       default:
         return 'Admin Studio';
     }

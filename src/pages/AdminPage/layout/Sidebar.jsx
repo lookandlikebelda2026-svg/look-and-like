@@ -110,13 +110,16 @@ export function Sidebar({
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  className={`relative w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                     isActive
                       ? 'bg-white text-[#D6204E] shadow-2xs'
                       : 'bg-stone-100/70 text-stone-500 group-hover:bg-white group-hover:text-deep-espresso'
                   }`}
                 >
                   {Icon && <Icon className="w-4 h-4" />}
+                  {sidebarCollapsed && item.count !== undefined && item.count !== null && item.count > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#D6204E] border border-white" />
+                  )}
                 </div>
 
                 {!sidebarCollapsed && (
@@ -124,7 +127,17 @@ export function Sidebar({
                 )}
               </div>
 
-           
+              {!sidebarCollapsed && item.count !== undefined && item.count !== null && item.count > 0 && (
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold shrink-0 ${
+                    isActive
+                      ? 'bg-[#D6204E] text-white'
+                      : 'bg-[#FFF3F6] text-[#D6204E] border border-[#F0CDD7]'
+                  }`}
+                >
+                  {item.count}
+                </span>
+              )}
             </button>
           );
         })}

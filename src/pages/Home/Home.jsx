@@ -2,6 +2,7 @@ import React from 'react';
 import { HeroSection } from './sections/HeroSection';
 import { PartnersSection } from './sections/Partners/PartnersSection';
 import { GetInspiredSection } from './sections/GetInspiredSection';
+import { ReviewsSection } from './sections/ReviewsSection';
 import { ServicesSection } from './sections/services/ServicesSection';
 import { CoursesSection } from './sections/CoursesSection';
 import { ContactSection } from './sections/ContactSection';
@@ -53,7 +54,10 @@ export function Home({ onNavigate, onNotify, onOpenBooking }) {
       {/* 8. ABOUT US */}
       <AboutSection />
 
-      {/* 9. VIDEO */}
+      {/* 9. CLIENT REVIEWS (Directly after About Us) */}
+      <ReviewsSection onNotify={onNotify} />
+
+      {/* 10. VIDEO */}
       <VideoTourSection />
     </div>
   );
